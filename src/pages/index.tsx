@@ -1,9 +1,6 @@
 import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "@next/font/google";
-import styles from "@/styles/Home.module.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import ChatListItem from "@/components/chat-list-item";
+import Chat from "@/components/chat";
 
 export default function Home() {
   return (
@@ -17,15 +14,16 @@ export default function Home() {
       <div className="container">
         <div className="chats">
           <div className="chat-header">
-            <div className="chat-header-avatar"></div>
-
-            <div className="chat-header-info-name">Chats</div>
-            <div className="chat-header-avatar"></div>
+            <h2 className="chat-header-info">Chats</h2>
+            <div className="chat-header-icon chat-header-avatar"></div>
+          </div>
+          <div className="chat-list">
+            {new Array(100).fill(0).map((chatListItem, i) => (
+              <ChatListItem key={i} />
+            ))}
           </div>
         </div>
-        <div className="chat">
-          <div className="chat-header"></div>
-        </div>
+        <Chat />
       </div>
     </>
   );
