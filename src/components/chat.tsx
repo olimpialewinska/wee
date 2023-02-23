@@ -1,3 +1,4 @@
+import { Message } from "./message"
 
 export default function Chat() {
     return(
@@ -13,6 +14,11 @@ export default function Chat() {
                 <div className="chat-header-icon chat-header-icon-menu"></div>
             </div>
             <div className="chat-content">
+                <Message isSelf message={""} time={""} />
+                <Message message={""} time={""} isSelf={false} />
+                 <Message isSelf message={""} time={""} />
+                <Message message={""} time={""} isSelf={false} />
+                
                 </div>
             
                 <div className="chat-input">

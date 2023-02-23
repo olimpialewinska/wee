@@ -1,5 +1,5 @@
 import Head from "next/head";
-import ChatListItem from "@/components/chat-list-item";
+import { ChatListItem } from "@/components/chat-list-item";
 import Chat from "@/components/chat";
 
 export default function Home() {

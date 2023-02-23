@@ -1,4 +1,4 @@
-export default function ChatListItem() {
+export function ChatListItem() {
   return (
     <div className="chat-list-item">
       <div className="chat-list-item-avatar"></div>
