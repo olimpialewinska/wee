@@ -1,4 +1,6 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 /* eslint-disable react/no-unescaped-entities */
+
 import Head from "next/head";
 
 export default function Login() {

@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unescaped-entities */
+import Link from "next/link";
 import Head from "next/head";
 
 export default function Register() {
@@ -6,13 +6,11 @@ export default function Register() {
     <>
       <div className="login-container">
         <div className="login">
-         
-            <a href="/login">
-              <div className="back-arrow"></div>
-            </a>
+          <Link href="/login">
+            <div className="back-arrow"></div>
+          </Link>
 
-            <div className="login-header-icon"></div>
-          
+          <div className="login-header-icon"></div>
 
           <form className="login-content">
             <input

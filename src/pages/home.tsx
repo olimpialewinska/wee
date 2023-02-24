@@ -12,7 +12,18 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="container">
-        <h1>Pigeon</h1>
+        <div className="chats">
+          <div className="chat-header">
+            <h2 className="chat-header-info">Chats</h2>
+            <div className="chat-header-icon chat-header-avatar"></div>
+          </div>
+          <div className="chat-list">
+            {new Array(100).fill(0).map((chatListItem, i) => (
+              <ChatListItem key={i} />
+            ))}
+          </div>
+        </div>
+        <Chat />
       </div>
     </>
   );
