@@ -1,11 +1,12 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 /* eslint-disable react/no-unescaped-entities */
 
-import Head from "next/head";
+import { Navbar } from "@/components/Navbar";
 
 export default function Login() {
   return (
     <>
+     <Navbar />
       <div className="login-container">
         <div className="login">
           <div className="login-header-icon"></div>

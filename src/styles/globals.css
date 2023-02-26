@@ -4,3 +4,81 @@ body {
   color: rgb(255, 255, 255);
   font-family: "Roboto", sans-serif;
 }
+.main-container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.navbar{
+  
+}
+
+
+.navbar-logo{
+ 
+}
+
+.navbar-button{
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 10px;
+  border: none;
+  color: rgb(255, 255, 255);
+  font-size: 16px;
+  padding: 8px 30px;
+  outline: none;
+  border-radius: 24px;
+  font-size: 12px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.2s all;
+  text-decoration: none;
+}
+
+.navbar-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.content{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 160px 30px;
+}
+
+.info{
+  display: flex;
+  flex-direction: column;
+  padding: 0 30px;
+}
+
+.main-image{
+  flex:1;
+  background-color: aqua;
+}
+
+.download-buttons{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 30px 30px;
+}
+
+.download-button{
+  width: 150px;
+  height: 50px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.ios{
+  background-image: url("/ios.svg");
+}
+
+.android{
+  background-image: url("/android.svg");
+}
+
+

@@ -1,6 +1,7 @@
 import Head from "next/head";
-import { ChatListItem } from "@/components/Chat-list-item";
+import { ChatListItem } from "@/components/ChatListItem";
 import Chat from "@/components/Chat";
+
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
       <div className="container">
         <div className="chats">
           <div className="chat-header">
@@ -19,7 +21,7 @@ export default function Home() {
           </div>
           <div className="chat-list">
             {new Array(100).fill(0).map((chatListItem, i) => (
-              <ChatListItem key={i} />
+              <ChatListItem key={i} name={"aa"} time={"12:03"} message={"jxsnsdn"} />
             ))}
           </div>
         </div>
