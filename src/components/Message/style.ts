@@ -6,7 +6,6 @@ interface BaseMessageProps {
 
 export const StyledMessage = styled.div<BaseMessageProps>`
   display: flex;
-  width: 100%;
   flex-direction: row;
   margin: 10px;
   align-items: center;

@@ -23,13 +23,12 @@ export default function Chat() {
       <div className="chat-input">
         <div className="chat-input-icon chat-input-icon-emoji"></div>
         <div className="chat-header-icon chat-input-icon-attachment"></div>
-        <input
-          type="text"
-          className="chat-input-text"
-          placeholder="Type a message"
-        />
 
-        <div className="chat-header-icon chat-header-icon-icon"></div>
+        <div className="message-container">
+          <input className="message-input" placeholder="Type a message"></input>
+          <div className="chat-header-icon chat-header-icon-icon"></div>
+        </div>
+
         <div className="chat-header-icon chat-header-icon-sent"></div>
       </div>
     </div>

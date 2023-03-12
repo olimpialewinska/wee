@@ -1,6 +1,8 @@
+
 /* eslint-disable @next/next/no-html-link-for-pages */
 import Head from "next/head";
 import { Navbar } from "@/components/Navbar";
+import WelcomePage from "@/components/Desktop/WelcomePage";
 
 
 export default function Home() {
@@ -12,35 +14,13 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="main-container">
-        <Navbar/>
-        <div className="content">
-          <div className="info">
-            <h1 className="info-title">Pigeon</h1>
-            <p className="info-description">
-              Pigeon is a simple chat app that allows you to chat with your
-              friends and family.
-            </p>
-            <a href="/register" className="info-button">
-              Get started
-            </a>
-            <div className="download-buttons">
-              <a href="#" className="download-button android"></a>
-              <a href="#" className="download-button ios"></a>
 
-            </div>
-            </div>
-            <div className="main-image">
-              </div>
-              
+    <WelcomePage/>
 
-
+      
+     
           
-
-
-        </div>
-          
-      </div>
+     
     </>
   );
 }

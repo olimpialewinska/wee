@@ -26,10 +26,17 @@
 
 .chat-header {
   padding: 0 24px;
+  padding-left: 18px;
+  padding-right: 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-height: 68px;
+}
+
+.chat-header-icons-container {
+  display: flex;
+  flex-direction: row;
 }
 
 .chat-header-icon {
@@ -51,6 +58,52 @@
 
 .chat-header-avatar {
   background-image: url("/person.svg");
+}
+
+
+.chat-header-newchat {
+  background-image: url("/plus.svg");
+}
+
+.chat-search-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  padding-left: 18px;
+  padding-right: 18px;
+  margin-bottom: 18px;
+}
+
+.chat-search {
+  background-color: rgb(64, 64, 64);
+  width: 100%;
+  padding: 8px;
+  border-radius: 24px;
+  display: flex;
+}
+
+.chat-search-input {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: rgb(255, 255, 255);
+  font-size: 14px;
+  flex: 1;
+  margin: 0;
+  margin-left: 4px;
+}
+
+.chat-list-search {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-size: 18px;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: invert(1);
+  opacity: 0.7;
+  background-image: url("/search.svg");
 }
 
 .chat-header-info {
@@ -88,9 +141,6 @@
   background-image: url("/person.svg");
 }
 
-.chat-header-info-main {
-}
-
 .chat-header-info-status-main {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.5);
@@ -98,6 +148,8 @@
 }
 
 .chat-header-icon-search {
+  width: 24px;
+  height: 24px;
   background-image: url("/search.svg");
 }
 
@@ -134,6 +186,27 @@
   font-size: 14px;
 }
 
+.message-container{
+  flex: 1;
+  background-color: rgb(64, 64, 64);
+  margin: 10px;
+  color: rgb(255, 255, 255);
+  padding: 16px;
+  padding-right: 0;
+  border-radius: 24px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.message-input{
+  background-color: transparent;
+  border: none;
+  flex:1;
+  font-size: 16px;
+  color: #fff;
+}
+
 .chat-header-icon-sent {
   background-image: url("/sent.svg");
   height: auto;
@@ -145,5 +218,4 @@
 
 .chat-header-icon-icon {
   background-image: url("/emoji.svg");
-  height: auto;
 }
