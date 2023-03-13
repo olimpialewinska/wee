@@ -6,6 +6,10 @@ export const StyledNavbar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  @media (max-width: 768px) {
+    padding: 0 10px;
+  }
 `;
 
 export const Brand = styled.a`
@@ -26,7 +30,7 @@ export const Button = styled.a`
   border: none;
   color: rgb(255, 255, 255);
   font-size: 16px;
-  padding: 8px 30px;
+  padding: 12px 30px;
   outline: none;
   border-radius: 24px;
   font-size: 12px;
@@ -34,6 +38,11 @@ export const Button = styled.a`
   cursor: pointer;
   transition: 0.2s all;
   text-decoration: none;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.2);
