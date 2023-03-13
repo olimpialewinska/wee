@@ -1,96 +1,157 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
- width: 100%;
-  height: 100vh;
-  display: flex;`;
-
-export const Chats = styled.div`
-width: 300px;
-  background-color: rgb(54, 54, 54);
-  margin: 20px;
-  border-radius: 10px;
-  display: flex;
+   display: flex;
   flex-direction: column;
-  overflow: hidden;`;
+  flex: 1;
+  background-color: rgb(54, 54, 54);
+  margin: 20px 20px 20px 0;
+  border-radius: 10px;
+  overflow: hidden;
+`;
 
-export const ChatHeader = styled.div`
-padding: 0 24px;
-  padding-left: 18px;
-  padding-right: 6px;
+export const Header = styled.div`
+  background-color: rgba(255, 255, 255, 0.04);
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+
+export const Icon = styled.div`
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: invert(1);
+  cursor: pointer;
+  margin-left:20px;
+  background-image: url("/person.svg");
+`;
+
+export const Info = styled.div``;
+export const Name = styled.div``;
+export const Status = styled.div`
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+`;
+
+export const Flex = styled.div`
+  flex: 1;
+`;
+
+export const Search = styled.div`
+  border-radius: 50%;
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.1s all;
+  width: 24px;
+  height: 24px;
+  background-image: url("/search.svg");
+  padding: 20px;
+`;
+export const Menu = styled.div`
+  border-radius: 50%;
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.1s all;
+  width: 24px;
+  height: 24px;
+  background-image: url("/menu.svg");
+  padding: 20px 0px 20px 20px;
+`;
+
+export const ChatContent = styled.div`
+  flex: 1;
+  width: 100%;
+  display: flex;
+  overflow: auto;
+  flex-direction: column;
+`;
+
+export const ChatInput = styled.div`
+  height: 60px;
+  background-color: rgb(54, 54, 54);
+  display: flex;
+  flex-direction: row;
+  padding: 0 10px;
+`;
+
+export const Attachment = styled.div`
+  border-radius: 50%;
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.1s all;
+  width: 24px;
+  height: 24px;
+  background-image: url("/attach.svg");
+  height: auto;
+`;
+
+export const MessageContainer = styled.div`
+  flex: 1;
+  background-color: rgb(64, 64, 64);
+  margin: 10px;
+  color: rgb(255, 255, 255);
+  padding: 16px;
+  padding-right: 16p;
+  border-radius: 24px;
+  font-size: 14px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  min-height: 68px;`;
+`;
 
-export const ChatHeaderInfo = styled.div`font-weight: bold;
-font-size: 20px;
-color: rgb(255, 255, 255);`;
-
-export const ChatHeaderIconsContainer = styled.div`
-display: flex;
-  flex-direction: row;`;
-
-export const NewChat = styled.div`
-width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background-size: 24px;
-  background-repeat: no-repeat;
-  background-position: center;
-  filter: invert(1);
-  cursor: pointer;
-  opacity: 0.7;
-  transition: 0.1s all;
-  background-image: url("/plus.svg");`;
-
-export const Avatar = styled.div`
-width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background-size: 24px;
-  background-repeat: no-repeat;
-  background-position: center;
-  filter: invert(1);
-  cursor: pointer;
-  opacity: 0.7;
-  transition: 0.1s all;
-
-background-image: url("/person.svg");`;
-
-export const ChatSearchContainer= styled.div`
- display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-  padding-left: 18px;
-  padding-right: 18px;
-  margin-bottom: 18px;`;
-
-
-export const ChatSearch = styled.div`background-color: rgb(64, 64, 64);
-width: 100%;
-padding: 8px;
-border-radius: 24px;
-display: flex;`;
-
-export const ChatSearchInput = styled.input`
+export const MessageInput = styled.input`
   background-color: transparent;
   border: none;
-  outline: none;
-  color: rgb(255, 255, 255);
-  font-size: 14px;
   flex: 1;
-  margin: 0;
-  margin-left: 4px;`;
+  font-size: 16px;
+  color: #fff;
+`;
 
-export const ChatListSearch = styled.div`
-width: 18px;
-  height: 18px;
+export const Emoji = styled.div`
   border-radius: 50%;
-  background-size: 18px;
+  background-size: 24px;
   background-repeat: no-repeat;
   background-position: center;
   filter: invert(1);
+  cursor: pointer;
   opacity: 0.7;
-  background-image: url("/search.svg");`;
+  transition: 0.1s all;
+  width: 24px;
+  height: 24px;
+  background-image: url("/emoji.svg");
+`;
+
+export const Send = styled.div`
+  border-radius: 50%;
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.1s all;
+  width: 24px;
+  height: 24px;
+
+  background-image: url("/sent.svg");
+
+  height: auto;
+`;

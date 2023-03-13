@@ -1,7 +1,5 @@
 import "@/styles/globals.css";
 import "@/styles/login.css";
-import "@/styles/home.css";
-import "@/styles/profile.css";
 
 import type { AppProps } from "next/app";
 import "typeface-roboto";
