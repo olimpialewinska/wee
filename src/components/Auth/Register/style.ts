@@ -24,7 +24,7 @@ export const RegisterHeaderIcon = styled.div`
   margin: 30px;
 `;
 
-export const RegisterContent = styled.div`
+export const RegisterContent = styled.form`
   display: flex;
   flex-direction: column;
   justify-content: center;

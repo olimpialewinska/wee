@@ -1,12 +1,21 @@
 
-import {ChatListView} from "../../components/Desktop/ChatListView";
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
+import { ChatListView } from '@/components/Desktop/ChatListView'
+import Login from '../login'
 
-import { ChatListItem } from "../../components/ChatListItem";
 
-export default function Chats() {
+export default function Home() {
+  const session = useSession()
+  const supabase = useSupabaseClient()
+
   return (
-    <>
-      <ChatListView/>
-    </>
-  );
+    <div className="container">
+      {!session ? (
+         <Login/>
+      ) : (
+        <ChatListView/>
+      )}
+    </div>
+  )
 }
+

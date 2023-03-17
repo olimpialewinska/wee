@@ -1,5 +1,9 @@
 import styled from "styled-components";
 
+interface AvatarProp{
+  avatar_url: string
+}
+
 export const Container = styled.div`
  width: 100%;
   height: 100vh;
@@ -17,7 +21,7 @@ width: 300px;
 export const ChatHeader = styled.div`
 padding: 0 24px;
   padding-left: 18px;
-  padding-right: 6px;
+  padding-right: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -55,8 +59,7 @@ width: 42px;
   cursor: pointer;
   opacity: 0.7;
   transition: 0.1s all;
-
-background-image: url("/person.svg");`;
+`;
 
 export const ChatSearchContainer= styled.div`
  display: flex;
