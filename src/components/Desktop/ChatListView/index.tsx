@@ -24,18 +24,7 @@ import {
   useSupabaseClient,
   Session,
 } from "@supabase/auth-helpers-react";
-
-interface Data {
-  id: string;
-  name: string | null;
-  lastMessage: {
-    id: number;
-    value: string | null;
-    createdAt: string | null;
-  } | null;
-  otherUserId: string | null | undefined;
-  image: string;
-}
+import { Data } from "@/interfaces";
 
 export function ChatListView({ session }: { session: Session }) {
   const supabase = useSupabaseClient<Database>();
@@ -52,6 +41,18 @@ export function ChatListView({ session }: { session: Session }) {
     getConversationsWithProfiles();
     setChat(conversationsWithProfiles[0]);
     getProfile();
+    console.log(user?.id);
+
+    const chatsWatcher = supabase
+      .channel("custom-all-channel")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "conversation" },
+        async () => {
+          console.log("chats changed");
+        }
+      )
+      .subscribe();
   }, [session]);
 
   async function getConversationsWithProfiles() {
@@ -83,8 +84,7 @@ export function ChatListView({ session }: { session: Session }) {
         "conversation_id",
         conversations.map((c) => c.id)
       )
-      .order("created_at", { ascending: false })
-      .limit(1);
+      .order("created_at", { ascending: false });
 
     if (!messages) {
       return;
@@ -129,7 +129,7 @@ export function ChatListView({ session }: { session: Session }) {
     });
 
     setConversationsWithProfiles(data);
-    setChat(data[0])
+    setChat(data[0]);
   }
 
   async function getProfile() {
@@ -181,22 +181,16 @@ export function ChatListView({ session }: { session: Session }) {
               time={"12:03"}
               message={chatListItem.lastMessage?.value}
               image={chatListItem.image}
-              onClick={ () => console.log("dupa")}
+              onClick={() => {
+                setChat(chatListItem);
+              }}
             />
           ))}
-          <ChatListItem
-            onClick={() => console.log("xd")}
-            name={""}
-            message={""}
-            time={""}
-            image={""}
-          />
         </ChatList>
       </Chats>
-      {
-        chat && <Chat id={chat.id} name={chat.name}  />
-      }
-    
+      {chat && (
+        <Chat id={chat.id} name={chat.name} otherUserId={chat.otherUserId} />
+      )}
     </Container>
   );
 }
