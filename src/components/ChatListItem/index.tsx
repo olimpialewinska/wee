@@ -12,12 +12,13 @@ interface ChatListItemProps {
   message: string | null | undefined;
   time: string;
   image: string;
-  onClick: () => void;
+  onClick: () => void; 
+
 }
 
 export function ChatListItem(props: ChatListItemProps) {
   return (
-    <StyledChatListItem>
+    <StyledChatListItem onClick={props.onClick}>
       <Avatar style={{backgroundImage:
         `url(${props.image})`}}
       />

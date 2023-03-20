@@ -139,7 +139,7 @@ export const Emoji = styled.div`
   background-image: url("/emoji.svg");
 `;
 
-export const Send = styled.div`
+export const Send = styled.button`
   border-radius: 50%;
   background-size: 24px;
   background-repeat: no-repeat;
@@ -150,8 +150,8 @@ export const Send = styled.div`
   transition: 0.1s all;
   width: 24px;
   height: 24px;
-
   background-image: url("/sent.svg");
-
   height: auto;
+  border: none;
+  background-color: transparent;
 `;
