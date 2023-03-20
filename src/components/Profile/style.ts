@@ -56,8 +56,7 @@ export const Content = styled.div`
 `;
 
 export const Button = styled.button`
-
-background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.1);
   margin: 10px;
   border: none;
   color: rgb(255, 255, 255);
@@ -70,11 +69,10 @@ background-color: rgba(255, 255, 255, 0.1);
   cursor: pointer;
   transition: 0.2s all;
   text-decoration: none;
-  display:flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.2);
@@ -82,8 +80,7 @@ background-color: rgba(255, 255, 255, 0.1);
 `;
 
 export const SignOut = styled.button`
-
-background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 17, 0, 0.2);
   margin: 10px;
   border: none;
   color: rgb(255, 255, 255);
@@ -96,20 +93,18 @@ background-color: rgba(255, 255, 255, 0.1);
   cursor: pointer;
   transition: 0.2s all;
   text-decoration: none;
-  display:flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
   margin-top: 40px;
 
-
   &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 17, 0, 0.3);
   }
 `;
 
 export const Input = styled.input`
-
   background-color: rgba(255, 255, 255, 0.1);
   margin: 10px;
   border: none;
@@ -119,15 +114,13 @@ export const Input = styled.input`
   outline: none;
   border-radius: 24px;
   font-size: 14px;
-    width: 70%;
+  width: 70%;
 `;
 
 export const Form = styled.div`
-margin-top: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width:100%
+  width: 100%;
 `;
-

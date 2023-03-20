@@ -47,6 +47,7 @@ width: 42px;
   opacity: 0.7;
   transition: 0.1s all;
   background-image: url("/plus.svg");`;
+  
 
 export const Avatar = styled.div`
 width: 42px;

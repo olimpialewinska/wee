@@ -6,7 +6,7 @@ import {
   Register,
   RegisterContent,
   RegisterHeaderIcon,
-} from "./style";
+} from "../authFormStyle";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 export function RegisterView() {

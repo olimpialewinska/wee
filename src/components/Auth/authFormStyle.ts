@@ -71,4 +71,74 @@ export const Container = styled.div`
   align-items: center;
   justify-content: center;
   flex: 1;
+  height:80vh;
 `;
+
+export const Login = styled.div`
+  width: 400px;
+  background-color: #fff;
+  border-radius: 10px;
+  background-color: rgb(54, 54, 54);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+
+  @media (max-width: 768px) {
+    width: 80% !important;
+  }
+`;
+
+export const LoginHeaderIcon = styled.div`
+  width: 42px;
+  height: 42px;
+  background-color: aqua;
+  margin: 30px;
+`;
+
+export const LoginContent = styled.form`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+`;
+
+
+export const LoginFooter = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 30px 0;
+`;
+
+export const Text = styled.div`
+  font-size: 14px;
+`;
+
+export const Href = styled.div`
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-size: 14px;
+  transition: 0.1s all;
+  margin-left: 8px;
+`;
+
+export const ParagraphWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+`;
+
+
+
+
+
+ 
+ 
+
+

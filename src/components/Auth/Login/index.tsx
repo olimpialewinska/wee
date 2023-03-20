@@ -13,7 +13,8 @@ import {
   LoginContent,
   LoginFooter,
   Href,
-} from "./style";
+  ParagraphWrapper,
+} from  "../authFormStyle";
 
 export function LoginView() {
   const [password, setPassword] = useState("");
@@ -47,10 +48,15 @@ export function LoginView() {
             <Button type="submit">Log in</Button>
           </LoginContent>
           <LoginFooter>
-            <Text>Don't have an acoount? </Text>{" "}
+            <ParagraphWrapper><Text>Don't have an acoount? </Text>{" "}
             <Link href="/register">
               <Href>Sign up!</Href>
-            </Link>
+            </Link></ParagraphWrapper>
+            
+            <ParagraphWrapper><Text>Have you forgotten your password? </Text>{" "}
+            <Link href="/forgottenPassword">
+              <Href>Remind me!</Href>
+            </Link></ParagraphWrapper>
           </LoginFooter>
         </Login>
       </Container>

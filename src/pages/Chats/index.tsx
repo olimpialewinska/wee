@@ -9,13 +9,13 @@ export default function Home() {
   const supabase = useSupabaseClient()
 
   return (
-    <div className="container">
+    <>
       {!session ? (
          <Login/>
       ) : (
         <ChatListView/>
       )}
-    </div>
+    </>
   )
 }
 

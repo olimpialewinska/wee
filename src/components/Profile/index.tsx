@@ -7,7 +7,17 @@ import {
 } from "@supabase/auth-helpers-react";
 import { Database } from "../../types/supabase";
 import Avatar from "@/components/Avatar";
-import { Arrow, Button, Container, Content, Input, SignOut, WidgetForm, Wrapper, Form } from "./style";
+import {
+  Arrow,
+  Button,
+  Container,
+  Content,
+  Input,
+  SignOut,
+  WidgetForm,
+  Wrapper,
+  Form,
+} from "./style";
 import Link from "next/link";
 type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
 
@@ -30,7 +40,7 @@ export default function Profile({ session }: { session: Session }) {
 
       let { data, error, status } = await supabase
         .from("profiles")
-        .select(`username, website, avatar_url`)
+        .select(`username, website, avatar_url, name, lastName`)
         .eq("id", user.id)
         .single();
 
@@ -101,41 +111,24 @@ export default function Profile({ session }: { session: Session }) {
               }}
             />
             <Form>
-            <label htmlFor="email">Email</label>
-            <Input id="email" type="text" value={user?.email} disabled />
-         
-      
-            <label htmlFor="username">Username</label>
-            <Input
-              id="username"
-              type="text"
-              value={username || ""}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          
-        
-            <label htmlFor="website">Website</label>
-            <Input
-              id="website"
-              type="website"
-              value={website || ""}
-              onChange={(e) => setWebsite(e.target.value)}
-            />
+              <Input id="email" type="text" value={user?.email} disabled />
+              <Input
+                id="username"
+                type="text"
+                value={username || ""}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
+              />
 
             </Form>
-            
-         
 
-         
             <Button
               onClick={() => updateProfile({ username, website, avatar_url })}
               disabled={loading}
             >
               {loading ? "Loading ..." : "Update"}
             </Button>
-       
 
-          
             <SignOut
               className="button block"
               onClick={async () => {
@@ -146,14 +139,8 @@ export default function Profile({ session }: { session: Session }) {
               Sign Out
             </SignOut>
           </WidgetForm>
-          <div>
-        
-            
-        
-        </div>
+          <div></div>
         </Content>
-
-        
       </Wrapper>
     </Container>
   );
