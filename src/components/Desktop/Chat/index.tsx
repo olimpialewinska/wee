@@ -25,11 +25,15 @@ import {
 } from "./style";
 
 import { MessageInterface } from "../../../interfaces";
+import { ChatSettingsModal } from "@/components/Desktop/ChatSettingsModal";
 
 interface ChatProps {
   id: number;
   name: string | null;
   otherUserId: string | null | undefined;
+  image: string | null;
+  bgColor: string;
+  color: string;
 }
 
 export function Chat(props: ChatProps) {
@@ -41,6 +45,9 @@ export function Chat(props: ChatProps) {
 
   const chatContentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const [show, setShow] = useState(false);
+  const [currentImage, setCurrentImage] = useState("");
 
   useEffect(() => {
     getMessages(Number(props.id));
@@ -69,7 +76,7 @@ export function Chat(props: ChatProps) {
 
     return () => {
       messagesWatcher.unsubscribe();
-    }
+    };
   }, [props.id]);
 
   let shouldScrollDown = useRef(false);
@@ -107,11 +114,19 @@ export function Chat(props: ChatProps) {
     }
   }, [messageText]);
 
-  const onInputKeyUp = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      sendMessage();
-    }
-  }, [sendMessage]);
+  const onInputKeyUp = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    },
+    [sendMessage]
+  );
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => {
+    setShow(true);
+  };
 
   return (
     <Container>
@@ -123,15 +138,21 @@ export function Chat(props: ChatProps) {
         </Info>
         <Flex />
         <Search />
-        <Menu />
+        <Menu onClick={handleShow} />
       </Header>
-      <ChatContent ref={chatContentRef}>
+      <ChatContent
+        ref={chatContentRef}
+        style={{
+          backgroundColor: props.bgColor,
+        }}
+      >
         {messages?.map((message: MessageInterface) => (
           <Message
             key={message.id}
             message={message.value}
             time={message.created_at!}
             isSelf={message.sender === user?.id}
+            color={props.color}
           />
         ))}
       </ChatContent>
@@ -148,6 +169,15 @@ export function Chat(props: ChatProps) {
         </MessageContainer>
         <Send onClick={sendMessage} />
       </ChatInput>
+      <ChatSettingsModal
+        visible={show}
+        hide={handleClose}
+        conversationId={props.id}
+        image={""}
+        name={props.name}
+        bgColor={props.bgColor}
+        color={props.color}
+      />
     </Container>
   );
 }

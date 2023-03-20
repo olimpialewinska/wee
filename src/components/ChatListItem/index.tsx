@@ -10,23 +10,27 @@ import {
 interface ChatListItemProps {
   name: string | null;
   message: string | null | undefined;
-  time: string;
+  time: string | number | Date;
   image: string;
-  onClick: () => void; 
-
+  onClick: () => void;
 }
 
 export function ChatListItem(props: ChatListItemProps) {
+  //get hour and minutes from time
+  const time = new Date(props.time);
+  const hour = time.getHours();
+  const minutes = time.getMinutes();
+
   return (
     <StyledChatListItem onClick={props.onClick}>
-      <Avatar style={{backgroundImage:
-        `url(${props.image})`}}
-      />
+      <Avatar style={{ backgroundImage: `url(${props.image})` }} />
       <Info>
         <InfoName>{props.name}</InfoName>
         <Message>{props.message}</Message>
       </Info>
-      <Time>{props.time}</Time>
+      <Time>
+        {hour < 10 ? "0" + hour : hour}:{minutes < 10 ? "0" + minutes : minutes}
+      </Time>
     </StyledChatListItem>
   );
 }

@@ -13,37 +13,43 @@ export interface Database {
         Row: {
           conversation_id: number | null
           id: number
-          user_id: number | null
+          user_id: string | null
           user_lastName: string | null
           user_name: string | null
         }
         Insert: {
           conversation_id?: number | null
           id?: number
-          user_id?: number | null
+          user_id?: string | null
           user_lastName?: string | null
           user_name?: string | null
         }
         Update: {
           conversation_id?: number | null
           id?: number
-          user_id?: number | null
+          user_id?: string | null
           user_lastName?: string | null
           user_name?: string | null
         }
       }
       conversation: {
         Row: {
+          bg_color: string | null
+          color: string | null
           created_at: string | null
           id: number
           name: string | null
         }
         Insert: {
+          bg_color?: string | null
+          color?: string | null
           created_at?: string | null
           id?: number
           name?: string | null
         }
         Update: {
+          bg_color?: string | null
+          color?: string | null
           created_at?: string | null
           id?: number
           name?: string | null

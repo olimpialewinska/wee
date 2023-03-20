@@ -41,15 +41,25 @@ export function ChatListView({ session }: { session: Session }) {
     getConversationsWithProfiles();
     setChat(conversationsWithProfiles[0]);
     getProfile();
-    console.log(user?.id);
+    console.log(conversationsWithProfiles);
 
     const chatsWatcher = supabase
       .channel("custom-all-channel")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "conversation" },
-        async () => {
+        async (payload) => {
           console.log("chats changed");
+          console.log(payload);
+          getConversationsWithProfiles();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages" },
+        async (payload) => {
+          console.log(payload);
+          getConversationsWithProfiles();
         }
       )
       .subscribe();
@@ -67,7 +77,7 @@ export function ChatListView({ session }: { session: Session }) {
 
     const { data: conversations } = await supabase
       .from("conversation")
-      .select("id, name")
+      .select("id, name, bg_color, color")
       .in(
         "id",
         conversationsOfUser.data.map((x) => x.conversation_id)
@@ -103,9 +113,8 @@ export function ChatListView({ session }: { session: Session }) {
     if (!profiles) {
       return;
     }
-
     const data = conversations.map((conv) => {
-      const lastMessage = messages.find((m) => m.conversation_id === conv.id);
+      const lastMessage = messages.find((m) => m.conversation_id === conv.id); 
       const otherUserId =
         lastMessage?.sender !== user?.id
           ? lastMessage?.sender
@@ -116,6 +125,8 @@ export function ChatListView({ session }: { session: Session }) {
       return {
         id: conv.id,
         name: conv.name,
+        bgColor: conv.bg_color,
+        color: conv.color,
         lastMessage: lastMessage
           ? {
               id: lastMessage.id,
@@ -178,7 +189,7 @@ export function ChatListView({ session }: { session: Session }) {
             <ChatListItem
               key={i}
               name={chatListItem.name}
-              time={"12:03"}
+              time={chatListItem.lastMessage?.createdAt!}
               message={chatListItem.lastMessage?.value}
               image={chatListItem.image}
               onClick={() => {
@@ -189,7 +200,14 @@ export function ChatListView({ session }: { session: Session }) {
         </ChatList>
       </Chats>
       {chat && (
-        <Chat id={chat.id} name={chat.name} otherUserId={chat.otherUserId} />
+        <Chat
+          id={chat.id}
+          name={chat.name}
+          otherUserId={chat.otherUserId}
+          bgColor={chat.bgColor}
+          color={chat.color}
+          image={chat.image}
+        />
       )}
     </Container>
   );

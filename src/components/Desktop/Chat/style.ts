@@ -123,6 +123,11 @@ export const MessageInput = styled.input`
   flex: 1;
   font-size: 16px;
   color: #fff;
+
+  &:focus{
+    outline: none;
+  }
+
 `;
 
 export const Emoji = styled.div`

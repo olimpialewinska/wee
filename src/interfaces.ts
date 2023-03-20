@@ -1,4 +1,6 @@
 export interface Data {
+  color: any;
+  bgColor: any;
   id: number;
   name: string | null;
   lastMessage: {
