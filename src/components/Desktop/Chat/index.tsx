@@ -47,7 +47,6 @@ export function Chat(props: ChatProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [show, setShow] = useState(false);
-  const [currentImage, setCurrentImage] = useState("");
 
   useEffect(() => {
     getMessages(Number(props.id));
@@ -146,15 +145,16 @@ export function Chat(props: ChatProps) {
           backgroundColor: props.bgColor,
         }}
       >
-        {messages?.map((message: MessageInterface) => (
-          <Message
+        {messages?.map((message: MessageInterface) => {
+          
+         return  <Message
             key={message.id}
             message={message.value}
             time={message.created_at!}
             isSelf={message.sender === user?.id}
             color={props.color}
           />
-        ))}
+})}
       </ChatContent>
       <ChatInput>
         <Attachment />

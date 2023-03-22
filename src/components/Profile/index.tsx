@@ -95,7 +95,7 @@ export default function Profile({ session }: { session: Session }) {
 
   return (
     <Container>
-      <Link href="/Chats">
+      <Link href="/Chats/">
         <Arrow />
       </Link>
       <Wrapper>

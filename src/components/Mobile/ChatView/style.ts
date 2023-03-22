@@ -26,7 +26,7 @@ background-position: center;
 filter: invert(1);
 cursor: pointer;
 margin: 10px;
-background-image: url("/left-arrow.svg");`;
+background-image: url("/back-arrow.svg");`;
 
 
 export const Icon = styled.div`

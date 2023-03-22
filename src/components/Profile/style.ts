@@ -26,7 +26,7 @@ export const Arrow = styled.div`
   height: 42px;
   border-radius: 50%;
   background-size: 24px;
-  background-image: url("/left-arrow.svg");
+  background-image: url("/close.svg");
   background-repeat: no-repeat;
   background-position: center;
   filter: invert(1);

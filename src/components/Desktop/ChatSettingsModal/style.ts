@@ -23,6 +23,7 @@ export const Wrapper = styled.div`
   flex-direction: column;
   overflow: hidden;
   transition: 0.2s transform;
+  position: relative;
 `;
 
 export const Header = styled.div`
@@ -120,9 +121,10 @@ export const Close = styled.div`
   cursor: pointer;
   opacity: 0.7;
   transition: 0.1s all;
-  background-image: url("/left-arrow.svg");
-  top: 20px;
-  right: 20px;
+  background-image: url("/close.svg");
+  top: 10px;
+  right:10px;
+  position: absolute;
 
   &:hover {
     opacity: 1;

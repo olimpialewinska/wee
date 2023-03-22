@@ -21,3 +21,11 @@ export interface MessageInterface {
   receiver: string | null;
   created_at: string | null;
 }
+
+export interface Profile{
+  id: string;
+  username: string | null;
+  avatar_url: string | null;
+  name: string | null;
+  lastName: string | null
+}

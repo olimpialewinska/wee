@@ -16,7 +16,7 @@ export default function Login() {
           <LoginView />
         </>
       ) : (
-        (window.location.href = "/Chats")
+        (window.location.href = "/Chats/")
       )}
     </>
   );

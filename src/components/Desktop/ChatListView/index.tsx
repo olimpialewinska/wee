@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Chat } from "@/components/Desktop/Chat";
 import { ChatListItem } from "@/components/ChatListItem";
@@ -16,7 +17,7 @@ import {
 } from "./style";
 import Link from "next/link";
 import { Database } from "../../../types/supabase";
-import { Key, useEffect, useState } from "react";
+import { Key, useEffect, useRef, useState } from "react";
 type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
 import { Avatar } from "./Avatar";
 import {
@@ -25,8 +26,13 @@ import {
   Session,
 } from "@supabase/auth-helpers-react";
 import { Data } from "@/interfaces";
+import { NewChatModal } from "../NewChatModal";
+import { useRouter } from "next/router";
 
 export function ChatListView({ session }: { session: Session }) {
+  const router = useRouter();
+  const chatId = Number(router.query.id as string);
+
   const supabase = useSupabaseClient<Database>();
   const user = useUser();
   const [loading, setLoading] = useState(true);
@@ -36,36 +42,35 @@ export function ChatListView({ session }: { session: Session }) {
     Data[]
   >([]);
   const [chat, setChat] = useState<Data>();
+  const [show, setShow] = useState(false);
+  const chatsWatcher = useRef<any>();
 
   useEffect(() => {
-    getConversationsWithProfiles();
-    setChat(conversationsWithProfiles[0]);
+    getConversationsWithProfiles(chatId);
+    setChat(conversationsWithProfiles.find((c) => c.id === chatId));
     getProfile();
-    console.log(conversationsWithProfiles);
 
-    const chatsWatcher = supabase
+    chatsWatcher.current?.unsubscribe();
+    chatsWatcher.current = supabase
       .channel("custom-all-channel")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "conversation" },
         async (payload) => {
-          console.log("chats changed");
-          console.log(payload);
-          getConversationsWithProfiles();
+          getConversationsWithProfiles(chatId);
         }
       )
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "messages" },
         async (payload) => {
-          console.log(payload);
-          getConversationsWithProfiles();
+          getConversationsWithProfiles(chatId);
         }
       )
       .subscribe();
-  }, [session]);
+  }, [chatId]);
 
-  async function getConversationsWithProfiles() {
+  async function getConversationsWithProfiles(chatId: number) {
     const conversationsOfUser = await supabase
       .from("conv_members")
       .select("conversation_id")
@@ -114,7 +119,7 @@ export function ChatListView({ session }: { session: Session }) {
       return;
     }
     const data = conversations.map((conv) => {
-      const lastMessage = messages.find((m) => m.conversation_id === conv.id); 
+      const lastMessage = messages.find((m) => m.conversation_id === conv.id);
       const otherUserId =
         lastMessage?.sender !== user?.id
           ? lastMessage?.sender
@@ -122,6 +127,7 @@ export function ChatListView({ session }: { session: Session }) {
       const otherUserImage =
         profiles.find((p) => p.id === otherUserId)?.avatar_url ?? null;
       const image = process.env.NEXT_PUBLIC_SUPABASE_URL + "/" + otherUserImage;
+
       return {
         id: conv.id,
         name: conv.name,
@@ -138,9 +144,14 @@ export function ChatListView({ session }: { session: Session }) {
         image,
       };
     });
-
-    setConversationsWithProfiles(data);
-    setChat(data[0]);
+    console.log(data);
+    setConversationsWithProfiles(data.sort((a, b) => {
+      if (!a.lastMessage || !b.lastMessage) {
+        return 0;
+      }
+      return new Date(b.lastMessage.createdAt!).getTime() - new Date(a.lastMessage.createdAt!).getTime();
+    }));
+    setChat(data.find((c) => c.id === chatId));
   }
 
   async function getProfile() {
@@ -166,6 +177,11 @@ export function ChatListView({ session }: { session: Session }) {
     }
   }
 
+  const handleClose = () => setShow(false);
+  const handleShow = () => {
+    setShow(true);
+  };
+
   return (
     <Container>
       <Chats>
@@ -175,7 +191,7 @@ export function ChatListView({ session }: { session: Session }) {
           </Link>
           <ChatHeaderInfo>Chats</ChatHeaderInfo>
           <ChatHeaderIconsContainer>
-            <NewChat />
+            <NewChat onClick={handleShow} />
           </ChatHeaderIconsContainer>
         </ChatHeader>
         <ChatSearchContainer>
@@ -193,7 +209,7 @@ export function ChatListView({ session }: { session: Session }) {
               message={chatListItem.lastMessage?.value}
               image={chatListItem.image}
               onClick={() => {
-                setChat(chatListItem);
+                router.push(`/Chats/${chatListItem.id}`);
               }}
             />
           ))}
@@ -209,6 +225,7 @@ export function ChatListView({ session }: { session: Session }) {
           image={chat.image}
         />
       )}
+      <NewChatModal visible={show} hide={handleClose} />
     </Container>
   );
 }

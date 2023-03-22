@@ -36,15 +36,18 @@ function ChatSettingsModal(props: ModalProps) {
   const [backgroundColor, setBackgroundColor] = useState(props.bgColor);
 
   const saveChanges = useCallback(async () => {
-    const { data: colors } = await supabase
+    await supabase
       .from("conversation")
       .update({ bg_color: backgroundColor, color: color })
       .eq("id", props.conversationId);
 
-    if (colors) {
-      props.hide();
-    }
+    props.hide();
   }, [backgroundColor, color, props, supabase]);
+
+  useEffect(() => {
+    setColor(props.color);
+    setBackgroundColor(props.bgColor);
+  }, [props.color, props.bgColor]);
 
   return (
     <>
@@ -69,7 +72,7 @@ function ChatSettingsModal(props: ModalProps) {
               <Label>Background color:</Label>
               <BackgroundColor
                 type="color"
-                value={backgroundColor}
+                value={props.bgColor}
                 onChange={(e) => setBackgroundColor(e.target.value)}
               />
             </Item>
