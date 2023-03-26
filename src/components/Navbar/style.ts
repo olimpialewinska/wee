@@ -13,9 +13,13 @@ export const StyledNavbar = styled.div`
 `;
 
 export const Brand = styled.a`
-  background-color: rgb(75, 75, 75);
   width: 150px;
   height: 40px;
+  background-image:url("/wee.png");
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  filter:invert(1);
   cursor: pointer;
 `;
 

@@ -107,7 +107,7 @@ export function ChatListView({ session }: { session: Session }) {
 
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("id, avatar_url, username")
+      .select("id, avatar_url, username, full_name")
       .in(
         "id",
         messages
@@ -120,10 +120,22 @@ export function ChatListView({ session }: { session: Session }) {
     }
     const data = conversations.map((conv) => {
       const lastMessage = messages.find((m) => m.conversation_id === conv.id);
+
+    
+
+
+
+
+
+
+
+
       const otherUserId =
         lastMessage?.sender !== user?.id
           ? lastMessage?.sender
           : lastMessage?.receiver;
+
+
       const otherUserImage =
         profiles.find((p) => p.id === otherUserId)?.avatar_url ?? null;
       const image = process.env.NEXT_PUBLIC_SUPABASE_URL + "/" + otherUserImage;
@@ -141,10 +153,13 @@ export function ChatListView({ session }: { session: Session }) {
             }
           : null,
         otherUserId,
+        otherUserImage:
+          profiles.find((p) => p.id === otherUserId)?.avatar_url,
+        otherUserName:
+          profiles.find((p) => p.id === otherUserId)?.full_name ?? null,
         image,
       };
     });
-    console.log(data);
     setConversationsWithProfiles(data.sort((a, b) => {
       if (!a.lastMessage || !b.lastMessage) {
         return 0;
@@ -207,7 +222,7 @@ export function ChatListView({ session }: { session: Session }) {
               name={chatListItem.name}
               time={chatListItem.lastMessage?.createdAt!}
               message={chatListItem.lastMessage?.value}
-              image={chatListItem.image}
+              image={chatListItem.otherUserImage}
               onClick={() => {
                 router.push(`/Chats/${chatListItem.id}`);
               }}
@@ -222,7 +237,7 @@ export function ChatListView({ session }: { session: Session }) {
           otherUserId={chat.otherUserId}
           bgColor={chat.bgColor}
           color={chat.color}
-          image={chat.image}
+          image={chat.otherUserImage}
         />
       )}
       <NewChatModal visible={show} hide={handleClose} />

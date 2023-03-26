@@ -20,15 +20,16 @@ export const Header = styled.div`
 
 
 export const Icon = styled.div`
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   filter: invert(1);
   cursor: pointer;
   margin-left:20px;
+  margin-right: 20px;
   background-image: url("/person.svg");
 `;
 

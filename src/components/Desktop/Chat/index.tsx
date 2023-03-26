@@ -31,7 +31,7 @@ interface ChatProps {
   id: number;
   name: string | null;
   otherUserId: string | null | undefined;
-  image: string | null;
+  image: string | null | undefined;
   bgColor: string;
   color: string;
 }
@@ -47,12 +47,25 @@ export function Chat(props: ChatProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [show, setShow] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState("/person.svg");
+
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
     getMessages(Number(props.id));
 
+    if (props.image) {
+      downloadImage(props.image);
+    }
+
     const messagesWatcher = supabase
-      .channel(`chanel-${props.id}`)
+      .channel(`chanel-${props.id}`, {
+        config: {
+          presence: {
+            key: `${user?.id}`,
+          },
+        },
+      })
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "messages" },
@@ -71,7 +84,45 @@ export function Chat(props: ChatProps) {
           }
         }
       )
-      .subscribe();
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          const status = await messagesWatcher.track({
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    messagesWatcher.on("presence", { event: "sync" }, () => {
+      console.log("Online users: ", messagesWatcher.presenceState());
+
+      const users = messagesWatcher.presenceState();
+
+      const otherUserPresence = users[`${props.otherUserId}`];
+      if (otherUserPresence) {
+        setStatus("Online");
+      } else {
+        setStatus("Offline");
+      }
+    });
+
+    messagesWatcher.on("presence", { event: "join" }, ({ newPresences }) => {
+      console.log("New users have joined: ", newPresences);
+    });
+
+    messagesWatcher.on("presence", { event: "leave" }, ({ leftPresences }) => {
+      console.log("Users have left: ", leftPresences);
+
+      // const a = leftPresences[0]["online_at"];
+      // //
+      // const date = new Date(a);
+      // const time = date.toLocaleTimeString();
+
+      // const time2 = time.slice(0, -3);
+
+      // setStatus("Online at: " + time2);
+
+      // console.log(a);
+    });
 
     return () => {
       messagesWatcher.unsubscribe();
@@ -98,6 +149,13 @@ export function Chat(props: ChatProps) {
       setMessages(messages);
     }
   }, []);
+
+  async function downloadImage(path: string | null | undefined) {
+    const image = supabase.storage
+      .from("avatars")
+      .getPublicUrl(`${props.image}`);
+    setAvatarUrl(image.data.publicUrl);
+  }
 
   const sendMessage = useCallback(async () => {
     const { data: message } = await supabase.from("messages").insert([
@@ -130,10 +188,15 @@ export function Chat(props: ChatProps) {
   return (
     <Container>
       <Header>
-        <Icon />
+        <Icon
+          style={{
+            backgroundImage: `url(${avatarUrl})`,
+            filter: props.image ? "none" : "invert(1)",
+          }}
+        />
         <Info>
           <Name>{props.name}</Name>
-          <Status>Aktywny</Status>
+          <Status>{status}</Status>
         </Info>
         <Flex />
         <Search />
@@ -142,19 +205,20 @@ export function Chat(props: ChatProps) {
       <ChatContent
         ref={chatContentRef}
         style={{
-          backgroundColor: props.bgColor,
+          backgroundColor: props.bgColor ? props.bgColor : "#363636",
         }}
       >
         {messages?.map((message: MessageInterface) => {
-          
-         return  <Message
-            key={message.id}
-            message={message.value}
-            time={message.created_at!}
-            isSelf={message.sender === user?.id}
-            color={props.color}
-          />
-})}
+          return (
+            <Message
+              key={message.id}
+              message={message.value}
+              time={message.created_at!}
+              isSelf={message.sender === user?.id}
+              color={props.color ? props.color : "#005438"}
+            />
+          );
+        })}
       </ChatContent>
       <ChatInput>
         <Attachment />
@@ -173,10 +237,10 @@ export function Chat(props: ChatProps) {
         visible={show}
         hide={handleClose}
         conversationId={props.id}
-        image={""}
+        image={avatarUrl}
         name={props.name}
-        bgColor={props.bgColor}
-        color={props.color}
+        bgColor={props.bgColor ? props.bgColor : "#363636"}
+        color={props.color ? props.color : "#005438"}
       />
     </Container>
   );

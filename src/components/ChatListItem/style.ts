@@ -29,12 +29,11 @@ export const Avatar = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   background-image: url("/person.svg");
-  filter: invert(1);
-  flex: 1;
+
 `;
 
 export const Info = styled.div`

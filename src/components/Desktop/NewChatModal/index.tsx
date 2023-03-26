@@ -38,7 +38,7 @@ function NewChatModal(props: ModalProps) {
     const { data, error } = await supabase
       .from("profiles")
       .select("id, username, avatar_url, name, lastName")
-      .like("name", `%${searchText}%`);
+      .ilike("name", `%${searchText}%`);
 
     if (error) {
       console.log(error);
@@ -76,11 +76,8 @@ function NewChatModal(props: ModalProps) {
               return (
                 <ProfileListItem
                   key={profile.id}
-                  id={profile.id}
-                  username={profile.username}
-                  name={profile.name}
-                  lastName={profile.lastName}
-                  avatar_url={profile.avatar_url}
+                  profile={profile}
+                  hideModal={props.hide}
                 />
               );
             })}

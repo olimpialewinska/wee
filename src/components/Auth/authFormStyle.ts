@@ -18,9 +18,13 @@ export const Register = styled.div`
 `;
 
 export const RegisterHeaderIcon = styled.div`
-  width: 42px;
-  height: 42px;
-  background-color: aqua;
+  width: 140px;
+  height: 60px;
+  background-image:url("/wee.png");
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  filter:invert(1);
   margin: 30px;
 `;
 
@@ -91,9 +95,13 @@ export const Login = styled.div`
 `;
 
 export const LoginHeaderIcon = styled.div`
-  width: 42px;
-  height: 42px;
-  background-color: aqua;
+  width: 140px;
+  height: 60px;
+  background-image:url("/wee.png");
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  filter:invert(1);
   margin: 30px;
 `;
 

@@ -10,6 +10,7 @@ export interface Data {
   } | null;
   otherUserId: string | null | undefined;
   image: string;
+  otherUserImage: string | null | undefined;
 }
 [];
 

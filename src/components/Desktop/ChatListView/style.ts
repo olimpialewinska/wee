@@ -58,7 +58,6 @@ width: 42px;
   background-position: center;
   filter: invert(1);
   cursor: pointer;
-  opacity: 0.7;
   transition: 0.1s all;
 `;
 

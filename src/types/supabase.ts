@@ -38,6 +38,7 @@ export interface Database {
           color: string | null
           created_at: string | null
           id: number
+          isGroup: boolean
           name: string | null
         }
         Insert: {
@@ -45,6 +46,7 @@ export interface Database {
           color?: string | null
           created_at?: string | null
           id?: number
+          isGroup?: boolean
           name?: string | null
         }
         Update: {
@@ -52,6 +54,7 @@ export interface Database {
           color?: string | null
           created_at?: string | null
           id?: number
+          isGroup?: boolean
           name?: string | null
         }
       }
