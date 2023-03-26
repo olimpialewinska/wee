@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Message } from "@/components/Message";
+
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import Link from "next/link";
 import { Key, useCallback, useEffect, useRef, useState } from "react";
@@ -26,10 +27,12 @@ import {
 
 import { MessageInterface } from "../../../interfaces";
 import { ChatSettingsModal } from "@/components/Desktop/ChatSettingsModal";
+import { Announcement } from "@/components/Message/Announcement";
+
 
 interface ChatProps {
   id: number;
-  name: string | null;
+  name: string | null | undefined;
   otherUserId: string | null | undefined;
   image: string | null | undefined;
   bgColor: string;
@@ -53,10 +56,6 @@ export function Chat(props: ChatProps) {
 
   useEffect(() => {
     getMessages(Number(props.id));
-
-    if (props.image) {
-      downloadImage(props.image);
-    }
 
     const messagesWatcher = supabase
       .channel(`chanel-${props.id}`, {
@@ -150,13 +149,6 @@ export function Chat(props: ChatProps) {
     }
   }, []);
 
-  async function downloadImage(path: string | null | undefined) {
-    const image = supabase.storage
-      .from("avatars")
-      .getPublicUrl(`${props.image}`);
-    setAvatarUrl(image.data.publicUrl);
-  }
-
   const sendMessage = useCallback(async () => {
     const { data: message } = await supabase.from("messages").insert([
       {
@@ -190,7 +182,9 @@ export function Chat(props: ChatProps) {
       <Header>
         <Icon
           style={{
-            backgroundImage: `url(${avatarUrl})`,
+            backgroundImage: `url(${
+              props.image ? props.image : "/person.svg"
+            })`,
             filter: props.image ? "none" : "invert(1)",
           }}
         />
@@ -209,6 +203,16 @@ export function Chat(props: ChatProps) {
         }}
       >
         {messages?.map((message: MessageInterface) => {
+          if(message.sender == null)
+          {
+            return(
+              <Announcement
+              key={message.id}
+              message={message.value}
+            />
+            )
+          }
+
           return (
             <Message
               key={message.id}
@@ -237,7 +241,7 @@ export function Chat(props: ChatProps) {
         visible={show}
         hide={handleClose}
         conversationId={props.id}
-        image={avatarUrl}
+        image={props.image}
         name={props.name}
         bgColor={props.bgColor ? props.bgColor : "#363636"}
         color={props.color ? props.color : "#005438"}

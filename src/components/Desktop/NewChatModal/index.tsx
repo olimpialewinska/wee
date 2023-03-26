@@ -38,7 +38,7 @@ function NewChatModal(props: ModalProps) {
     const { data, error } = await supabase
       .from("profiles")
       .select("id, username, avatar_url, name, lastName")
-      .ilike("name", `%${searchText}%`);
+      .ilike("username", `%${searchText}%`);
 
     if (error) {
       console.log(error);

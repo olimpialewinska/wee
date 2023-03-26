@@ -24,7 +24,10 @@ export function Message(props: MessageProps) {
         <MessageTime>{dateFormat(new Date(props.time))}</MessageTime>
       </StyledMessage>
     );
-  } else {
+  } 
+  
+  
+  else {
     return (
       <StyledMessage isSelf={props.isSelf}>
         <MessageContent isSelf={props.isSelf}>{props.message}</MessageContent>

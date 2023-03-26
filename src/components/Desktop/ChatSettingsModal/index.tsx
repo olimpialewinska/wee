@@ -23,9 +23,9 @@ import {
 interface ModalProps {
   visible: boolean;
   hide: () => void;
-  image: string;
+  image: string | null | undefined;
   conversationId: number;
-  name: string | null;
+  name: string | null | undefined;
   color: string;
   bgColor: string;
 }
@@ -47,24 +47,23 @@ function ChatSettingsModal(props: ModalProps) {
   }, [backgroundColor, color, props, supabase]);
 
   const countMessages = useCallback(async () => {
-    setCounter("Loading...")
+    setCounter("Loading...");
     const { data, error } = await supabase
       .from("messages")
-      .select("id", { count: 'exact'})
+      .select("id", { count: "exact" })
       .eq("conversation_id", props.conversationId);
 
     if (error) {
       setCounter("Error");
-      return
+      return;
     }
-    setCounter(data['length'].toString());
+    setCounter(data["length"].toString());
   }, [props, supabase]);
-
 
   useEffect(() => {
     setColor(props.color);
     setBackgroundColor(props.bgColor);
-    setCounter("Count Messages")
+    setCounter("Count Messages");
   }, [props.color, props.bgColor, props.conversationId]);
 
   return (
@@ -80,16 +79,20 @@ function ChatSettingsModal(props: ModalProps) {
           <Header>
             <Image
               style={{
-                backgroundImage: `url(${props.image})`,
-                
+                backgroundImage: `url(${props.image ? props.image : "/person.svg"})`,
+                filter: props.image ? "none" : "invert(1)",
               }}
             />
             <Name>{props.name}</Name>
           </Header>
-          <Button style={{
-            marginBottom:28
-          }}
-          onClick={countMessages}>{counter}</Button>
+          <Button
+            style={{
+              marginBottom: 28,
+            }}
+            onClick={countMessages}
+          >
+            {counter}
+          </Button>
           <Content>
             <Item>
               <Label>Background color:</Label>

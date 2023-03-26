@@ -1,6 +1,7 @@
 export interface Data {
   color: any;
   bgColor: any;
+  isGroup: boolean;
   id: number;
   name: string | null;
   lastMessage: {
@@ -9,8 +10,8 @@ export interface Data {
     createdAt: string | null;
   } | null;
   otherUserId: string | null | undefined;
-  image: string;
   otherUserImage: string | null | undefined;
+  otherUserName: string | null | undefined;
 }
 [];
 

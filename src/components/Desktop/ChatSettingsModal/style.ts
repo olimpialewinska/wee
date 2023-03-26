@@ -43,7 +43,6 @@ export const Image = styled.div`
   background-position: center;
   filter: invert(1);
   cursor: pointer;
-  background-color: #fff;
 `;
 
 export const Name = styled.h2``;

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Arrow, Item, ProfileAvatar, ProfileName } from "./style";
 import { Database } from "../../../../types/supabase";
 import { useRouter } from "next/router";
+import dateFormat from "dateformat";
 type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface Props {
@@ -37,8 +38,6 @@ export function ProfileListItem(props: Props) {
     props.hideModal();
     setUserId(props.profile.id);
 
-    //check if the conversation already exist 
-
     const { data: conversation } = await supabase
       .from("conversation")
       .insert({})
@@ -48,10 +47,37 @@ export function ProfileListItem(props: Props) {
       return;
     }
 
+    let { data, error, status } = await supabase
+      .from("profiles")
+      .select(`username`)
+      .eq("id", user?.id)
+      .single();
+
     const { data: convMembers } = await supabase.from("conv_members").insert([
-      { conversation_id: conversation[0].id, user_id: user?.id },
-      { conversation_id: conversation[0].id, user_id: props.profile.id },
+      {
+        conversation_id: conversation[0].id,
+        user_id: user?.id,
+        user_name: data?.username,
+      },
+      {
+        conversation_id: conversation[0].id,
+        user_id: props.profile.id,
+        user_name: props.profile.username,
+      },
     ]);
+
+    
+    const { data: message } = await supabase
+      .from("messages")
+      .insert([
+        {
+          conversation_id: conversation[0].id,
+          sender: null,
+          receiver: null,
+          value: `${dateFormat(new Date())} - Conversation has been created`,
+        },
+      ]);
+
 
     router.push(`/Chats/${conversation[0].id}`);
   };
@@ -61,7 +87,7 @@ export function ProfileListItem(props: Props) {
       <ProfileAvatar
         style={{
           backgroundImage: `url(${avatarUrl})`,
-          filter: props.profile.avatar_url? "none": "invert(1)"
+          filter: props.profile.avatar_url ? "none" : "invert(1)",
         }}
       />
       <ProfileName>{props.profile.username}</ProfileName>

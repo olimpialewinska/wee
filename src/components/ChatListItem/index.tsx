@@ -12,7 +12,7 @@ type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 interface ChatListItemProps {
-  name: string | null;
+  name: string | null | undefined;
   message: string | null | undefined;
   time: string | number | Date;
   image: string | null | undefined;
@@ -24,29 +24,16 @@ export function ChatListItem(props: ChatListItemProps) {
 
   const [avatarUrl, setAvatarUrl] = useState("/person.svg");
 
-  useEffect(() => {
-    if (props.image) {
-      downloadImage(props.image);
-    }
-  }, [props.image]);
 
   const time = new Date(props.time);
   const hour = time.getHours();
   const minutes = time.getMinutes();
 
-  async function downloadImage(path: string) {
-    const image = supabase.storage
-      .from("avatars")
-      .getPublicUrl(`${props.image}`);
-
-    setAvatarUrl(image.data.publicUrl);
-  }
-
   return (
     <StyledChatListItem onClick={props.onClick}>
       <Avatar
         style={{
-          backgroundImage: `url(${avatarUrl})`,
+          backgroundImage: `url(${props.image ? props.image : "/person.svg"})`,
           filter: props.image ? "none" : "invert(1)",
         }}
       />

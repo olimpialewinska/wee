@@ -42,6 +42,7 @@ export function ChatListView({ session }: { session: Session }) {
     Data[]
   >([]);
   const [chat, setChat] = useState<Data>();
+  const [search, setSearch] = useState("");
   const [show, setShow] = useState(false);
   const chatsWatcher = useRef<any>();
 
@@ -82,7 +83,7 @@ export function ChatListView({ session }: { session: Session }) {
 
     const { data: conversations } = await supabase
       .from("conversation")
-      .select("id, name, bg_color, color")
+      .select("id, name, bg_color, color, isGroup")
       .in(
         "id",
         conversationsOfUser.data.map((x) => x.conversation_id)
@@ -105,15 +106,19 @@ export function ChatListView({ session }: { session: Session }) {
       return;
     }
 
+    const { data: otherMember } = await supabase
+      .from("conv_members")
+      .select("conversation_id, user_id, user_name")
+      .in(
+        "conversation_id",
+        conversations.map((c) => c.id)
+      )
+      .neq("user_id", user?.id);
+
     const { data: profiles } = await supabase
       .from("profiles")
       .select("id, avatar_url, username, full_name")
-      .in(
-        "id",
-        messages
-          ?.map((m) => (m.sender !== user?.id ? m.sender : m.receiver))
-          .filter(Boolean)
-      );
+      .in("id", otherMember?.map((m) => m.user_id) ?? []);
 
     if (!profiles) {
       return;
@@ -121,28 +126,18 @@ export function ChatListView({ session }: { session: Session }) {
     const data = conversations.map((conv) => {
       const lastMessage = messages.find((m) => m.conversation_id === conv.id);
 
-    
+      const otherUserId = otherMember!.find(
+        (m) => m.conversation_id === conv.id
+      )?.user_id;
 
-
-
-
-
-
-
-
-      const otherUserId =
-        lastMessage?.sender !== user?.id
-          ? lastMessage?.sender
-          : lastMessage?.receiver;
-
-
-      const otherUserImage =
-        profiles.find((p) => p.id === otherUserId)?.avatar_url ?? null;
-      const image = process.env.NEXT_PUBLIC_SUPABASE_URL + "/" + otherUserImage;
+      const otherUserName =
+        otherMember!.find((m) => m.conversation_id === conv.id)?.user_name ??
+        null;
 
       return {
         id: conv.id,
         name: conv.name,
+        isGroup: conv.isGroup,
         bgColor: conv.bg_color,
         color: conv.color,
         lastMessage: lastMessage
@@ -153,19 +148,23 @@ export function ChatListView({ session }: { session: Session }) {
             }
           : null,
         otherUserId,
-        otherUserImage:
-          profiles.find((p) => p.id === otherUserId)?.avatar_url,
-        otherUserName:
-          profiles.find((p) => p.id === otherUserId)?.full_name ?? null,
-        image,
+        otherUserImage: downloadImage(
+          profiles.find((p) => p.id === otherUserId)?.avatar_url ?? null
+        ),
+        otherUserName: otherUserName,
       };
     });
-    setConversationsWithProfiles(data.sort((a, b) => {
-      if (!a.lastMessage || !b.lastMessage) {
-        return 0;
-      }
-      return new Date(b.lastMessage.createdAt!).getTime() - new Date(a.lastMessage.createdAt!).getTime();
-    }));
+    setConversationsWithProfiles(
+      data.sort((a, b) => {
+        if (!a.lastMessage || !b.lastMessage) {
+          return 0;
+        }
+        return (
+          new Date(b.lastMessage.createdAt!).getTime() -
+          new Date(a.lastMessage.createdAt!).getTime()
+        );
+      })
+    );
     setChat(data.find((c) => c.id === chatId));
   }
 
@@ -192,10 +191,22 @@ export function ChatListView({ session }: { session: Session }) {
     }
   }
 
+  function downloadImage(url: string | null | undefined) {
+    if (!url) {
+      return null;
+    }
+    const image = supabase.storage.from("avatars").getPublicUrl(`${url}`);
+    return image["data"].publicUrl.toString();
+  }
+
   const handleClose = () => setShow(false);
   const handleShow = () => {
     setShow(true);
   };
+
+  const filteredList = conversationsWithProfiles.filter((item) =>
+    item.otherUserName!.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <Container>
@@ -212,14 +223,24 @@ export function ChatListView({ session }: { session: Session }) {
         <ChatSearchContainer>
           <ChatSearch>
             <ChatListSearch />
-            <ChatSearchInput placeholder="Search" />
+            <ChatSearchInput
+              placeholder="Search"
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
+              value={search}
+            />
           </ChatSearch>
         </ChatSearchContainer>
         <ChatList>
-          {conversationsWithProfiles.map((chatListItem: Data, i) => (
+          {filteredList.map((chatListItem: Data, i) => (
             <ChatListItem
               key={i}
-              name={chatListItem.name}
+              name={
+                chatListItem.isGroup
+                  ? chatListItem.name
+                  : chatListItem.otherUserName
+              }
               time={chatListItem.lastMessage?.createdAt!}
               message={chatListItem.lastMessage?.value}
               image={chatListItem.otherUserImage}
@@ -233,7 +254,7 @@ export function ChatListView({ session }: { session: Session }) {
       {chat && (
         <Chat
           id={chat.id}
-          name={chat.name}
+          name={chat.isGroup ? chat.name : chat.otherUserName}
           otherUserId={chat.otherUserId}
           bgColor={chat.bgColor}
           color={chat.color}
