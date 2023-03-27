@@ -16,6 +16,7 @@ interface ChatListItemProps {
   message: string | null | undefined;
   time: string | number | Date;
   image: string | null | undefined;
+  presence: string | null | undefined
   onClick: () => void;
 }
 
@@ -35,6 +36,7 @@ export function ChatListItem(props: ChatListItemProps) {
         style={{
           backgroundImage: `url(${props.image ? props.image : "/person.svg"})`,
           filter: props.image ? "none" : "invert(1)",
+          border: props.presence === "Online" ? "1px solid #00ff00": "none",
         }}
       />
       <Info>

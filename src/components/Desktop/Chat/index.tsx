@@ -37,6 +37,7 @@ interface ChatProps {
   image: string | null | undefined;
   bgColor: string;
   color: string;
+  presence: string;
 }
 
 export function Chat(props: ChatProps) {
@@ -52,7 +53,7 @@ export function Chat(props: ChatProps) {
   const [show, setShow] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("/person.svg");
 
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState(props.presence);
 
   useEffect(() => {
     getMessages(Number(props.id));
@@ -92,36 +93,22 @@ export function Chat(props: ChatProps) {
       });
 
     messagesWatcher.on("presence", { event: "sync" }, () => {
-      console.log("Online users: ", messagesWatcher.presenceState());
+      //console.log("Online users: ", messagesWatcher.presenceState());
 
       const users = messagesWatcher.presenceState();
 
       const otherUserPresence = users[`${props.otherUserId}`];
       if (otherUserPresence) {
-        setStatus("Online");
-      } else {
-        setStatus("Offline");
+        setStatus(`${props.name} is currently viewing this chat`);
+      } 
+      else{
+        setStatus(props.presence);
       }
+
     });
 
-    messagesWatcher.on("presence", { event: "join" }, ({ newPresences }) => {
-      console.log("New users have joined: ", newPresences);
-    });
 
-    messagesWatcher.on("presence", { event: "leave" }, ({ leftPresences }) => {
-      console.log("Users have left: ", leftPresences);
-
-      // const a = leftPresences[0]["online_at"];
-      // //
-      // const date = new Date(a);
-      // const time = date.toLocaleTimeString();
-
-      // const time2 = time.slice(0, -3);
-
-      // setStatus("Online at: " + time2);
-
-      // console.log(a);
-    });
+    
 
     return () => {
       messagesWatcher.unsubscribe();
@@ -186,6 +173,7 @@ export function Chat(props: ChatProps) {
               props.image ? props.image : "/person.svg"
             })`,
             filter: props.image ? "none" : "invert(1)",
+            border: props.presence === "Online" ? "2px solid #00ff00" : "none",
           }}
         />
         <Info>

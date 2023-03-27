@@ -10,11 +10,8 @@ export const StyledMessage = styled.div`
 
 export const MessageContent = styled.div`
   padding: 10px;
+  font-size: 12px;
+  opacity: 0.5;
 `;
 
-export const MessageTime = styled.div`
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 2px;
-  margin: 10px;
-`;
+

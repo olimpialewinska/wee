@@ -45,7 +45,7 @@ export const Image = styled.div`
   cursor: pointer;
 `;
 
-export const Name = styled.h2``;
+export const Name = styled.h1``;
 
 export const Content = styled.div`
   flex: 1;

@@ -17,7 +17,14 @@ import {
 } from "./style";
 import Link from "next/link";
 import { Database } from "../../../types/supabase";
-import { Key, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  Key,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
 import { Avatar } from "./Avatar";
 import {
@@ -28,6 +35,9 @@ import {
 import { Data } from "@/interfaces";
 import { NewChatModal } from "../NewChatModal";
 import { useRouter } from "next/router";
+import { RealtimePresenceState } from "@supabase/supabase-js";
+
+const onlineContext = createContext(null);
 
 export function ChatListView({ session }: { session: Session }) {
   const router = useRouter();
@@ -42,18 +52,23 @@ export function ChatListView({ session }: { session: Session }) {
     Data[]
   >([]);
   const [chat, setChat] = useState<Data>();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState<string>("");
   const [show, setShow] = useState(false);
-  const chatsWatcher = useRef<any>();
+  const [online, setOnline] = useState<RealtimePresenceState>({});
 
   useEffect(() => {
     getConversationsWithProfiles(chatId);
     setChat(conversationsWithProfiles.find((c) => c.id === chatId));
     getProfile();
 
-    chatsWatcher.current?.unsubscribe();
-    chatsWatcher.current = supabase
-      .channel("custom-all-channel")
+    const chatsWatcher = supabase
+      .channel("custom-all-channel", {
+        config: {
+          presence: {
+            key: `${user?.id}`,
+          },
+        },
+      })
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "conversation" },
@@ -68,8 +83,26 @@ export function ChatListView({ session }: { session: Session }) {
           getConversationsWithProfiles(chatId);
         }
       )
-      .subscribe();
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          const status = await chatsWatcher.track({
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    chatsWatcher.on("presence", { event: "sync" }, () => {
+      setOnline(chatsWatcher.presenceState());
+    });
   }, [chatId]);
+
+  function checkPresence(userId: string | null | undefined) {
+    const otherUserPresence = online[`${userId}`];
+    if (otherUserPresence) {
+      return "Online";
+    }
+    return "Offline";
+  }
 
   async function getConversationsWithProfiles(chatId: number) {
     const conversationsOfUser = await supabase
@@ -147,7 +180,7 @@ export function ChatListView({ session }: { session: Session }) {
               createdAt: lastMessage.created_at,
             }
           : null,
-        otherUserId,
+        otherUserId: otherUserId,
         otherUserImage: downloadImage(
           profiles.find((p) => p.id === otherUserId)?.avatar_url ?? null
         ),
@@ -204,8 +237,10 @@ export function ChatListView({ session }: { session: Session }) {
     setShow(true);
   };
 
-  const filteredList = conversationsWithProfiles.filter((item) =>
-    item.otherUserName!.toLowerCase().includes(search.toLowerCase())
+  const filteredList = conversationsWithProfiles.filter(
+    (item) =>
+      item.otherUserName &&
+      item.otherUserName!.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -244,6 +279,7 @@ export function ChatListView({ session }: { session: Session }) {
               time={chatListItem.lastMessage?.createdAt!}
               message={chatListItem.lastMessage?.value}
               image={chatListItem.otherUserImage}
+              presence={checkPresence(chatListItem.otherUserId)}
               onClick={() => {
                 router.push(`/Chats/${chatListItem.id}`);
               }}
@@ -251,6 +287,7 @@ export function ChatListView({ session }: { session: Session }) {
           ))}
         </ChatList>
       </Chats>
+
       {chat && (
         <Chat
           id={chat.id}
@@ -259,6 +296,7 @@ export function ChatListView({ session }: { session: Session }) {
           bgColor={chat.bgColor}
           color={chat.color}
           image={chat.otherUserImage}
+          presence={checkPresence(chat.otherUserId)}
         />
       )}
       <NewChatModal visible={show} hide={handleClose} />
