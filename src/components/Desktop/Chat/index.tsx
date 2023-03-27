@@ -2,7 +2,7 @@
 import { Message } from "@/components/Message";
 
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
-import Link from "next/link";
+import React from "react";
 import { Key, useCallback, useEffect, useRef, useState } from "react";
 import { Database } from "../../../types/supabase";
 type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
@@ -28,7 +28,6 @@ import {
 import { MessageInterface } from "../../../interfaces";
 import { ChatSettingsModal } from "@/components/Desktop/ChatSettingsModal";
 import { Announcement } from "@/components/Message/Announcement";
-
 
 interface ChatProps {
   id: number;
@@ -100,20 +99,15 @@ export function Chat(props: ChatProps) {
       const otherUserPresence = users[`${props.otherUserId}`];
       if (otherUserPresence) {
         setStatus(`${props.name} is currently viewing this chat`);
-      } 
-      else{
+      } else {
         setStatus(props.presence);
       }
-
     });
-
-
-    
 
     return () => {
       messagesWatcher.unsubscribe();
     };
-  }, [props.id]);
+  }, [props]);
 
   let shouldScrollDown = useRef(false);
 
@@ -137,6 +131,7 @@ export function Chat(props: ChatProps) {
   }, []);
 
   const sendMessage = useCallback(async () => {
+    if (messageText==="") return;
     const { data: message } = await supabase.from("messages").insert([
       {
         value: messageText,
@@ -148,6 +143,7 @@ export function Chat(props: ChatProps) {
     if (inputRef.current) {
       inputRef.current.value = "";
     }
+    setMessageText("");
   }, [messageText]);
 
   const onInputKeyUp = useCallback(
@@ -173,7 +169,7 @@ export function Chat(props: ChatProps) {
               props.image ? props.image : "/person.svg"
             })`,
             filter: props.image ? "none" : "invert(1)",
-            border: props.presence === "Online" ? "2px solid #00ff00" : "none",
+            border: props.presence === "Online" ? "2px solid #28ca56" : "none",
           }}
         />
         <Info>
@@ -191,14 +187,13 @@ export function Chat(props: ChatProps) {
         }}
       >
         {messages?.map((message: MessageInterface) => {
-          if(message.sender == null)
-          {
-            return(
+          if (message.sender == null) {
+            return (
               <Announcement
-              key={message.id}
-              message={message.value}
-            />
-            )
+                key={message.id}
+                message={message.value}
+              />
+            );
           }
 
           return (

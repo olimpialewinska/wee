@@ -8,6 +8,5 @@ export default function Home() {
   const supabase = useSupabaseClient();
   const channel = supabase.channel("test");
 
-
   return <>{!session ? <Login /> : <ChatListView />}</>;
 }

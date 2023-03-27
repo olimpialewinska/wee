@@ -17,17 +17,25 @@ export interface Data {
 
 export interface MessageInterface {
   id: number;
-  conversation_id : number | null;
+  conversation_id: number | null;
   value: string | null;
   sender: string | null;
   receiver: string | null;
   created_at: string | null;
 }
 
-export interface Profile{
+export interface Profile {
   id: string;
   username: string | null;
   avatar_url: string | null;
   name: string | null;
-  lastName: string | null
+  lastName: string | null;
 }
+
+export interface Conv_members {
+  avatar_url: string | null;
+  user_name: string | null | undefined;
+  id: number;
+  user_id: string | null;
+}
+[];

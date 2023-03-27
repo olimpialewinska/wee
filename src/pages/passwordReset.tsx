@@ -2,18 +2,18 @@ import { ForgottenPasswordView } from "@/components/Auth/ForgottenPassword";
 import { Navbar } from "@/components/Navbar";
 import { useSession } from "@supabase/auth-helpers-react";
 
-
 export default function PasswordReset() {
-    const session = useSession();
-    return(
+  const session = useSession();
+  return (
+    <>
+      {!session ? (
         <>
-        {!session ? (
-            <>
-              <Navbar />
-              <ForgottenPasswordView />
-            </>
-          ) : (
-            window.location.href = "/Chats"
-          )}</>
-    )
+          <Navbar />
+          <ForgottenPasswordView />
+        </>
+      ) : (
+        (window.location.href = "/Chats")
+      )}
+    </>
+  );
 }

@@ -12,7 +12,7 @@ export default function ForgottenPassword() {
           <ForgottenPasswordView />
         </>
       ) : (
-        window.location.href = "/Chats"
+        (window.location.href = "/Chats")
       )}
     </>
   );

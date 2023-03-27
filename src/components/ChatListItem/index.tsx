@@ -10,6 +10,7 @@ import {
 import { Database } from "../../types/supabase";
 type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import React from "react";
 
 interface ChatListItemProps {
   name: string | null | undefined;
@@ -36,7 +37,7 @@ export function ChatListItem(props: ChatListItemProps) {
         style={{
           backgroundImage: `url(${props.image ? props.image : "/person.svg"})`,
           filter: props.image ? "none" : "invert(1)",
-          border: props.presence === "Online" ? "1px solid #00ff00": "none",
+          border: props.presence === "Online" ? "2px solid #28ca56": "none",
         }}
       />
       <Info>

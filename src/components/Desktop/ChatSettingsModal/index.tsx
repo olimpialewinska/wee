@@ -1,6 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable jsx-a11y/alt-text */
-import React, { useCallback, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useContext,
+  createContext,
+} from "react";
 import { Database } from "../../../types/supabase";
 type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
@@ -18,7 +24,12 @@ import {
   Image,
   Button,
   Close,
+  Buttons,
+  CircleButton,
 } from "./style";
+import { People } from "./People";
+import { Edit } from "./Edit";
+import { Calculator } from "./Calculator";
 
 interface ModalProps {
   visible: boolean;
@@ -29,42 +40,15 @@ interface ModalProps {
   color: string;
   bgColor: string;
 }
-function ChatSettingsModal(props: ModalProps) {
-  const supabase = useSupabaseClient<Database>();
 
-  const [color, setColor] = useState(props.color);
-  const [backgroundColor, setBackgroundColor] = useState(props.bgColor);
+export const ModalContext = createContext<ModalProps>({} as ModalProps);
 
-  const [counter, setCounter] = useState("Count Messages");
-
-  const saveChanges = useCallback(async () => {
-    await supabase
-      .from("conversation")
-      .update({ bg_color: backgroundColor, color: color })
-      .eq("id", props.conversationId);
-
-    props.hide();
-  }, [backgroundColor, color, props, supabase]);
-
-  const countMessages = useCallback(async () => {
-    setCounter("Loading...");
-    const { data, error } = await supabase
-      .from("messages")
-      .select("id", { count: "exact" })
-      .eq("conversation_id", props.conversationId);
-
-    if (error) {
-      setCounter("Error");
-      return;
-    }
-    setCounter(data["length"].toString());
-  }, [props, supabase]);
+export function ChatSettingsModal(props: ModalProps) {
+  const [modalContent, setModalContent] = useState<string>("people");
 
   useEffect(() => {
-    setColor(props.color);
-    setBackgroundColor(props.bgColor);
-    setCounter("Count Messages");
-  }, [props.color, props.bgColor, props.conversationId]);
+    setModalContent("people");
+  }, [props.conversationId]);
 
   return (
     <>
@@ -79,45 +63,58 @@ function ChatSettingsModal(props: ModalProps) {
           <Header>
             <Image
               style={{
-                backgroundImage: `url(${props.image ? props.image : "/person.svg"})`,
+                backgroundImage: `url(${
+                  props.image ? props.image : "/person.svg"
+                })`,
                 filter: props.image ? "none" : "invert(1)",
               }}
             />
             <Name>{props.name}</Name>
           </Header>
-          <Button
-            style={{
-              marginBottom: 28,
+          <Buttons>
+            <CircleButton
+              style={{ backgroundImage: "url(/people.svg)" }}
+              onClick={() => {
+                setModalContent("people");
+              }}
+            />
+
+            <CircleButton
+              style={{ backgroundImage: "url(/edit.svg)" }}
+              onClick={() => {
+                setModalContent("edit");
+              }}
+            />
+
+            <CircleButton
+              style={{ backgroundImage: "url(/calculator.svg)" }}
+              onClick={() => {
+                setModalContent("calculator");
+              }}
+            />
+          </Buttons>
+
+          <ModalContext.Provider
+            value={{
+              color: props.color,
+              bgColor: props.bgColor,
+              conversationId: props.conversationId,
+              hide: props.hide,
+              image: props.image,
+              name: props.name,
+              visible: props.visible,
             }}
-            onClick={countMessages}
           >
-            {counter}
-          </Button>
-          <Content>
-            <Item>
-              <Label>Background color:</Label>
-              <BackgroundColor
-                type="color"
-                value={backgroundColor}
-                onChange={(e) => setBackgroundColor(e.target.value)}
-              />
-            </Item>
-            <Item>
-              <Label>Chat color:</Label>
-              <Color
-                type="color"
-                value={color}
-                onChange={(e) => {
-                  setColor(e.target.value);
-                }}
-              />
-            </Item>
-            <Button onClick={saveChanges}>Save Changes</Button>
-          </Content>
+            {modalContent == "people" ? (
+              <People />
+            ) : modalContent == "edit" ? (
+              <Edit />
+            ) : (
+              <Calculator />
+            )}
+          </ModalContext.Provider>
         </Wrapper>
       </ModalBg>
     </>
   );
 }
-
-export { ChatSettingsModal };
