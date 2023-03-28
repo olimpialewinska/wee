@@ -25,7 +25,7 @@ export function Edit() {
   const saveChanges = useCallback(async () => {
     await supabase
       .from("conversation")
-      .update({ bg_color: backgroundColor, color: color })
+      .update({ bg_color: backgroundColor, color: newColor })
       .eq("id", conversationId);
 
     if (newColor == color) {
@@ -55,7 +55,7 @@ export function Edit() {
         <Label>Chat color:</Label>
         <Color
           type="color"
-          value={color}
+          value={newColor}
           onChange={(e) => {
             setNewColor(e.target.value);
           }}

@@ -16,39 +16,16 @@ import {
   ProfileList,
 } from "./style";
 
-import { Profile } from "../../../interfaces";
-import { ProfileListItem } from "./ProfileListItem";
+import { NewGroup } from "./NewGroup";
+import { NewChat } from "./NewChat";
 
 interface ModalProps {
   visible: boolean;
+  type: false | "group-new-chat" | "new-chat";
   hide: () => void;
 }
 
-function NewChatModal(props: ModalProps) {
-  const supabase = useSupabaseClient<Database>();
-  const [searchText, setSearchText] = useState("");
-
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [searchProfiles, setSearchProfiles] = useState<Profiles[]>([]);
-  const [search, setSearch] = useState(false);
-
-  const user = useUser();
-
-  const getProfiles = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, username, avatar_url, name, lastName")
-      .ilike("username", `%${searchText}%`);
-
-    if (error) {
-      console.log(error);
-    }
-
-    if (data) {
-      setProfiles(data);
-    }
-  }, [searchText, supabase]);
-
+export function NewChatModal(props: ModalProps) {
   return (
     <>
       <ModalBg
@@ -59,33 +36,16 @@ function NewChatModal(props: ModalProps) {
       >
         <Wrapper>
           <Close onClick={props.hide} />
-          <ChatSearchContainer>
-            <ChatSearch>
-              <ChatListSearch />
-              <ChatSearchInput
-                placeholder="Search"
-                onChange={(e) => {
-                  setSearchText(e.target.value);
-                  getProfiles();
-                }}
-              />
-            </ChatSearch>
-          </ChatSearchContainer>
-          <ProfileList>
-            {profiles.map((profile) => {
-              return (
-                <ProfileListItem
-                  key={profile.id}
-                  profile={profile}
-                  hideModal={props.hide}
-                />
-              );
-            })}
-          </ProfileList>
+
+          {props.type == "new-chat" ? (
+            <>
+              <NewChat hide={props.hide} />
+            </>
+          ) : (
+            <NewGroup hide={props.hide} />
+          )}
         </Wrapper>
       </ModalBg>
     </>
   );
 }
-
-export { NewChatModal };

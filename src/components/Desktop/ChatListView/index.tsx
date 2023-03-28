@@ -20,6 +20,7 @@ import { Database } from "../../../types/supabase";
 import {
   createContext,
   Key,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -39,6 +40,8 @@ import { RealtimePresenceState } from "@supabase/supabase-js";
 
 const onlineContext = createContext(null);
 
+type DialogType = false | "group-new-chat" | "new-chat";
+
 export function ChatListView({ session }: { session: Session }) {
   const router = useRouter();
   const chatId = Number(router.query.id as string);
@@ -53,7 +56,7 @@ export function ChatListView({ session }: { session: Session }) {
   >([]);
   const [chat, setChat] = useState<Data>();
   const [search, setSearch] = useState<string>("");
-  const [show, setShow] = useState(false);
+  const [dialogType, setDialogType] = useState<DialogType>(false);
   const [online, setOnline] = useState<RealtimePresenceState>({});
 
   useEffect(() => {
@@ -176,15 +179,22 @@ export function ChatListView({ session }: { session: Session }) {
         lastMessage: lastMessage
           ? {
               id: lastMessage.id,
-              value: lastMessage.value,
+              value:
+                lastMessage.sender == user?.id
+                  ? "You: " + lastMessage.value
+                  : lastMessage.sender == null
+                  ? messageValue(lastMessage.value!.toString())
+                  : lastMessage.value,
               createdAt: lastMessage.created_at,
+              sender: lastMessage.sender,
+              receiver: lastMessage.receiver,
             }
           : null,
-        otherUserId: otherUserId,
+        otherUserId: otherUserId ?? null,
         otherUserImage: downloadImage(
           profiles.find((p) => p.id === otherUserId)?.avatar_url ?? null
         ),
-        otherUserName: otherUserName,
+        otherUserName: otherUserName ?? user?.user_metadata.username,
       };
     });
     setConversationsWithProfiles(
@@ -199,6 +209,16 @@ export function ChatListView({ session }: { session: Session }) {
       })
     );
     setChat(data.find((c) => c.id === chatId));
+  }
+
+  function messageValue(value: string) {
+    if (value.includes("colors,")) {
+      return "Chat color changes";
+    } else if (value.includes("nickname,")) {
+      return "Nickname changes";
+    }
+
+    return "Start chat conversation";
   }
 
   async function getProfile() {
@@ -232,10 +252,12 @@ export function ChatListView({ session }: { session: Session }) {
     return image["data"].publicUrl.toString();
   }
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => {
-    setShow(true);
-  };
+  const handleClose = () => setDialogType(false);
+  const createHandleShow = useCallback((type: DialogType) => {
+    return () => {
+      setDialogType(type);
+    }
+  }, [setDialogType]);
 
   const filteredList = conversationsWithProfiles.filter(
     (item) =>
@@ -252,7 +274,12 @@ export function ChatListView({ session }: { session: Session }) {
           </Link>
           <ChatHeaderInfo>Chats</ChatHeaderInfo>
           <ChatHeaderIconsContainer>
-            <NewChat onClick={handleShow} />
+            <NewChat onClick={createHandleShow("new-chat")} />
+            <NewChat 
+            style={{backgroundImage: "url('/add-people.svg')",
+          }}
+          onClick={createHandleShow("group-new-chat")}
+            />
           </ChatHeaderIconsContainer>
         </ChatHeader>
         <ChatSearchContainer>
@@ -299,7 +326,7 @@ export function ChatListView({ session }: { session: Session }) {
           presence={checkPresence(chat.otherUserId)}
         />
       )}
-      <NewChatModal visible={show} hide={handleClose} />
+      <NewChatModal visible={dialogType !== false} hide={handleClose} type={dialogType}/>
     </Container>
   );
 }

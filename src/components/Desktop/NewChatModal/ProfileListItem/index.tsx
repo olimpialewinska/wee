@@ -1,18 +1,21 @@
 import { Profile } from "@/interfaces";
 import { useUser, useSupabaseClient } from "@supabase/auth-helpers-react";
-import { useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { Arrow, Item, ProfileAvatar, ProfileName } from "./style";
 import { Database } from "../../../../types/supabase";
 import { useRouter } from "next/router";
 import dateFormat from "dateformat";
+import { ListContext } from "../NewGroup";
 type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface Props {
+  type: "group" | "single";
   profile: Profile;
   hideModal: () => void;
 }
 
 export function ProfileListItem(props: Props) {
+  const { addUser } = useContext(ListContext);
   const router = useRouter();
   const supabase = useSupabaseClient<Database>();
   const user = useUser();
@@ -20,19 +23,26 @@ export function ProfileListItem(props: Props) {
 
   const [userId, setUserId] = useState("");
 
+  const downloadImage = useCallback(
+    (path: string) => {
+      const image = supabase.storage
+        .from("avatars")
+        .getPublicUrl(`${props.profile.avatar_url}`);
+
+      setAvatarUrl(image.data.publicUrl);
+    },
+    [props.profile.avatar_url, supabase.storage]
+  );
+
   useEffect(() => {
     if (props.profile.avatar_url) {
       downloadImage(props.profile.avatar_url);
     }
-  }, [props.profile.avatar_url]);
+  }, [downloadImage, props.profile.avatar_url]);
 
-  async function downloadImage(path: string) {
-    const image = supabase.storage
-      .from("avatars")
-      .getPublicUrl(`${props.profile.avatar_url}`);
-
-    setAvatarUrl(image.data.publicUrl);
-  }
+  const onArrowClick = useCallback(() => {
+    addUser(props.profile);
+  }, [addUser, props.profile]);
 
   const handleAddUser = async () => {
     props.hideModal();
@@ -66,21 +76,32 @@ export function ProfileListItem(props: Props) {
       },
     ]);
 
-    
-    const { data: message } = await supabase
-      .from("messages")
-      .insert([
-        {
-          conversation_id: conversation[0].id,
-          sender: null,
-          receiver: null,
-          value: `${dateFormat(new Date())} - Conversation has been created`,
-        },
-      ]);
-
+    const { data: message } = await supabase.from("messages").insert([
+      {
+        conversation_id: conversation[0].id,
+        sender: null,
+        receiver: null,
+        value: `${dateFormat(new Date())} - Conversation has been created`,
+      },
+    ]);
 
     router.push(`/Chats/${conversation[0].id}`);
   };
+
+  if (props.type == "single") {
+    return (
+      <Item>
+        <ProfileAvatar
+          style={{
+            backgroundImage: `url(${avatarUrl})`,
+            filter: props.profile.avatar_url ? "none" : "invert(1)",
+          }}
+        />
+        <ProfileName>{props.profile.username}</ProfileName>
+        <Arrow onClick={handleAddUser} />
+      </Item>
+    );
+  }
 
   return (
     <Item>
@@ -91,7 +112,7 @@ export function ProfileListItem(props: Props) {
         }}
       />
       <ProfileName>{props.profile.username}</ProfileName>
-      <Arrow onClick={handleAddUser} />
+      <Arrow onClick={onArrowClick} />
     </Item>
   );
 }
