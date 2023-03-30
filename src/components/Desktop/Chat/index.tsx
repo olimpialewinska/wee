@@ -2,7 +2,7 @@
 import { Message } from "@/components/Message";
 
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
-import React from "react";
+import React, { createContext } from "react";
 import { Key, useCallback, useEffect, useRef, useState } from "react";
 import { Database } from "../../../types/supabase";
 type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
@@ -28,6 +28,7 @@ import {
 import { MessageInterface } from "../../../interfaces";
 import { ChatSettingsModal } from "@/components/Desktop/ChatSettingsModal";
 import { Announcement } from "@/components/Message/Announcement";
+import { EmojiPopUp } from "./Emoji";
 
 interface ChatProps {
   id: number;
@@ -38,6 +39,16 @@ interface ChatProps {
   color: string;
   presence: string;
 }
+
+interface contextInterface {
+  messageText: string;
+  setMessageText: (c: string) => void;
+}
+
+export const messageContext = createContext<contextInterface>({
+  messageText: "",
+  setMessageText: () => {},
+});
 
 export function Chat(props: ChatProps) {
   const supabase = useSupabaseClient<Database>();
@@ -50,6 +61,7 @@ export function Chat(props: ChatProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [show, setShow] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("/person.svg");
 
   const [status, setStatus] = useState(props.presence);
@@ -92,8 +104,6 @@ export function Chat(props: ChatProps) {
       });
 
     messagesWatcher.on("presence", { event: "sync" }, () => {
-      //console.log("Online users: ", messagesWatcher.presenceState());
-
       const users = messagesWatcher.presenceState();
 
       const otherUserPresence = users[`${props.otherUserId}`];
@@ -107,7 +117,7 @@ export function Chat(props: ChatProps) {
     return () => {
       messagesWatcher.unsubscribe();
     };
-  }, [props]);
+  }, [props, messageText]);
 
   let shouldScrollDown = useRef(false);
 
@@ -131,7 +141,7 @@ export function Chat(props: ChatProps) {
   }, []);
 
   const sendMessage = useCallback(async () => {
-    if (messageText==="") return;
+    if (messageText === "") return;
     const { data: message } = await supabase.from("messages").insert([
       {
         value: messageText,
@@ -158,6 +168,11 @@ export function Chat(props: ChatProps) {
   const handleClose = () => setShow(false);
   const handleShow = () => {
     setShow(true);
+  };
+
+  const handleCloseEmoji = () => setShowEmoji(false);
+  const handleShowEmoji = () => {
+    setShowEmoji(true);
   };
 
   return (
@@ -188,12 +203,7 @@ export function Chat(props: ChatProps) {
       >
         {messages?.map((message: MessageInterface) => {
           if (message.sender == null) {
-            return (
-              <Announcement
-                key={message.id}
-                message={message.value}
-              />
-            );
+            return <Announcement key={message.id} message={message.value} />;
           }
 
           return (
@@ -212,11 +222,12 @@ export function Chat(props: ChatProps) {
         <MessageContainer>
           <MessageInput
             ref={inputRef}
+            value={messageText}
             placeholder="Type a message"
             onChange={(e) => setMessageText(e.target.value)}
             onKeyUp={onInputKeyUp}
           />
-          <Emoji />
+          <Emoji onClick={handleShowEmoji} />
         </MessageContainer>
         <Send onClick={sendMessage} />
       </ChatInput>
@@ -229,6 +240,9 @@ export function Chat(props: ChatProps) {
         bgColor={props.bgColor ? props.bgColor : "#363636"}
         color={props.color ? props.color : "#005438"}
       />
+      <messageContext.Provider value={{ messageText, setMessageText }}>
+        <EmojiPopUp visible={showEmoji} hide={handleCloseEmoji} />
+      </messageContext.Provider>
     </Container>
   );
 }

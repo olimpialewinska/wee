@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-/* eslint-disable react-hooks/exhaustive-deps */
+
 import { Chat } from "@/components/Desktop/Chat";
 import { ChatListItem } from "@/components/ChatListItem";
 import {
@@ -60,55 +59,43 @@ export function ChatListView({ session }: { session: Session }) {
   const [dialogType, setDialogType] = useState<DialogType>(false);
   const [online, setOnline] = useState<RealtimePresenceState>({});
 
-  useEffect(() => {
-    getConversationsWithProfiles(chatId);
-    setChat(conversationsWithProfiles.find((c) => c.id === chatId));
-    getProfile();
+  const getProfile = useCallback(async () =>{
+    try {
+      if (!user) throw new Error("No user");
 
-    const chatsWatcher = supabase
-      .channel("custom-all-channel", {
-        config: {
-          presence: {
-            key: `${user?.id}`,
-          },
-        },
-      })
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "conversation" },
-        async (payload) => {
-          getConversationsWithProfiles(chatId);
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "messages" },
-        async (payload) => {
-          getConversationsWithProfiles(chatId);
-        }
-      )
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          const status = await chatsWatcher.track({
-            online_at: new Date().toISOString(),
-          });
-        }
-      });
+      let { data, error, status } = await supabase
+        .from("profiles")
+        .select(`username, website, avatar_url`)
+        .eq("id", user.id)
+        .single();
 
-    chatsWatcher.on("presence", { event: "sync" }, () => {
-      setOnline(chatsWatcher.presenceState());
-    });
-  }, [chatId]);
-
-  function checkPresence(userId: string | null | undefined) {
-    const otherUserPresence = online[`${userId}`];
-    if (otherUserPresence) {
-      return "Online";
+      if (error && status !== 406) {
+        throw error;
+      }
+      if (data) {
+        setUsername(data.username);
+        setAvatarUrl(data.avatar_url);
+      }
+    } catch (error) {
+    } finally {
+      setLoading(false);
     }
-    return "Offline";
-  }
 
-  async function getConversationsWithProfiles(chatId: number) {
+  }, [supabase, user])
+
+
+  const downloadImage = useCallback((url: string | null | undefined) => {
+    if (!url) {
+      return null;
+    }
+    const image =  supabase.storage.from("avatars").getPublicUrl(`${url}`);
+    return image["data"].publicUrl.toString();
+  }, [supabase])
+
+
+
+  const getConversationsWithProfiles = useCallback(async (chatId: number) => {
+
     const conversationsOfUser = await supabase
       .from("conv_members")
       .select("conversation_id")
@@ -163,7 +150,7 @@ export function ChatListView({ session }: { session: Session }) {
     const data = conversations.map((conv) => {
       const lastMessage = messages.find((m) => m.conversation_id === conv.id);
 
-      const otherUserId = otherMember!.find(
+      const otherUserId = otherMember?.find(
         (m) => m.conversation_id === conv.id
       )?.user_id;
 
@@ -191,13 +178,14 @@ export function ChatListView({ session }: { session: Session }) {
               receiver: lastMessage.receiver,
             }
           : null,
-        otherUserId: otherUserId ?? null,
-        otherUserImage: downloadImage(
-          profiles.find((p) => p.id === otherUserId)?.avatar_url ?? null
-        ),
-        otherUserName: otherUserName ?? user?.user_metadata.username,
+        otherUserId: otherUserId ?? user!.id,
+        otherUserImage: otherUserId ?  downloadImage(
+          profiles.find((p) => p.id === otherUserId)?.avatar_url 
+        ) : downloadImage(avatar_url),
+        otherUserName: otherUserName ?? "You",
       };
     });
+
     setConversationsWithProfiles(
       data.sort((a, b) => {
         if (!a.lastMessage || !b.lastMessage) {
@@ -210,7 +198,58 @@ export function ChatListView({ session }: { session: Session }) {
       })
     );
     setChat(data.find((c) => c.id === chatId));
+  }, [downloadImage, supabase, user, username]);
+
+  useEffect(() => {
+    getProfile();
+    getConversationsWithProfiles(chatId);
+    setChat(conversationsWithProfiles.find((c) => c.id === chatId));
+
+    const chatsWatcher = supabase
+      .channel("custom-all-channel", {
+        config: {
+          presence: {
+            key: `${user?.id}`,
+          },
+        },
+      })
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "conversation" },
+        async (payload) => {
+          getConversationsWithProfiles(chatId);
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages" },
+        async (payload) => {
+          getConversationsWithProfiles(chatId);
+        }
+      )
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          const status = await chatsWatcher.track({
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    chatsWatcher.on("presence", { event: "sync" }, () => {
+      setOnline(chatsWatcher.presenceState());
+    });
+  }, [chatId ]);
+
+  function checkPresence(userId: string | null | undefined) {
+
+    const otherUserPresence = online[`${userId}`];
+    if (otherUserPresence) {
+      return "Online";
+    }
+    return "Offline";
   }
+
+
 
   function messageValue(value: string) {
     if (value.includes("colors,")) {
@@ -222,43 +261,16 @@ export function ChatListView({ session }: { session: Session }) {
     return "Start chat conversation";
   }
 
-  async function getProfile() {
-    try {
-      if (!user) throw new Error("No user");
-
-      let { data, error, status } = await supabase
-        .from("profiles")
-        .select(`username, website, avatar_url`)
-        .eq("id", user.id)
-        .single();
-
-      if (error && status !== 406) {
-        throw error;
-      }
-      if (data) {
-        setUsername(data.username);
-        setAvatarUrl(data.avatar_url);
-      }
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function downloadImage(url: string | null | undefined) {
-    if (!url) {
-      return null;
-    }
-    const image = supabase.storage.from("avatars").getPublicUrl(`${url}`);
-    return image["data"].publicUrl.toString();
-  }
 
   const handleClose = () => setDialogType(false);
-  const createHandleShow = useCallback((type: DialogType) => {
-    return () => {
-      setDialogType(type);
-    }
-  }, [setDialogType]);
+  const createHandleShow = useCallback(
+    (type: DialogType) => {
+      return () => {
+        setDialogType(type);
+      };
+    },
+    [setDialogType]
+  );
 
   const filteredList = conversationsWithProfiles.filter(
     (item) =>
@@ -275,10 +287,9 @@ export function ChatListView({ session }: { session: Session }) {
           </Link>
           <ChatHeaderInfo>Chats</ChatHeaderInfo>
           <ChatHeaderIconsContainer>
-            <NewChat 
-            style={{backgroundImage: "url('/add-people.svg')",
-          }}
-          onClick={createHandleShow("group-new-chat")}
+            <NewChat
+              style={{ backgroundImage: "url('/add-people.svg')" }}
+              onClick={createHandleShow("group-new-chat")}
             />
           </ChatHeaderIconsContainer>
         </ChatHeader>
@@ -326,7 +337,11 @@ export function ChatListView({ session }: { session: Session }) {
           presence={checkPresence(chat.otherUserId)}
         />
       )}
-      <NewChatModal visible={dialogType !== false} hide={handleClose} type={dialogType}/>
+      <NewChatModal
+        visible={dialogType !== false}
+        hide={handleClose}
+        type={dialogType}
+      />
     </Container>
   );
 }
