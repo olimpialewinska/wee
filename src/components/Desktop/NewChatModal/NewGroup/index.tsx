@@ -8,12 +8,22 @@ import {
   ChatSearchInput,
   ProfileList,
 } from "./style";
-import React, { createContext, useCallback, useEffect, useState } from "react";
+import React, {
+  createContext,
+  use,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { Database } from "../../../../types/supabase";
 type Profiles = Database["public"]["Tables"]["profiles"]["Row"];
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import { Profile } from "../../../../interfaces";
 import { ProfileItem } from "./ProfileItem";
+import { Router } from "react-router-dom";
+import { useRouter } from "next/router";
+import dateFormat from "dateformat";
+import { AuthUser, SupabaseClient } from "@supabase/supabase-js";
 
 interface NewChatInterface {
   hide: () => void;
@@ -30,7 +40,82 @@ export const ListContext = createContext<ListContextInterface>(
   {} as ListContextInterface
 );
 
+const findDirectConversation = async (
+  conversationIds: number[],
+  supabase: SupabaseClient<Database>,
+  isSingle: boolean
+): Promise<number | null> => {
+  for (const id of conversationIds) {
+    const { data: countMembers } = await supabase
+      .from("conv_members")
+      .select("id", { count: "exact" })
+      .eq("conversation_id", id);
+    if (!countMembers) continue;
+
+    if (
+      (isSingle && countMembers.length === 1) ||
+      (!isSingle && countMembers.length === 2)
+    )
+      return id;
+  }
+
+  return null;
+};
+
+const getDirectConversation = async (
+  userList: Profile[],
+  supabase: SupabaseClient<Database>,
+  user: AuthUser
+): Promise<number | null> => {
+  const { data: myConversations } = await supabase
+    .from("conv_members")
+    .select("*")
+    .eq("user_id", user?.id);
+
+  if (!myConversations) {
+    return null;
+  }
+
+  console.log(userList[1]);
+
+  if (!userList[1]) {
+    const myConversationsIds = myConversations.map(
+      (item) => item.conversation_id
+    ) as number[];
+
+    console.log(
+      await findDirectConversation(myConversationsIds, supabase, true)
+    );
+
+    return findDirectConversation(myConversationsIds, supabase, true);
+  }
+
+  const { data: otherUserConversation } = await supabase
+    .from("conv_members")
+    .select("*")
+    .eq("user_id", userList[1].id);
+
+  if (!otherUserConversation) {
+    return null;
+  }
+
+  const myConversationsIds = myConversations.map(
+    (item) => item.conversation_id
+  ) as number[];
+
+  const otherUserConversationIds = otherUserConversation.map(
+    (item) => item.conversation_id
+  ) as number[];
+
+  const commonConversations = myConversationsIds.filter((item) =>
+    otherUserConversationIds.includes(item)
+  );
+
+  return findDirectConversation(commonConversations, supabase, false);
+};
+
 export function NewGroup(props: NewChatInterface) {
+  const router = useRouter();
   const supabase = useSupabaseClient<Database>();
   const [searchText, setSearchText] = useState("");
 
@@ -83,7 +168,6 @@ export function NewGroup(props: NewChatInterface) {
   );
 
   const getProfiles = useCallback(async () => {
-  
     const { data, error } = await supabase
       .from("profiles")
       .select("id, username, avatar_url, name, lastName")
@@ -98,6 +182,92 @@ export function NewGroup(props: NewChatInterface) {
       setProfiles(data);
     }
   }, [searchText, supabase, userList]);
+
+  const handleCreate = useCallback(async () => {
+    if (userList.length <= 2) {
+      const directConversationId = await getDirectConversation(
+        userList,
+        supabase,
+        user!
+      );
+
+      if (directConversationId) {
+        router.push(`/Chats/${directConversationId}`);
+        props.hide();
+        return;
+      }
+
+      const { data: conversation } = await supabase
+        .from("conversation")
+        .insert({})
+        .select();
+
+      if (!conversation) {
+        return;
+      }
+      userList.map(async (user) => {
+        await supabase.from("conv_members").insert([
+          {
+            conversation_id: conversation[0].id,
+            user_id: user.id,
+            user_name: user.username,
+          },
+        ]);
+      });
+
+      const { data: message } = await supabase.from("messages").insert([
+        {
+          conversation_id: conversation[0].id,
+          sender: null,
+          receiver: null,
+          value: `${dateFormat(new Date())} - Conversation has been created`,
+        },
+      ]);
+
+      props.hide();
+      getMyProfile();
+
+      router.push(`/Chats/${conversation[0].id}`);
+    } else {
+      const name = userList.map((user) => user.username)?.join(", ");
+      const { data: conversation } = await supabase
+        .from("conversation")
+        .insert({
+          name: name,
+          isGroup: true,
+        })
+        .select();
+
+      if (!conversation) {
+        return;
+      }
+      userList.map(async (user) => {
+        console.log(user.id);
+        await supabase.from("conv_members").insert([
+          {
+            conversation_id: conversation[0].id,
+            user_id: user.id,
+            user_name: user.username,
+          },
+        ]);
+      });
+
+      const { data: message } = await supabase.from("messages").insert([
+        {
+          conversation_id: conversation[0].id,
+          sender: null,
+          receiver: null,
+          value: `${dateFormat(new Date())} - Conversation has been created`,
+        },
+      ]);
+
+      props.hide();
+      getMyProfile();
+
+      router.push(`/Chats/${conversation[0].id}`);
+    }
+  }, [getMyProfile, props, router, supabase, user, userList]);
+
   return (
     <>
       {" "}
@@ -105,27 +275,6 @@ export function NewGroup(props: NewChatInterface) {
         value={{ addUser, removeUser, userList, setUserList }}
       >
         <ChatSearchContainer>
-          <ChatSearch
-            style={{
-              marginBottom: 16,
-            }}
-          >
-            <ChatListSearch
-              style={{
-                backgroundImage: "url(/edit.svg)",
-                backgroundSize: 16,
-              }}
-            />
-
-            <ChatSearchInput
-              placeholder="Group Name"
-              value={groupName}
-              onChange={(e) => {
-                setGroupName(e.target.value);
-              }}
-            />
-          </ChatSearch>
-
           <ChatSearch>
             {userList.map((user) => (
               <ProfileItem key={user.id} user={user}></ProfileItem>
@@ -155,7 +304,9 @@ export function NewGroup(props: NewChatInterface) {
         </ProfileList>
       </ListContext.Provider>
       <ButtonWrapper>
-        <Button>Create</Button>
+        <Button onClick={handleCreate}>
+          {userList.length >= 3 ? "Create group" : "Create"}
+        </Button>
       </ButtonWrapper>
     </>
   );

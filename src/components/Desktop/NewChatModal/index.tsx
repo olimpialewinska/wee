@@ -17,7 +17,6 @@ import {
 } from "./style";
 
 import { NewGroup } from "./NewGroup";
-import { NewChat } from "./NewChat";
 
 interface ModalProps {
   visible: boolean;
@@ -37,13 +36,7 @@ export function NewChatModal(props: ModalProps) {
         <Wrapper>
           <Close onClick={props.hide} />
 
-          {props.type == "new-chat" ? (
-            <>
-              <NewChat hide={props.hide} />
-            </>
-          ) : (
-            <NewGroup hide={props.hide} />
-          )}
+          <NewGroup hide={props.hide} />
         </Wrapper>
       </ModalBg>
     </>

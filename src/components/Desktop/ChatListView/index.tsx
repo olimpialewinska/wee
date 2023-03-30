@@ -34,9 +34,10 @@ import {
   Session,
 } from "@supabase/auth-helpers-react";
 import { Data } from "@/interfaces";
-import { NewChatModal } from "../NewChatModal";
+
 import { useRouter } from "next/router";
 import { RealtimePresenceState } from "@supabase/supabase-js";
+import { NewChatModal } from "../NewChatModal";
 
 const onlineContext = createContext(null);
 
@@ -274,7 +275,6 @@ export function ChatListView({ session }: { session: Session }) {
           </Link>
           <ChatHeaderInfo>Chats</ChatHeaderInfo>
           <ChatHeaderIconsContainer>
-            <NewChat onClick={createHandleShow("new-chat")} />
             <NewChat 
             style={{backgroundImage: "url('/add-people.svg')",
           }}

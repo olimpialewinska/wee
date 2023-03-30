@@ -18,6 +18,7 @@ export const ChatSearch = styled.div`
   padding: 8px;
   border-radius: 24px;
   display: flex;
+  overflow: auto;
 `;
 
 export const ChatSearchInput = styled.input`
@@ -45,11 +46,12 @@ export const ChatListSearch = styled.div`
 
 export const ProfileList = styled.div`
 width:100%;
-flex: 1;
+height: 400px;
 display: flex;
 flex-direction: column;
 overflow-y: auto;
 max-height: 500px;
+
 `;
 
 export const Button = styled.div`
