@@ -1,86 +1,140 @@
-import { useState } from "react";
+"use client";
+
+import { useCallback, useState } from "react";
 import {
   Button,
   Container,
+  Footer,
+  FormBg,
+  Href,
   Input,
-  Register,
-  RegisterContent,
-  RegisterHeaderIcon,
-} from "../authFormStyle";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+  Logo,
+  Message,
+  ParagraphWrapper,
+  Text,
+} from "../style";
+import { useRouter } from "next/navigation";
+import { Navbar } from "@/components/Navbar";
+import Link from "next/link";
+import { emailValidation, signUp } from "@/utils/auth";
 
-export function RegisterView() {
+export default function Register() {
+  const router = useRouter();
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
-  const [firstName, setFirstName] = useState("");
-
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const supabaseClient = useSupabaseClient();
+  const [validEmail, setValidEmail] = useState(true);
+  const [match, setMatch] = useState(true);
+  const [error, setError] = useState("");
 
-  const [warning, setWarning] = useState(false);
+  const handleSignUp = useCallback(async () => {
+    const data = await signUp(email, password, name, lastName);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (password === confirmPassword) {
-      await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: {
-            data: {
-                name,
-                firstName,
-            },
-          },
-      });
+    if (data !== null) {
+      setError(data.error.message);
+      return;
     }
-    window.location.href = "/login";
-  };
+
+    router.push("/login");
+  }, [email, lastName, name, password, router]);
+
+  const handleKeyDown = useCallback(
+    (e: string) => {
+      if (e === "Enter") {
+        handleSignUp();
+      }
+    },
+    [handleSignUp]
+  );
+  const validateEmail = useCallback(() => {
+    setError("");
+    setValidEmail(emailValidation(email));
+  }, [email]);
+
+  const passwordMatch = useCallback(
+    (confirm: string) => {
+      setError("");
+      password == confirm ? setMatch(true) : setMatch(false);
+    },
+    [password]
+  );
 
   return (
-    <Container>
-      <Register>
-        <RegisterHeaderIcon />
-        <RegisterContent onSubmit={handleSubmit} autoComplete={"on"}>
+    <>
+      <Navbar />
+      <Container>
+        <FormBg>
+          <Logo />
+          <Message
+            style={{
+              color: error
+                ? "#ff6b6b"
+                : !validEmail
+                ? "red"
+                : !match
+                ? "#ff6b6b"
+                : "#fff",
+            }}
+          >
+            {error
+              ? error
+              : !validEmail
+              ? "Please enter a valid email"
+              : !match
+              ? "Passwords do not match"
+              : "Create new account"}
+          </Message>
           <Input
             type="text"
             placeholder="Name"
-            onChange={(e) => setName(e.target.value)}
-          />
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
+          />{" "}
           <Input
             type="text"
-            placeholder="First Name"
-            onChange={(e) => setFirstName(e.target.value)}
-            style={{ marginBottom: 32 }}
+            placeholder="Last Name"
+            onChange={(e) => {
+              setLastName(e.target.value);
+            }}
           />
           <Input
             type="email"
             placeholder="Email"
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              validateEmail();
+            }}
           />
           <Input
             type="password"
             placeholder="Password"
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
           />
           <Input
             type="password"
             placeholder="Confirm Password"
             onChange={(e) => {
-              setConfirmPassword(e.target.value);
-              if (e.target.value !== password) {
-                setWarning(true);
-              } else {
-                setWarning(false);
-              }
+              passwordMatch(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              handleKeyDown(e.key);
             }}
           />
-          {warning && (
-            <p style={{ color: "red", fontSize: 12 }}>Passwords do not match</p>
-          )}
-          <Button type="submit">Register</Button>
-        </RegisterContent>
-      </Register>
-    </Container>
+          <Button onClick={handleSignUp}>Register</Button>
+          <Footer>
+            <ParagraphWrapper>
+              <Text>Have you forgotten your password? </Text>{" "}
+              <Link href="/forgottenPassword">
+                <Href>Remind me!</Href>
+              </Link>
+            </ParagraphWrapper>
+          </Footer>
+        </FormBg>
+      </Container>
+    </>
   );
 }

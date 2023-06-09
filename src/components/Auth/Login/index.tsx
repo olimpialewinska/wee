@@ -1,64 +1,110 @@
-/* eslint-disable react/no-unescaped-entities */
-import Link from "next/link";
-import { useState } from "react";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+"use client";
 
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 import {
-  Container,
-  LoginHeaderIcon,
-  Login,
-  Text,
   Button,
-  Input,
-  LoginContent,
-  LoginFooter,
+  Container,
+  Footer,
+  FormBg,
   Href,
+  Input,
+  Logo,
+  Message,
   ParagraphWrapper,
-} from  "../authFormStyle";
+  Text,
+} from "../style";
+import { Navbar } from "@/components/Navbar";
+import Link from "next/link";
+import { emailValidation, signIn } from "@/utils/auth";
 
-export function LoginView() {
-  const [password, setPassword] = useState("");
+export default function Login() {
   const [email, setEmail] = useState("");
-  const supabaseClient = useSupabaseClient();
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [valid, setValid] = useState<boolean>(true);
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    await supabaseClient.auth.signInWithPassword({
-      email,
-      password,
-    });
-  };
+  const handleSignIn = useCallback(async () => {
+    const data = await signIn(email, password);
+
+    if (data.error) {
+      setError(data.error.message);
+      setValid(false);
+      return;
+    }
+
+    router.push("/home");
+  }, [email, password, router]);
+
+  const validateEmail = useCallback(() => {
+    setError("");
+    setValid(emailValidation(email));
+  }, [email]);
+
+  const handleKeyDown = useCallback(
+    (e: string) => {
+      if (e === "Enter") {
+        handleSignIn();
+      }
+    },
+    [handleSignIn]
+  );
 
   return (
     <>
+      <Navbar />
       <Container>
-        <Login>
-          <LoginHeaderIcon />
-          <LoginContent onSubmit={handleLogin} autoComplete={"on"}>
-            <Input
-              type="email"
-              placeholder="Email"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Button type="submit">Log in</Button>
-          </LoginContent>
-          <LoginFooter>
-            <ParagraphWrapper><Text>Don't have an acoount? </Text>{" "}
-            <Link href="/register">
-              <Href>Sign up!</Href>
-            </Link></ParagraphWrapper>
-            
-            <ParagraphWrapper><Text>Have you forgotten your password? </Text>{" "}
-            <Link href="/forgottenPassword">
-              <Href>Remind me!</Href>
-            </Link></ParagraphWrapper>
-          </LoginFooter>
-        </Login>
+        <FormBg>
+          <Logo />
+          <Message
+            style={{
+              color: error ? "#ff6b6b" : !valid ? "#ff6b6b" : "#fff",
+            }}
+          >
+            {error
+              ? error
+              : !valid
+              ? "Please enter a valid email address"
+              : "Log in to your account"}
+          </Message>
+          <Input
+            name="email"
+            placeholder="Email"
+            onChange={(e) => {
+              setEmail(e.target.value);
+              validateEmail();
+            }}
+            value={email}
+          />
+          <Input
+            type="password"
+            placeholder="Password"
+            name="password"
+            onChange={(e) => setPassword(e.target.value)}
+            value={password}
+            onKeyDown={(e) => handleKeyDown(e.key)}
+          />
+
+          <Button onClick={handleSignIn}>Sign in</Button>
+
+          <Footer>
+            <ParagraphWrapper>
+              <Text>{"Don't have an acoount?"} </Text>{" "}
+              <Link href="/register">
+                <Href>Sign up!</Href>
+              </Link>
+            </ParagraphWrapper>
+
+            <ParagraphWrapper>
+              <Text>Have you forgotten your password? </Text>{" "}
+              <Link href="/forgottenPassword">
+                <Href>Remind me!</Href>
+              </Link>
+            </ParagraphWrapper>
+          </Footer>
+        </FormBg>
       </Container>
     </>
   );

@@ -15,17 +15,17 @@ export const StyledNavbar = styled.div`
 export const Brand = styled.a`
   width: 150px;
   height: 40px;
-  background-image:url("/wee.png");
+  background-image: url("/wee.png");
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
-  filter:invert(1);
+  filter: invert(1);
   cursor: pointer;
 `;
 
 export const Buttons = styled.div`
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
 `;
 
 export const Button = styled.a`
@@ -42,11 +42,10 @@ export const Button = styled.a`
   cursor: pointer;
   transition: 0.2s all;
   text-decoration: none;
-  display:flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.2);
