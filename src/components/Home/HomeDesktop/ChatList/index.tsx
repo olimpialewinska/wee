@@ -18,10 +18,11 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { IList } from "../../../../interfaces";
 import { ListItem } from "./ListItem";
 import { usePathname, useRouter } from "next/navigation";
-import { NewChatModal } from "../../NewChatModal";
+
 import { getData } from "../../../../utils/chatList/getChatList";
 import { chatContext } from "..";
 import { getImage } from "@/utils/settings/images";
+import { NewChatModal } from "../../NewChatModal";
 
 export function ChatList({ user }: { user: User }) {
   const { setChatData } = useContext(chatContext);
@@ -33,7 +34,7 @@ export function ChatList({ user }: { user: User }) {
   const handleShow = () => {
     setShow(true);
   };
-  console.log("chatlist", chatlist);
+
   const pathname = usePathname();
   const id = pathname.split("/")[2];
 
@@ -88,7 +89,7 @@ export function ChatList({ user }: { user: User }) {
           ))}
         </List>
       </Bg>
-      <NewChatModal visible={show} hide={handleClose} />
+      <NewChatModal visible={show} hide={handleClose} user={user} />
     </Container>
   );
 }

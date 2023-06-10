@@ -21,3 +21,19 @@ export interface ModalProps {
   visible: boolean;
   hide: () => void;
 }
+
+export interface IUser {
+  id: string | null;
+  name: string | null;
+  image: string | null;
+}
+
+export interface IConv {
+  id: number;
+  members:
+    | {
+        userId: string | null;
+      }[]
+    | null;
+  count: number | null;
+}

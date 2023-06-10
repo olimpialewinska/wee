@@ -116,13 +116,14 @@ export async function getData(userId: string) {
 
   const data = await Promise.all(
     myConvs.map(async (conv) => {
-      const otherMember = otherMembers.find(async (member) => {
-        member.convId === conv.id;
-      });
+      const otherMember = otherMembers.find(
+        (member) => member.convId === conv.id
+      );
 
       const lastMessage = lastMessages.find(
         (message) => message.convId === conv.id
       );
+
       if (!otherMember) {
         const myImage = await getImage(userId);
         const me = {
@@ -141,18 +142,30 @@ export async function getData(userId: string) {
       const otherMemberName = await getName(otherMember.userId!);
       const otherMemberImage = await getImage(otherMember.userId!);
 
+      const memberName = otherMember.nick ? otherMember.nick : otherMemberName;
+      const memberImage = otherMemberImage?.data.publicUrl || null;
+
       return {
         convId: conv.id,
         isGroup: conv.isGroup,
         otherMember: {
           userId: otherMember.userId,
-          name: otherMember.nick ? otherMember.nick : otherMemberName,
-          image: otherMemberImage?.data.publicUrl || null,
+          name: memberName,
+          image: memberImage,
         },
         lastMessage,
       };
     })
   );
+  data.sort((a, b) => {
+    const timeA = a.lastMessage?.created_at
+      ? new Date(a.lastMessage.created_at).getTime()
+      : 0;
+    const timeB = b.lastMessage?.created_at
+      ? new Date(b.lastMessage.created_at).getTime()
+      : 0;
+    return timeB - timeA;
+  });
 
   return data;
 }

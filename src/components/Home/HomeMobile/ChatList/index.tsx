@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 "use client";
 import {
   User,
@@ -74,7 +75,7 @@ export function ChatList({ user }: { user: User }) {
           <ListItem key={item.convId} data={item} user={user} />
         ))}
       </List>
-      <NewChatModal visible={show} hide={handleClose} />
+      <NewChatModal visible={show} hide={handleClose} user={user} />
     </Bg>
   );
 }
