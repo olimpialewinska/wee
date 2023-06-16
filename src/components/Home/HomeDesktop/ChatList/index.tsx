@@ -34,6 +34,14 @@ export function ChatList({ user }: { user: User }) {
   const handleShow = () => {
     setShow(true);
   };
+  const [search, setSearch] = useState<string>("");
+
+  const filteredList = chatlist.filter((item: IList) => {
+    return (
+      item.otherMember.name &&
+      item.otherMember.name.toLowerCase().includes(search.toLowerCase())
+    );
+  });
 
   const pathname = usePathname();
   const id = pathname.split("/")[2];
@@ -80,11 +88,15 @@ export function ChatList({ user }: { user: User }) {
         <ChatSearchContainer>
           <ChatSearch>
             <SearchIcon />
-            <ChatSearchInput placeholder="Search" />
+            <ChatSearchInput
+              placeholder="Search"
+              onChange={(e) => setSearch(e.target.value)}
+              value={search}
+            />
           </ChatSearch>
         </ChatSearchContainer>
         <List>
-          {chatlist.map((item: IList) => (
+          {filteredList.map((item: IList) => (
             <ListItem key={item.convId} data={item} user={user} />
           ))}
         </List>

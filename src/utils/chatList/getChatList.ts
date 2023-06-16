@@ -1,5 +1,6 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "../../../lib/database.types";
+import { get } from "http";
 
 const supabase = createClientComponentClient<Database>();
 
@@ -37,6 +38,14 @@ export function getPublicUrl(userId: string, name: string) {
   const data = supabase.storage
     .from("userImage")
     .getPublicUrl(`${userId}/${name}`);
+
+  return data;
+}
+
+export function getGroupPublicUrl(convId: number, imageName: string) {
+  const data = supabase.storage
+    .from("groupImage")
+    .getPublicUrl(`${convId}/${imageName}`);
 
   return data;
 }
@@ -109,6 +118,20 @@ export async function getLastMessage(
   return data;
 }
 
+export async function getGroupDetails(convId: number) {
+  const { data, error } = await supabase
+    .from("groupDetails")
+    .select("*")
+    .eq("convId", convId)
+    .limit(1);
+
+  if (error) {
+    return null;
+  }
+
+  return data;
+}
+
 export async function getData(userId: string) {
   const myConvs = await getMyConvs(userId);
   const otherMembers = await getOtherMembers(myConvs, userId);
@@ -135,6 +158,24 @@ export async function getData(userId: string) {
           convId: conv.id,
           isGroup: conv.isGroup,
           otherMember: me,
+          lastMessage,
+        };
+      }
+
+      if (conv.isGroup) {
+        const data = await getGroupDetails(conv.id);
+        const groupImage = data?.[0].imageName
+          ? getGroupPublicUrl(conv.id, data?.[0].imageName as string)
+          : null;
+        const groupName = data?.[0].name as string;
+        return {
+          convId: conv.id,
+          isGroup: conv.isGroup,
+          otherMember: {
+            userId: null,
+            name: groupName,
+            image: groupImage ? groupImage.data.publicUrl : null,
+          },
           lastMessage,
         };
       }

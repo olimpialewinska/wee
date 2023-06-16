@@ -29,6 +29,13 @@ export function Chat({ chat }: { chat: IList | null }) {
     setShow(true);
   };
 
+  const backgoundImage =
+    chat?.otherMember.image !== null
+      ? `url(${chat?.otherMember.image})`
+      : chat.isGroup === true
+      ? `url(/groupDefault.png)`
+      : "url(/default.png)";
+
   const [showImage, setShowImage] = useState(false);
   const handleCloseImage = () => setShowImage(false);
   const handleShowImage = () => {
@@ -38,7 +45,7 @@ export function Chat({ chat }: { chat: IList | null }) {
   return (
     <StyledChat
       style={{
-        transform: `translateX(${chat ? "0" : "100%"})`,
+        display: chat === null ? "none" : "flex",
       }}
     >
       <Navbar>
@@ -51,10 +58,7 @@ export function Chat({ chat }: { chat: IList | null }) {
         <Image
           onClick={handleShowImage}
           style={{
-            backgroundImage:
-              chat?.otherMember.image !== null
-                ? `url(${chat?.otherMember.image})`
-                : "url(/default.png)",
+            backgroundImage: backgoundImage,
           }}
         />
 
@@ -78,7 +82,11 @@ export function Chat({ chat }: { chat: IList | null }) {
         </MessageContainer>
         <Send />
       </ChatInput>
-      <ImageModal visible={showImage} hide={handleCloseImage} />
+      <ImageModal
+        visible={showImage}
+        hide={handleCloseImage}
+        image={backgoundImage}
+      />
       <ChatSettingsModal visible={show} hide={handleClose} />
     </StyledChat>
   );

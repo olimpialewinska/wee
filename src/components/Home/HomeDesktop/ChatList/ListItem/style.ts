@@ -64,4 +64,5 @@ export const Time = styled.div`
   font-size: 12px;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 4px;
 `;

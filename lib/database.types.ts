@@ -72,22 +72,22 @@ export interface Database {
           convId: number | null
           created_at: string | null
           id: number
-          imagePath: string | null
-          "name ": string | null
+          imageName: string | null
+          name: string | null
         }
         Insert: {
           convId?: number | null
           created_at?: string | null
           id?: number
-          imagePath?: string | null
-          "name "?: string | null
+          imageName?: string | null
+          name?: string | null
         }
         Update: {
           convId?: number | null
           created_at?: string | null
           id?: number
-          imagePath?: string | null
-          "name "?: string | null
+          imageName?: string | null
+          name?: string | null
         }
         Relationships: [
           {

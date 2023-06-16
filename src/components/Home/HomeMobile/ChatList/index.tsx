@@ -71,7 +71,7 @@ export function ChatList({ user }: { user: User }) {
         </ChatSearch>
       </ChatSearchContainer>
       <List>
-        {chatlist.map((item: IList) => (
+        {chatlist.map((item) => (
           <ListItem key={item.convId} data={item} user={user} />
         ))}
       </List>

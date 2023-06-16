@@ -30,6 +30,12 @@ export function Chat({ user }: { user: User }) {
   const handleShow = () => {
     setShow(true);
   };
+  const backgoundImage =
+    chatData?.otherMember.image !== null
+      ? `url(${chatData?.otherMember.image})`
+      : chatData?.isGroup === true
+      ? `url(/groupDefault.png)`
+      : "url(/default.png)";
 
   const [showImage, setShowImage] = useState(false);
   const handleCloseImage = () => setShowImage(false);
@@ -46,10 +52,7 @@ export function Chat({ user }: { user: User }) {
           <Image
             onClick={handleShowImage}
             style={{
-              backgroundImage:
-                chatData?.otherMember.image !== null
-                  ? `url(${chatData?.otherMember.image})`
-                  : "url(/default.png)",
+              backgroundImage: backgoundImage,
             }}
           />
 
@@ -65,7 +68,7 @@ export function Chat({ user }: { user: User }) {
             onClick={handleShow}
           />
         </Navbar>
-        <ChatContainer>{chatData?.lastMessage?.convId}</ChatContainer>
+        <ChatContainer></ChatContainer>
         <ChatInput>
           <Attachment />
           <MessageContainer>
@@ -75,7 +78,11 @@ export function Chat({ user }: { user: User }) {
           <Send />
         </ChatInput>
       </Bg>
-      <ImageModal visible={showImage} hide={handleCloseImage} />
+      <ImageModal
+        visible={showImage}
+        hide={handleCloseImage}
+        image={backgoundImage}
+      />
       <ChatSettingsModal visible={show} hide={handleClose} />
     </Container>
   );

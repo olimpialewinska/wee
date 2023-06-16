@@ -1,7 +1,11 @@
 import { ModalProps } from "@/interfaces";
 import { Container, ModalBg } from "./style";
 
-export function ImageModal(props: ModalProps) {
+interface ImageModalProps extends ModalProps {
+  image: string;
+}
+
+export function ImageModal(props: ImageModalProps) {
   return (
     <ModalBg
       style={{
@@ -14,7 +18,11 @@ export function ImageModal(props: ModalProps) {
         }
       }}
     >
-      <Container></Container>
+      <Container
+        style={{
+          backgroundImage: props.image,
+        }}
+      ></Container>
     </ModalBg>
   );
 }

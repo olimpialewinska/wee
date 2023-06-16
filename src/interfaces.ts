@@ -37,3 +37,11 @@ export interface IConv {
     | null;
   count: number | null;
 }
+
+export interface IMessage {
+  convId: number | null;
+  created_at: string | null;
+  id: number;
+  senderId: string | null;
+  value: string | null;
+}

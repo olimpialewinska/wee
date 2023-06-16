@@ -22,6 +22,8 @@ export function ListItem({ data, user }: { data: IList; user: User }) {
           backgroundImage:
             data.otherMember.image !== null
               ? `url(${data.otherMember.image})`
+              : data.isGroup === true
+              ? `url(/groupDefault.png)`
               : "url(/default.png)",
         }}
       />

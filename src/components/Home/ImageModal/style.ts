@@ -17,13 +17,15 @@ export const ModalBg = styled.div`
 export const Container = styled.div`
   width: 400px;
   height: 400px;
-  background-color: rgb(54, 54, 54);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   overflow-y: auto;
   padding: 20px;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 
   @media (max-width: 768px) {
     width: 80% !important;

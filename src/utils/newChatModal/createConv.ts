@@ -13,19 +13,13 @@ export async function getAllMyConvs(user: string) {
   if (error) {
     return [];
   }
-  console.log("convsID", data);
 
   const convsWithMembers = await Promise.all(
     data.map(async (item) => {
-      console.log(item.convId);
       const { data: members, error: error2 } = await supabase
         .from("convMembers")
         .select("userId")
         .eq("convId", item.convId);
-
-      if (error2) {
-        console.log(error2);
-      }
 
       return {
         id: item.convId,
@@ -33,7 +27,6 @@ export async function getAllMyConvs(user: string) {
       };
     })
   );
-  console.log(convsWithMembers);
 
   return convsWithMembers;
 }
@@ -49,13 +42,8 @@ export async function checkIfConvExists(
   } else {
     otherUserId = selectedUsers.id;
   }
-  console.log(otherUserId);
 
   const myConvs = await getAllMyConvs(userId);
-
-  if (!myConvs || myConvs.length === 0) {
-    return false;
-  }
 
   const convWithSelf = myConvs.find((conv: any) => {
     const memberIds = conv.otherMembers?.map((member: any) => member.userId);
@@ -88,21 +76,18 @@ export async function checkIfConvExists(
 
 export function CheckConvType(selectedUsers: IUser[] | IUser) {
   if (Array.isArray(selectedUsers) && selectedUsers.length > 2) {
-    console.log("group");
     return "group";
   } else if (Array.isArray(selectedUsers) && selectedUsers.length == 2) {
-    console.log("conv");
     return "conv";
   } else {
-    console.log("single");
     return "single";
   }
 }
 
-export async function InitialMessage(convId: number) {
+export async function InitialMessage(convId: number, value: string) {
   const { data, error } = await supabase
     .from("messages")
-    .insert([{ convId: convId, value: "Conversation was created" }]);
+    .insert([{ convId: convId, value: value }]);
 }
 
 export async function Create(isGroup: boolean) {
@@ -112,7 +97,17 @@ export async function Create(isGroup: boolean) {
     .select();
 
   if (data) {
-    await InitialMessage(data[0].id);
+    if (isGroup === true) {
+      const { data: detailsData, error } = await supabase
+        .from("groupDetails")
+        .insert([{ convId: data[0].id, name: "Group" }]);
+
+      if (error) {
+        return null;
+      }
+    }
+    await InitialMessage(data[0].id, "Conversation was created");
+    console.log(data[0].id);
     return data[0].id;
   }
 
@@ -161,8 +156,6 @@ export async function CreateConv(selectedUsers: IUser[] | IUser, user: string) {
   }
 
   const exist = await checkIfConvExists(selectedUsers, user);
-
-  console.log(exist);
 
   if (exist === null) {
     return await AddToDb(selectedUsers);
