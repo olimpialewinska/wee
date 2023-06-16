@@ -3,7 +3,10 @@ import { Database } from "../../../lib/database.types";
 
 const supabase = createClientComponentClient<Database>();
 
-const getMessages = async (convId: number) => {
+export const getMessages = async (convId: number | undefined) => {
+  if (!convId) {
+    return [];
+  }
   const { data, error } = await supabase
     .from("messages")
     .select("*")

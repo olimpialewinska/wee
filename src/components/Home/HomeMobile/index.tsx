@@ -1,5 +1,8 @@
 "use client";
-import { User } from "@supabase/auth-helpers-nextjs";
+import {
+  User,
+  createClientComponentClient,
+} from "@supabase/auth-helpers-nextjs";
 import {
   useState,
   createContext,
@@ -13,6 +16,7 @@ import { Chat } from "./Chat";
 import { usePathname } from "next/navigation";
 import { IList } from "@/interfaces";
 import { getData } from "@/utils/chatList/getChatList";
+import { RealtimePresenceState } from "@supabase/supabase-js";
 
 interface IViewContext {
   chat: IList | null;
@@ -20,10 +24,19 @@ interface IViewContext {
 }
 
 export const viewContext = createContext<IViewContext>({} as IViewContext);
+interface IOnlineContext {
+  onlineUsers: RealtimePresenceState | undefined;
+}
+
+export const onlineContext = createContext<IOnlineContext>(
+  {} as IOnlineContext
+);
 
 export function HomeMobile({ user }: { user: User }) {
+  const supabase = createClientComponentClient();
   const [chat, setChat] = useState<IList | null>(null);
   const [chatList, setChatList] = useState<IList[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<RealtimePresenceState>();
   const pathname = usePathname();
   const id = chat || pathname.split("/")[2];
   const isChat = !!id;
@@ -34,12 +47,44 @@ export function HomeMobile({ user }: { user: User }) {
 
   useEffect(() => {
     getChats();
-  }, [chatList, getChats]);
+    const channel = supabase.channel("online-users", {
+      config: {
+        presence: {
+          key: user.id,
+        },
+      },
+    });
+
+    channel.on("presence", { event: "sync" }, () => {
+      console.log("Online users: ", channel.presenceState());
+      const onlineUsers = channel.presenceState();
+      setOnlineUsers(onlineUsers);
+    });
+
+    channel.on("presence", { event: "join" }, ({ newPresences }) => {
+      console.log("New users have joined: ", newPresences);
+    });
+
+    channel.on("presence", { event: "leave" }, ({ leftPresences }) => {
+      console.log("Users have left: ", leftPresences);
+    });
+
+    channel.subscribe(async (status) => {
+      if (status === "SUBSCRIBED") {
+        const status = await channel.track({
+          online_at: new Date().toISOString(),
+        });
+        // console.log(status);
+      }
+    });
+  }, [getChats, supabase, user.id]);
 
   return (
-    <viewContext.Provider value={{ chat, setChat }}>
-      <ChatList user={user} />
-      {isChat && <Chat chat={chat} />}
-    </viewContext.Provider>
+    <onlineContext.Provider value={{ onlineUsers }}>
+      <viewContext.Provider value={{ chat, setChat }}>
+        <ChatList user={user} />
+        {isChat && <Chat chat={chat} user={user} />}
+      </viewContext.Provider>
+    </onlineContext.Provider>
   );
 }

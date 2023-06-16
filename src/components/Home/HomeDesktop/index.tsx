@@ -15,17 +15,27 @@ import { ChatList } from "./ChatList";
 import { Container } from "./style";
 import { usePathname } from "next/navigation";
 import { IList } from "@/interfaces";
+import { RealtimePresenceState } from "@supabase/supabase-js";
 
 interface IViewContext {
   chatData: IList | null;
   setChatData: Dispatch<SetStateAction<IList | null>>;
 }
 
+interface IOnlineContext {
+  onlineUsers: RealtimePresenceState | undefined;
+}
+
 export const chatContext = createContext<IViewContext>({} as IViewContext);
+
+export const onlineContext = createContext<IOnlineContext>(
+  {} as IOnlineContext
+);
 
 export function HomeDesktop({ user }: { user: User }) {
   const supabase = createClientComponentClient();
   const [chatData, setChatData] = useState<IList | null>(null);
+  const [onlineUsers, setOnlineUsers] = useState<RealtimePresenceState>();
 
   useEffect(() => {
     const channel = supabase.channel("online-users", {
@@ -37,15 +47,17 @@ export function HomeDesktop({ user }: { user: User }) {
     });
 
     channel.on("presence", { event: "sync" }, () => {
-      // console.log("Online users: ", channel.presenceState());
+      console.log("Online users: ", channel.presenceState());
+      const onlineUsers = channel.presenceState();
+      setOnlineUsers(onlineUsers);
     });
 
     channel.on("presence", { event: "join" }, ({ newPresences }) => {
-      // console.log("New users have joined: ", newPresences);
+      console.log("New users have joined: ", newPresences);
     });
 
     channel.on("presence", { event: "leave" }, ({ leftPresences }) => {
-      // console.log("Users have left: ", leftPresences);
+      console.log("Users have left: ", leftPresences);
     });
 
     channel.subscribe(async (status) => {
@@ -59,16 +71,18 @@ export function HomeDesktop({ user }: { user: User }) {
   }, [supabase, user.id]);
 
   return (
-    <chatContext.Provider
-      value={{
-        chatData,
-        setChatData,
-      }}
-    >
-      <Container>
-        <ChatList user={user} />
-        <Chat user={user} />
-      </Container>
-    </chatContext.Provider>
+    <onlineContext.Provider value={{ onlineUsers }}>
+      <chatContext.Provider
+        value={{
+          chatData,
+          setChatData,
+        }}
+      >
+        <Container>
+          <ChatList user={user} />
+          <Chat user={user} />
+        </Container>
+      </chatContext.Provider>
+    </onlineContext.Provider>
   );
 }

@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { useContext, useState } from "react";
-import { viewContext } from "..";
-import { usePathname } from "next/navigation";
+"use client";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { onlineContext, viewContext } from "..";
 import {
   ActivityStatus,
   Attachment,
@@ -19,11 +19,19 @@ import {
 } from "./style";
 import { ChatSettingsModal } from "../../ChatSettingsModal";
 import { ImageModal } from "../../ImageModal";
-import { IList } from "@/interfaces";
+import { IList, IMessage } from "@/interfaces";
+import { getMessages } from "@/utils/chat/getMessages";
+import { Message } from "../../Message";
+import { Announcement } from "../../Announcement";
+import { User } from "@supabase/auth-helpers-nextjs";
+import { checkPresence } from "@/utils/chat/checkPresence";
 
-export function Chat({ chat }: { chat: IList | null }) {
+export function Chat({ chat, user }: { chat: IList | null; user: User }) {
   const { setChat } = useContext(viewContext);
+  const { onlineUsers } = useContext(onlineContext);
+  const [status, setStatus] = useState<boolean>(false);
   const [show, setShow] = useState(false);
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const handleClose = () => setShow(false);
   const handleShow = () => {
     setShow(true);
@@ -42,6 +50,19 @@ export function Chat({ chat }: { chat: IList | null }) {
     setShowImage(true);
   };
 
+  const getData = useCallback(async () => {
+    setMessages(await getMessages(chat?.convId));
+  }, [chat?.convId]);
+
+  const checkStatus = useCallback(() => {
+    setStatus(checkPresence(user.id, chat?.otherMember.userId, onlineUsers));
+  }, [chat, onlineUsers, user.id]);
+
+  useEffect(() => {
+    getData();
+    checkStatus();
+  }, [checkStatus, getData]);
+
   return (
     <StyledChat
       style={{
@@ -59,12 +80,13 @@ export function Chat({ chat }: { chat: IList | null }) {
           onClick={handleShowImage}
           style={{
             backgroundImage: backgoundImage,
+            border: status === true ? "2px solid #00ff00" : "",
           }}
         />
 
         <Wrapper>
           <Name>{chat?.otherMember.name}</Name>
-          <ActivityStatus> Online</ActivityStatus>
+          <ActivityStatus>{status ? "Online" : "Offline"}</ActivityStatus>
         </Wrapper>
 
         <Icon
@@ -74,7 +96,19 @@ export function Chat({ chat }: { chat: IList | null }) {
           onClick={handleShow}
         />
       </Navbar>
-      <Container>{chat?.convId}</Container>
+      <Container>
+        {messages.map((message: IMessage) =>
+          message.senderId ? (
+            <Message
+              key={message.id}
+              message={message}
+              isSelf={message.senderId === user.id}
+            />
+          ) : (
+            <Announcement key={message.id} message={message.value} />
+          )
+        )}
+      </Container>
       <ChatInput>
         <Attachment />
         <MessageContainer>
