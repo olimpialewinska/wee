@@ -53,11 +53,13 @@ export function HomeDesktop({ user }: { user: User }) {
     });
 
     channel.on("presence", { event: "join" }, ({ newPresences }) => {
-      console.log("New users have joined: ", newPresences);
+      const onlineUsers = channel.presenceState();
+      setOnlineUsers(onlineUsers);
     });
 
     channel.on("presence", { event: "leave" }, ({ leftPresences }) => {
-      console.log("Users have left: ", leftPresences);
+      const onlineUsers = channel.presenceState();
+      setOnlineUsers(onlineUsers);
     });
 
     channel.subscribe(async (status) => {
@@ -68,6 +70,9 @@ export function HomeDesktop({ user }: { user: User }) {
         // console.log(status);
       }
     });
+    return () => {
+      channel.unsubscribe();
+    };
   }, [supabase, user.id]);
 
   return (

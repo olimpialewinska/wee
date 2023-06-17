@@ -28,12 +28,20 @@ import { getMessages } from "@/utils/chat/getMessages";
 import { Announcement } from "../../Announcement";
 import { Message } from "../../Message";
 import { checkPresence } from "@/utils/chat/checkPresence";
+import { addMessageToDB } from "@/utils/chat/sendMessage";
+const { createClient } = require("@supabase/supabase-js");
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 export function Chat({ user }: { user: User }) {
   const { chatData } = useContext(chatContext);
   const { onlineUsers } = useContext(onlineContext);
   const [status, setStatus] = useState<boolean>(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
+  const [statusDetails, setStatusDetails] = useState<string | null>(null);
+  const [messageText, setMessageText] = useState<string>("");
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => {
@@ -65,7 +73,72 @@ export function Chat({ user }: { user: User }) {
   useEffect(() => {
     getData();
     checkStatus();
-  }, [checkStatus, getData]);
+    const channel = supabase
+      .channel(`chanel-${chatData?.convId}`, {
+        config: {
+          presence: {
+            key: `${user?.id}`,
+          },
+        },
+      })
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+        },
+        (payload: any) => {
+          const message = payload.new as IMessage;
+          if (message.convId !== chatData?.convId) return;
+          setMessages((prev) => [...prev, message]);
+        }
+      )
+      .subscribe();
+
+    if (!chatData?.isGroup) {
+      channel.on("presence", { event: "sync" }, () => {
+        const users = channel.presenceState();
+        console.log(users);
+
+        const otherUserPresence = users[`${chatData?.otherMember.userId}`];
+        if (otherUserPresence) {
+          setStatusDetails(
+            `${chatData?.otherMember.name} is currently viewing this chat`
+          );
+        } else {
+          checkStatus();
+        }
+      });
+    }
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [
+    chatData?.convId,
+    chatData?.isGroup,
+    chatData?.otherMember.name,
+    chatData?.otherMember.userId,
+    checkStatus,
+    getData,
+    user?.id,
+  ]);
+
+  const sendMessage = useCallback(async () => {
+    if (messageText === "") return;
+    const data = await addMessageToDB(messageText, chatData?.convId, user.id);
+    setMessageText("");
+  }, [chatData?.convId, messageText, user.id]);
+
+  const onInputKeyUp = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    },
+    [sendMessage]
+  );
 
   return (
     <Container>
@@ -81,7 +154,9 @@ export function Chat({ user }: { user: User }) {
 
           <Wrapper>
             <Name>{chatData?.otherMember.name}</Name>
-            <ActivityStatus>{status ? "Online" : "Offline"}</ActivityStatus>
+            <ActivityStatus>
+              {statusDetails ? statusDetails : status ? "Online" : "Offline"}
+            </ActivityStatus>
           </Wrapper>
 
           <Icon
@@ -107,10 +182,15 @@ export function Chat({ user }: { user: User }) {
         <ChatInput>
           <Attachment />
           <MessageContainer>
-            <MessageInput placeholder="Type a message" />
+            <MessageInput
+              placeholder="Type a message"
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              onKeyUp={onInputKeyUp}
+            />
           </MessageContainer>
           <Emoji />
-          <Send />
+          <Send onClick={sendMessage} />
         </ChatInput>
       </Bg>
       <ImageModal

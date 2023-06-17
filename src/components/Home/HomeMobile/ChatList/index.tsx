@@ -16,17 +16,20 @@ import {
   List,
   Title,
 } from "./style";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { IList } from "../../../../interfaces";
 import { ListItem } from "./ListItem";
 import { useRouter } from "next/navigation";
 import { NewChatModal } from "../../NewChatModal";
 import { getData } from "../../../../utils/chatList/getChatList";
 import { getImage } from "@/utils/settings/images";
+import { onlineContext } from "..";
+import { checkPresence } from "@/utils/chat/checkPresence";
 
 export function ChatList({ user }: { user: User }) {
   const [chatlist, setChatlist] = useState<IList[]>([]);
   const [image, setImage] = useState<string | null>("");
+  const { onlineUsers } = useContext(onlineContext);
   const router = useRouter();
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -72,7 +75,16 @@ export function ChatList({ user }: { user: User }) {
       </ChatSearchContainer>
       <List>
         {chatlist.map((item) => (
-          <ListItem key={item.convId} data={item} user={user} />
+          <ListItem
+            key={item.convId}
+            data={item}
+            user={user}
+            status={checkPresence(
+              user.id,
+              item.otherMember.userId,
+              onlineUsers
+            )}
+          />
         ))}
       </List>
       <NewChatModal visible={show} hide={handleClose} user={user} />

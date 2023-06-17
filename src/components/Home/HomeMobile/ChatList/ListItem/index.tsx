@@ -8,18 +8,19 @@ import { useRouter } from "next/navigation";
 import { getTime } from "@/utils/chatList/getChatList";
 import { checkPresence } from "@/utils/chat/checkPresence";
 
-export function ListItem({ data, user }: { data: IList; user: User }) {
+export function ListItem({
+  data,
+  user,
+  status,
+}: {
+  data: IList;
+  user: User;
+  status: boolean;
+}) {
   const router = useRouter();
-  const [status, setStatus] = useState<boolean>(false);
-  const { onlineUsers } = useContext(onlineContext);
-  const { setChat } = useContext(viewContext);
-  const checkStatus = useCallback(() => {
-    setStatus(checkPresence(user.id, data.otherMember.userId, onlineUsers));
-  }, [data.otherMember.userId, onlineUsers, user.id]);
 
-  useEffect(() => {
-    checkStatus();
-  }, [checkStatus]);
+  const { setChat } = useContext(viewContext);
+
   return (
     <Wrapper
       onClick={() => {

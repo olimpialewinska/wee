@@ -38,6 +38,7 @@ export const Image = styled.div`
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
+  border: 2px solid #616161;
 `;
 
 export const Content = styled.div`

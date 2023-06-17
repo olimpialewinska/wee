@@ -8,25 +8,25 @@ import { chatContext, onlineContext } from "../..";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { checkPresence } from "@/utils/chat/checkPresence";
 
-export function ListItem({ data, user }: { data: IList; user: User }) {
+export function ListItem({
+  data,
+  user,
+  status,
+}: {
+  data: IList;
+  user: User;
+  status: boolean;
+}) {
   const router = useRouter();
-  const { onlineUsers } = useContext(onlineContext);
+
   const { setChatData } = useContext(chatContext);
-  const [status, setStatus] = useState<boolean>(false);
+
   const pathname = usePathname();
   const id = pathname.split("/")[2];
   const handleClick = useCallback(() => {
     router.push(`/home/${data.convId}`);
     setChatData(data);
   }, [data, router, setChatData]);
-
-  const checkStatus = useCallback(() => {
-    setStatus(checkPresence(user.id, data.otherMember.userId, onlineUsers));
-  }, [data.otherMember.userId, onlineUsers, user.id]);
-
-  useEffect(() => {
-    checkStatus();
-  }, [checkStatus]);
 
   return (
     <Wrapper
