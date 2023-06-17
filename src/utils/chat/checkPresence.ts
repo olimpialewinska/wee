@@ -5,7 +5,6 @@ export function checkPresence(
   otherMemberId: string | null | undefined,
   onlineUsers: RealtimePresenceState | undefined
 ) {
-  console.log("checkPresence", userId, otherMemberId, onlineUsers);
   if (otherMemberId === userId) {
     return true;
   }

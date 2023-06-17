@@ -26,13 +26,10 @@ import { Announcement } from "../../Announcement";
 import { User } from "@supabase/auth-helpers-nextjs";
 import { checkPresence } from "@/utils/chat/checkPresence";
 import { addMessageToDB } from "@/utils/chat/sendMessage";
-const { createClient } = require("@supabase/supabase-js");
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export function Chat({ chat, user }: { chat: IList | null; user: User }) {
+  const supabase = createClientComponentClient();
   const { setChat } = useContext(viewContext);
   const { onlineUsers } = useContext(onlineContext);
   const [status, setStatus] = useState<boolean>(false);
@@ -88,37 +85,14 @@ export function Chat({ chat, user }: { chat: IList | null; user: User }) {
           if (message.convId !== chat?.convId) return;
           setMessages((prev) => [...prev, message]);
         }
-      )
-      .subscribe();
+      );
 
-    if (!chat?.isGroup) {
-      channel.on("presence", { event: "sync" }, () => {
-        const users = channel.presenceState();
-        console.log(users);
-
-        const otherUserPresence = users[`${chat?.otherMember.userId}`];
-        if (otherUserPresence) {
-          setStatusDetails(
-            `${chat?.otherMember.name} is currently viewing this chat`
-          );
-        } else {
-          checkStatus();
-        }
-      });
-    }
+    channel.subscribe();
 
     return () => {
       channel.unsubscribe();
     };
-  }, [
-    chat?.convId,
-    chat?.isGroup,
-    chat?.otherMember.name,
-    chat?.otherMember.userId,
-    checkStatus,
-    getData,
-    user?.id,
-  ]);
+  }, [chat, checkStatus, getData, supabase, user?.id]);
 
   const sendMessage = useCallback(async () => {
     if (messageText === "") return;
@@ -191,7 +165,7 @@ export function Chat({ chat, user }: { chat: IList | null; user: User }) {
             onKeyUp={onInputKeyUp}
           />
         </MessageContainer>
-        <Send />
+        <Send onClick={sendMessage} />
       </ChatInput>
       <ImageModal
         visible={showImage}

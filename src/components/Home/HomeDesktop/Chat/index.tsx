@@ -29,13 +29,10 @@ import { Announcement } from "../../Announcement";
 import { Message } from "../../Message";
 import { checkPresence } from "@/utils/chat/checkPresence";
 import { addMessageToDB } from "@/utils/chat/sendMessage";
-const { createClient } = require("@supabase/supabase-js");
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export function Chat({ user }: { user: User }) {
+  const supabase = createClientComponentClient();
   const { chatData } = useContext(chatContext);
   const { onlineUsers } = useContext(onlineContext);
   const [status, setStatus] = useState<boolean>(false);
@@ -93,37 +90,14 @@ export function Chat({ user }: { user: User }) {
           if (message.convId !== chatData?.convId) return;
           setMessages((prev) => [...prev, message]);
         }
-      )
-      .subscribe();
+      );
 
-    if (!chatData?.isGroup) {
-      channel.on("presence", { event: "sync" }, () => {
-        const users = channel.presenceState();
-        console.log(users);
-
-        const otherUserPresence = users[`${chatData?.otherMember.userId}`];
-        if (otherUserPresence) {
-          setStatusDetails(
-            `${chatData?.otherMember.name} is currently viewing this chat`
-          );
-        } else {
-          checkStatus();
-        }
-      });
-    }
+    channel.subscribe();
 
     return () => {
       channel.unsubscribe();
     };
-  }, [
-    chatData?.convId,
-    chatData?.isGroup,
-    chatData?.otherMember.name,
-    chatData?.otherMember.userId,
-    checkStatus,
-    getData,
-    user?.id,
-  ]);
+  }, [chatData?.convId, chatData, checkStatus, getData, supabase, user?.id]);
 
   const sendMessage = useCallback(async () => {
     if (messageText === "") return;

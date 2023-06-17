@@ -47,28 +47,31 @@ export function HomeMobile({ user }: { user: User }) {
 
   useEffect(() => {
     getChats();
-    const channel = supabase.channel("online-users", {
-      config: {
-        presence: {
-          key: user.id,
+    const channel = supabase
+      .channel("online-users", {
+        config: {
+          presence: {
+            key: user.id,
+          },
         },
-      },
-    });
+      })
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+        },
+        (payload: any) => {
+          getChats();
+          console.log(payload);
+        }
+      );
 
     channel.on("presence", { event: "sync" }, () => {
       console.log("Online users: ", channel.presenceState());
-      const onlineUsers = channel.presenceState();
-      setOnlineUsers(onlineUsers);
-    });
-
-    channel.on("presence", { event: "join" }, ({ newPresences }) => {
-      const onlineUsers = channel.presenceState();
-      setOnlineUsers(onlineUsers);
-    });
-
-    channel.on("presence", { event: "leave" }, ({ leftPresences }) => {
-      const onlineUsers = channel.presenceState();
-      setOnlineUsers(onlineUsers);
+      setOnlineUsers(channel.presenceState());
+      getChats();
     });
 
     channel.subscribe(async (status) => {
@@ -76,7 +79,6 @@ export function HomeMobile({ user }: { user: User }) {
         const status = await channel.track({
           online_at: new Date().toISOString(),
         });
-        // console.log(status);
       }
     });
     return () => {
@@ -87,7 +89,7 @@ export function HomeMobile({ user }: { user: User }) {
   return (
     <onlineContext.Provider value={{ onlineUsers }}>
       <viewContext.Provider value={{ chat, setChat }}>
-        <ChatList user={user} />
+        <ChatList user={user} chatlist={chatList} />
         {isChat && <Chat chat={chat} user={user} />}
       </viewContext.Provider>
     </onlineContext.Provider>
