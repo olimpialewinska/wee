@@ -21,7 +21,6 @@ import {
 import { useCallback, useContext, useEffect, useState } from "react";
 import { ChatSettingsModal } from "../../ChatSettingsModal";
 import { ImageModal } from "../../ImageModal";
-import { chatContext, onlineContext } from "..";
 import { IMessage } from "@/interfaces";
 import { getMessages } from "@/utils/chat/getMessages";
 import { Announcement } from "../../Announcement";
@@ -29,24 +28,25 @@ import { Message } from "../../Message";
 import { checkPresence } from "@/utils/chat/checkPresence";
 import { addMessageToDB } from "@/utils/chat/sendMessage";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { getChatColors } from "@/utils/chat/getColors";
+import { store } from "@/stores";
+import { observer } from "mobx-react-lite";
 
-export function Chat({ user }: { user: User }) {
+export const Chat = observer(() => {
   const supabase = createClientComponentClient();
-  const { chatData } = useContext(chatContext);
-  const { onlineUsers } = useContext(onlineContext);
-  const [status, setStatus] = useState<boolean>(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const [statusDetails, setStatusDetails] = useState<string | null>(null);
   const [messageText, setMessageText] = useState<string>("");
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => {
     setShow(true);
   };
+  const [bg, setBg] = useState<string | null>("");
+  const [color, setColor] = useState<string | null>("");
   const backgoundImage =
-    chatData?.otherMember.image !== null
-      ? `url(${chatData?.otherMember.image})`
-      : chatData?.isGroup === true
+    store.currentChatStore.currentChatStore?.otherMember.image !== null
+      ? `url(${store.currentChatStore.currentChatStore?.otherMember.image})`
+      : store.currentChatStore.currentChatStore?.isGroup === true
       ? `url(/groupDefault.png)`
       : "url(/default.png)";
 
@@ -56,24 +56,30 @@ export function Chat({ user }: { user: User }) {
     setShowImage(true);
   };
 
-  const getData = useCallback(async () => {
-    setMessages(await getMessages(chatData?.convId));
-  }, [chatData?.convId]);
-
-  const checkStatus = useCallback(() => {
-    setStatus(
-      checkPresence(user.id, chatData?.otherMember.userId, onlineUsers)
+  const getColors = useCallback(async () => {
+    const colors = await getChatColors(
+      store.currentChatStore.currentChatStore?.convId!
     );
-  }, [chatData?.otherMember.userId, onlineUsers, user.id]);
+    if (colors === null) return;
+    setBg(colors.bgColor);
+    setColor(colors.messageColor);
+  }, [store.currentChatStore.currentChatStore?.convId]);
+
+  const getData = useCallback(async () => {
+    setMessages(
+      await getMessages(store.currentChatStore.currentChatStore?.convId)
+    );
+  }, [store.currentChatStore.currentChatStore?.convId]);
 
   useEffect(() => {
+    getColors();
     getData();
-    checkStatus();
+
     const channel = supabase
-      .channel(`chanel-${chatData?.convId}`, {
+      .channel(`chanel-${store.currentChatStore.currentChatStore?.convId}`, {
         config: {
           presence: {
-            key: `${user?.id}`,
+            key: `${store.currentUserStore.currentUserStore.id}`,
           },
         },
       })
@@ -86,7 +92,10 @@ export function Chat({ user }: { user: User }) {
         },
         (payload: any) => {
           const message = payload.new as IMessage;
-          if (message.convId !== chatData?.convId) return;
+          if (
+            message.convId !== store.currentChatStore.currentChatStore?.convId
+          )
+            return;
           setMessages((prev) => [...prev, message]);
         }
       );
@@ -96,13 +105,27 @@ export function Chat({ user }: { user: User }) {
     return () => {
       channel.unsubscribe();
     };
-  }, [chatData?.convId, chatData, checkStatus, getData, supabase, user?.id]);
+  }, [
+    getData,
+    supabase,
+    getColors,
+    store.currentUserStore.currentUserStore.id,
+    store.currentChatStore.currentChatStore?.convId,
+  ]);
 
   const sendMessage = useCallback(async () => {
     if (messageText === "") return;
-    const data = await addMessageToDB(messageText, chatData?.convId, user.id);
+    const data = await addMessageToDB(
+      messageText,
+      store.currentChatStore.currentChatStore?.convId,
+      store.currentUserStore.currentUserStore.id
+    );
     setMessageText("");
-  }, [chatData?.convId, messageText, user.id]);
+  }, [
+    store.currentChatStore.currentChatStore?.convId,
+    messageText,
+    store.currentUserStore.currentUserStore.id,
+  ]);
 
   const onInputKeyUp = useCallback(
     (e: React.KeyboardEvent) => {
@@ -121,14 +144,25 @@ export function Chat({ user }: { user: User }) {
             onClick={handleShowImage}
             style={{
               backgroundImage: backgoundImage,
-              border: status === true ? "2px solid #00ff00" : "",
+              border:
+                store.onlineUsersStore.checkOnline(
+                  store.currentChatStore.currentChatStore?.otherMember.userId
+                ) === true
+                  ? "2px solid #00ff00"
+                  : "",
             }}
           />
 
           <Wrapper>
-            <Name>{chatData?.otherMember.name}</Name>
+            <Name>
+              {store.currentChatStore.currentChatStore?.otherMember.name}
+            </Name>
             <ActivityStatus>
-              {statusDetails ? statusDetails : status ? "Online" : "Offline"}
+              {store.onlineUsersStore.checkOnline(
+                store.currentChatStore.currentChatStore?.otherMember.userId
+              )
+                ? "Online"
+                : "Offline"}
             </ActivityStatus>
           </Wrapper>
 
@@ -139,13 +173,17 @@ export function Chat({ user }: { user: User }) {
             onClick={handleShow}
           />
         </Navbar>
-        <ChatContainer>
+        <ChatContainer style={{ backgroundColor: bg ? bg : "transparent" }}>
           {messages.map((message: IMessage) =>
             message.senderId ? (
               <Message
                 key={message.id}
                 message={message}
-                isSelf={message.senderId === user.id}
+                isSelf={
+                  message.senderId ===
+                  store.currentUserStore.currentUserStore.id
+                }
+                color={color}
               />
             ) : (
               <Announcement key={message.id} message={message.value} />
@@ -171,12 +209,7 @@ export function Chat({ user }: { user: User }) {
         hide={handleCloseImage}
         image={backgoundImage}
       />
-      <ChatSettingsModal
-        visible={show}
-        hide={handleClose}
-        chat={chatData}
-        userId={user.id}
-      />
+      <ChatSettingsModal visible={show} hide={handleClose} />
     </Container>
   );
-}
+});

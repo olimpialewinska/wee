@@ -5,11 +5,11 @@ export const Bg = styled.div`
   height: 100vh;
   background-color: rgb(54, 54, 54);
   border-radius: 18px 18px 0 0;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const Header = styled.div`
-  flex: 1;
   height: 80px;
   display: flex;
   align-items: center;
@@ -103,9 +103,10 @@ export const SearchIcon = styled.div`
 `;
 
 export const List = styled.div`
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
 `;

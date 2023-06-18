@@ -23,5 +23,5 @@ export default async function HomePage() {
     redirect("/login");
   }
 
-  return <Home user={user} />;
+  return <Home />;
 }

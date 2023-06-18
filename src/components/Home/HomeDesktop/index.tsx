@@ -1,65 +1,51 @@
 "use client";
-import {
-  Dispatch,
-  SetStateAction,
-  createContext,
-  useEffect,
-  useState,
-} from "react";
-import {
-  User,
-  createClientComponentClient,
-} from "@supabase/auth-helpers-nextjs";
+import { useEffect } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Chat } from "./Chat";
 import { ChatList } from "./ChatList";
 import { Container } from "./style";
-import { usePathname } from "next/navigation";
-import { IList } from "@/interfaces";
-import { RealtimePresenceState } from "@supabase/supabase-js";
+import { observer } from "mobx-react-lite";
+import { store } from "@/stores";
 
-interface IViewContext {
-  chatData: IList | null;
-  setChatData: Dispatch<SetStateAction<IList | null>>;
-}
-
-interface IOnlineContext {
-  onlineUsers: RealtimePresenceState | undefined;
-}
-
-export const chatContext = createContext<IViewContext>({} as IViewContext);
-
-export const onlineContext = createContext<IOnlineContext>(
-  {} as IOnlineContext
-);
-
-export function HomeDesktop({ user }: { user: User }) {
+export const HomeDesktop = observer(function HomeDesktop() {
   const supabase = createClientComponentClient();
-  const [chatData, setChatData] = useState<IList | null>(null);
-  const [onlineUsers, setOnlineUsers] = useState<RealtimePresenceState>();
 
   useEffect(() => {
     const channel = supabase.channel("online-users", {
       config: {
         presence: {
-          key: user.id,
+          key: store.currentUserStore.currentUserStore.id!,
         },
       },
     });
 
+    channel.on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "messages",
+      },
+      (payload: any) => {
+        store.chatListStore.getList();
+      }
+    );
+    channel.on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "convs",
+      },
+      (payload: any) => {
+        store.chatListStore.getList();
+      }
+    );
+
     channel.on("presence", { event: "sync" }, () => {
+      const onlineUsers = channel.presenceState();
       console.log("Online users: ", channel.presenceState());
-      const onlineUsers = channel.presenceState();
-      setOnlineUsers(onlineUsers);
-    });
-
-    channel.on("presence", { event: "join" }, ({ newPresences }) => {
-      const onlineUsers = channel.presenceState();
-      setOnlineUsers(onlineUsers);
-    });
-
-    channel.on("presence", { event: "leave" }, ({ leftPresences }) => {
-      const onlineUsers = channel.presenceState();
-      setOnlineUsers(onlineUsers);
+      store.onlineUsersStore.onlineUsers = channel.presenceState();
     });
 
     channel.subscribe(async (status) => {
@@ -67,27 +53,18 @@ export function HomeDesktop({ user }: { user: User }) {
         const status = await channel.track({
           online_at: new Date().toISOString(),
         });
-        // console.log(status);
       }
     });
+
     return () => {
       channel.unsubscribe();
     };
-  }, [supabase, user.id]);
+  }, [supabase, store.currentUserStore.currentUserStore.id!]);
 
   return (
-    <onlineContext.Provider value={{ onlineUsers }}>
-      <chatContext.Provider
-        value={{
-          chatData,
-          setChatData,
-        }}
-      >
-        <Container>
-          <ChatList user={user} />
-          <Chat user={user} />
-        </Container>
-      </chatContext.Provider>
-    </onlineContext.Provider>
+    <Container>
+      <ChatList />
+      <Chat />
+    </Container>
   );
-}
+});

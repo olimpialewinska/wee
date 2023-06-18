@@ -7,15 +7,16 @@ interface MessageProps {
 
 export function Announcement(props: MessageProps) {
   if (props.message?.includes("colors,")) {
-    const [color, bgColor] = props.message.split("colors,")[1].split(",");
+    const [type, color] = props.message.split("colors,")[1].split(",");
 
     return (
       <StyledMessage>
         <MessageContent>
-          Colors have been changed
+          {type === "bgColor"
+            ? "Background color has been changed to"
+            : "Message color has been changed to"}
           <Colors>
             <Color style={{ backgroundColor: color }} />
-            <Color style={{ backgroundColor: bgColor }} />
           </Colors>
         </MessageContent>
       </StyledMessage>

@@ -107,7 +107,7 @@ export async function Create(isGroup: boolean) {
       }
     }
     await InitialMessage(data[0].id, "Conversation was created");
-    console.log(data[0].id);
+
     return data[0].id;
   }
 

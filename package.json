@@ -30,6 +30,9 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
-    "@types/styled-components": "^5.1.26"
+    "@types/styled-components": "^5.1.26",
+    "eslint-plugin-mobx-react-hooks": "^1.0.1",
+    "mobx": "^6.9.0",
+    "mobx-react-lite": "^3.4.3"
   }
 }

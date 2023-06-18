@@ -1,23 +1,32 @@
 "use client";
 import { IUser } from "@/interfaces";
 import { Done, Item, ProfileAvatar, ProfileName, Input } from "./style";
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useState } from "react";
 import { changeUserNickname } from "@/utils/chatSettings/changeUserNickname";
-import { currentUserId } from "../..";
+import { store } from "@/stores";
+import { observer } from "mobx-react-lite";
 
-export function User({ member }: { member: IUser }) {
-  const { convId } = useContext(currentUserId);
+export const User = observer(({ member }: { member: IUser }) => {
   const [editingMode, setEditingMode] = useState(false);
   const [name, setName] = useState(member.name as string);
 
   const changeNickname = useCallback(async () => {
     if (name === member.name) return;
-    const result = await changeUserNickname(convId, member.id, name);
+    const result = await changeUserNickname(
+      store.currentChatStore.currentChatStore?.convId,
+      member.id,
+      name
+    );
     if (result !== false) {
       setName(result!);
       setEditingMode(false);
     }
-  }, [name, member.name, member.id, convId]);
+  }, [
+    name,
+    member.name,
+    member.id,
+    store.currentChatStore.currentChatStore?.convId,
+  ]);
 
   const onInputKeyUp = useCallback(
     (e: React.KeyboardEvent) => {
@@ -77,4 +86,4 @@ export function User({ member }: { member: IUser }) {
       )}
     </Item>
   );
-}
+});

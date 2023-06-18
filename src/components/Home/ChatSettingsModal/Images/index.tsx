@@ -1,9 +1,8 @@
 "use client";
-import { useState } from "react";
 import { ImagesContainer } from "./style";
 import { Image } from "./Image";
 
-export function Images({ convId }: { convId: number | undefined }) {
+export function Images() {
   return (
     <ImagesContainer>
       <Image />

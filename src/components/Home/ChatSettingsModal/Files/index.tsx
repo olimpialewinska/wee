@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { File } from "./File";
 
-export function Files({ convId }: { convId: number | undefined }) {
+export function Files() {
   return (
     <div
       style={{

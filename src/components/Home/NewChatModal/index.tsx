@@ -18,6 +18,8 @@ import { getName } from "@/utils/chatList/getChatList";
 import { ProfileItem } from "./ProfileItem";
 import { CreateConv } from "@/utils/newChatModal/createConv";
 import { useRouter } from "next/navigation";
+import { store } from "@/stores";
+import { observer } from "mobx-react-lite";
 
 export interface IContext {
   me: IUser | null;
@@ -30,14 +32,12 @@ export const newChatListContext = createContext<IContext>({} as IContext);
 interface NewModalProps {
   visible: boolean;
   hide: () => void;
-  user: User;
 }
 
-export function NewChatModal(props: NewModalProps) {
+export const NewChatModal = observer((props: NewModalProps) => {
   const [search, setSearch] = useState("");
   const [userList, setUserList] = useState<IUser[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<IUser[]>([]);
-  const [myData, setMyData] = useState<IUser>();
   const router = useRouter();
 
   const findUser = useCallback(async () => {
@@ -45,46 +45,39 @@ export function NewChatModal(props: NewModalProps) {
   }, [search, selectedUsers]);
 
   const findUsers = useCallback(async () => {
-    setUserList(await findAllUsers(props.user.id));
-  }, [props.user.id]);
+    setUserList(
+      await findAllUsers(store.currentUserStore.currentUserStore.id!)
+    );
+  }, [store.currentUserStore.currentUserStore.id!]);
 
   const handleCreate = useCallback(async () => {
-    const id = await CreateConv(selectedUsers, props.user.id);
+    const id = await CreateConv(
+      selectedUsers,
+      store.currentUserStore.currentUserStore.id!
+    );
     router.push(`/home/${id}`);
 
     props.hide();
   }, [props, router, selectedUsers]);
 
-  const getMyData = useCallback(async () => {
-    const name = await getName(props.user.id);
-    const me: IUser = {
-      id: props.user.id,
-      name: name,
-      image: null,
-    };
-    setMyData(me);
-
-    setSelectedUsers([me]);
-  }, [props.user]);
-
   useEffect(() => {
-    getMyData();
+    setSelectedUsers([store.currentUserStore.currentUserStore!]);
     findUsers();
-  }, [findUsers, getMyData]);
+  }, [findUsers, store.currentUserStore.currentUserStore!]);
 
   const handleClose = useCallback(() => {
-    setSelectedUsers([myData!]);
+    setSelectedUsers([store.currentUserStore.currentUserStore!]);
     props.hide();
-  }, [myData, props]);
+  }, [store.currentUserStore.currentUserStore!, props]);
 
   const addUser = useCallback(
     (user: IUser) => {
       setSearch("");
       setSelectedUsers([...selectedUsers, user]);
       setUserList(userList.filter((item) => item.id !== user.id));
-      findAllUsers(props.user.id);
+      findAllUsers(store.currentUserStore.currentUserStore.id!);
     },
-    [props.user.id, selectedUsers, userList]
+    [store.currentUserStore.currentUserStore.id!, selectedUsers, userList]
   );
 
   const removeUser = useCallback(
@@ -110,7 +103,7 @@ export function NewChatModal(props: NewModalProps) {
       <Container>
         <newChatListContext.Provider
           value={{
-            me: selectedUsers[0],
+            me: store.currentUserStore.currentUserStore,
             addUser,
             removeUser,
           }}
@@ -149,4 +142,4 @@ export function NewChatModal(props: NewModalProps) {
       </Container>
     </ModalBg>
   );
-}
+});

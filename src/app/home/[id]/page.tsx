@@ -25,5 +25,5 @@ export default async function HomePage({ params }: { params: { id: string } }) {
 
   const chatId = params.id;
 
-  return <Home user={user} />;
+  return <Home />;
 }

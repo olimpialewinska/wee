@@ -1,10 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text */
 "use client";
 import {
-  User,
-  createClientComponentClient,
-} from "@supabase/auth-helpers-nextjs";
-import {
   Bg,
   Header,
   ChatSearch,
@@ -16,24 +12,15 @@ import {
   List,
   Title,
 } from "./style";
-import { useCallback, useContext, useEffect, useState } from "react";
-import { IList } from "../../../../interfaces";
+import { useCallback, useState } from "react";
 import { ListItem } from "./ListItem";
 import { useRouter } from "next/navigation";
 import { NewChatModal } from "../../NewChatModal";
-import { getImage } from "@/utils/settings/images";
-import { onlineContext } from "..";
-import { checkPresence } from "@/utils/chat/checkPresence";
 
-export function ChatList({
-  user,
-  chatlist,
-}: {
-  user: User;
-  chatlist: IList[];
-}) {
-  const [image, setImage] = useState<string | null>("");
-  const { onlineUsers } = useContext(onlineContext);
+import { store } from "@/stores";
+import { observer } from "mobx-react-lite";
+
+export const ChatList = observer(() => {
   const router = useRouter();
   const [show, setShow] = useState(false);
   const [search, setSearch] = useState<string>("");
@@ -41,29 +28,13 @@ export function ChatList({
   const handleShow = () => {
     setShow(true);
   };
+  const list = store.chatListStore.filteredList;
 
-  const filteredList = chatlist.filter((item: IList) => {
-    return (
-      item.otherMember.name &&
-      item.otherMember.name.toLowerCase().includes(search.toLowerCase())
-    );
-  });
-
-  const getMyImage = useCallback(async () => {
-    setImage(await getImage(user.id));
-  }, [user.id]);
+  // console.log(store.chatListStore.filteredList);
 
   const handleImageClick = useCallback(() => {
     router.push("/settings");
   }, [router]);
-
-  const checkOnline = (id: string | null | undefined) => {
-    return checkPresence(user.id, id, onlineUsers);
-  };
-
-  useEffect(() => {
-    getMyImage();
-  }, [getMyImage]);
 
   return (
     <Bg>
@@ -72,7 +43,9 @@ export function ChatList({
           onClick={handleImageClick}
           style={{
             backgroundImage:
-              image !== null ? `url(${image})` : "url(/default.png)",
+              store.currentUserStore.currentUserStore.image !== null
+                ? `url(${store.currentUserStore.currentUserStore.image})`
+                : "url(/default.png)",
           }}
         />
         <Title>Chats</Title>
@@ -89,16 +62,11 @@ export function ChatList({
         </ChatSearch>
       </ChatSearchContainer>
       <List>
-        {filteredList.map((item) => (
-          <ListItem
-            key={item.convId}
-            data={item}
-            user={user}
-            status={checkOnline(item.otherMember.userId)}
-          />
+        {list.map((item) => (
+          <ListItem key={item.convId} data={item} />
         ))}
       </List>
-      <NewChatModal visible={show} hide={handleClose} user={user} />
+      <NewChatModal visible={show} hide={handleClose} />
     </Bg>
   );
-}
+});

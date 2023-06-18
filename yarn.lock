@@ -2690,6 +2690,11 @@ eslint-plugin-jsx-a11y@^6.5.1:
     object.fromentries "^2.0.6"
     semver "^6.3.0"
 
+eslint-plugin-mobx-react-hooks@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-mobx-react-hooks/-/eslint-plugin-mobx-react-hooks-1.0.1.tgz#5cfa5b8710e5e2b44af54a59af16e2f59bdfb1d8"
+  integrity sha512-bnXLwUadg9+W4wl2E12/qnDOc0/f9b6wE0KBHPx0zEsi6pYCx0S7kaDqZAHL4g1mNwsKXh0IWvmgcWhF0f5Faw==
+
 eslint-plugin-react-hooks@^4.5.0:
   version "4.6.0"
   resolved "https://registry.npmjs.org/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-4.6.0.tgz"
@@ -4080,6 +4085,16 @@ mobile-device-detect@^0.4.3:
   version "0.4.3"
   resolved "https://registry.npmjs.org/mobile-device-detect/-/mobile-device-detect-0.4.3.tgz"
   integrity sha512-SN9EBE9SoJgkb83kuUVoIp3R9OGYE5dYEnLEz2oLooh0DzgtQ72BJmpNGqrgFvmfE4iLR2CaVJ3RjUcStheVZg==
+
+mobx-react-lite@^3.4.3:
+  version "3.4.3"
+  resolved "https://registry.yarnpkg.com/mobx-react-lite/-/mobx-react-lite-3.4.3.tgz#3a4c22c30bfaa8b1b2aa48d12b2ba811c0947ab7"
+  integrity sha512-NkJREyFTSUXR772Qaai51BnE1voWx56LOL80xG7qkZr6vo8vEaLF3sz1JNUVh+rxmUzxYaqOhfuxTfqUh0FXUg==
+
+mobx@^6.9.0:
+  version "6.9.0"
+  resolved "https://registry.yarnpkg.com/mobx/-/mobx-6.9.0.tgz#8a894c26417c05bed2cf7499322e589ee9787397"
+  integrity sha512-HdKewQEREEJgsWnErClfbFoVebze6rGazxFLU/XUyrII8dORfVszN1V0BMRnQSzcgsNNtkX8DHj3nC6cdWE9YQ==
 
 ms@2.0.0:
   version "2.0.0"

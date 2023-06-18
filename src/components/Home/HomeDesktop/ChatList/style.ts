@@ -3,9 +3,12 @@ import { styled } from "styled-components";
 export const Container = styled.div`
   height: calc(100vh - 40px);
   padding: 20px;
+  display: flex;
 `;
 
 export const Bg = styled.div`
+  display: flex;
+  flex-direction: column;
   width: 300px;
   height: 100%;
   background-color: rgb(54, 54, 54);
@@ -14,8 +17,7 @@ export const Bg = styled.div`
 `;
 
 export const Header = styled.div`
-  flex: 1;
-  height: 80px;
+  min-height: 80px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -73,7 +75,7 @@ export const ChatSearchContainer = styled.div`
   flex-direction: row;
   padding-left: 20px;
   padding-right: 20px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 `;
 
 export const ChatSearch = styled.div`
@@ -108,9 +110,10 @@ export const SearchIcon = styled.div`
 `;
 
 export const List = styled.div`
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-direction: column;
+  overflow: auto;
+  margin-bottom: 14px;
 `;

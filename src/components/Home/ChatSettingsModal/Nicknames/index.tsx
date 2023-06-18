@@ -2,13 +2,17 @@ import { IUser } from "@/interfaces";
 import { User } from "./User";
 import { useCallback, useEffect, useState } from "react";
 import { getConvMembers } from "@/utils/chatSettings/getOtherMembers";
+import { observer } from "mobx-react-lite";
+import { store } from "@/stores";
 
-export function Nicknames({ convId }: { convId: number | undefined }) {
+export const Nicknames = observer(() => {
   const [users, setUsers] = useState<IUser[]>([]);
 
   const getUsers = useCallback(async () => {
-    setUsers(await getConvMembers(convId));
-  }, [convId]);
+    setUsers(
+      await getConvMembers(store.currentChatStore.currentChatStore?.convId!)
+    );
+  }, [store.currentChatStore.currentChatStore?.convId]);
 
   useEffect(() => {
     getUsers();
@@ -28,4 +32,4 @@ export function Nicknames({ convId }: { convId: number | undefined }) {
       ))}
     </div>
   );
-}
+});

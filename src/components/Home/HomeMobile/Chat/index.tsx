@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text */
 "use client";
-import { useCallback, useContext, useEffect, useState } from "react";
-import { onlineContext, viewContext } from "..";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityStatus,
   Attachment,
@@ -19,21 +18,18 @@ import {
 } from "./style";
 import { ChatSettingsModal } from "../../ChatSettingsModal";
 import { ImageModal } from "../../ImageModal";
-import { IList, IMessage } from "@/interfaces";
 import { getMessages } from "@/utils/chat/getMessages";
 import { Message } from "../../Message";
 import { Announcement } from "../../Announcement";
-import { User } from "@supabase/auth-helpers-nextjs";
-import { checkPresence } from "@/utils/chat/checkPresence";
 import { addMessageToDB } from "@/utils/chat/sendMessage";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { getChatColors } from "@/utils/chat/getColors";
+import { store } from "@/stores";
+import { observer } from "mobx-react-lite";
+import { IMessage } from "@/interfaces";
 
-export function Chat({ chat, user }: { chat: IList | null; user: User }) {
+export const Chat = observer(() => {
   const supabase = createClientComponentClient();
-  const { setChat } = useContext(viewContext);
-  const { onlineUsers } = useContext(onlineContext);
-  const [status, setStatus] = useState<boolean>(false);
-  const [statusDetails, setStatusDetails] = useState<string | null>(null);
   const [messageText, setMessageText] = useState<string>("");
   const [show, setShow] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
@@ -41,11 +37,13 @@ export function Chat({ chat, user }: { chat: IList | null; user: User }) {
   const handleShow = () => {
     setShow(true);
   };
+  const [bg, setBg] = useState<string | null>("");
+  const [color, setColor] = useState<string | null>("");
 
   const backgoundImage =
-    chat?.otherMember.image !== null
-      ? `url(${chat?.otherMember.image})`
-      : chat.isGroup === true
+    store.currentChatStore.currentChatStore?.otherMember.image !== null
+      ? `url(${store.currentChatStore.currentChatStore?.otherMember.image})`
+      : store.currentChatStore.currentChatStore.isGroup === true
       ? `url(/groupDefault.png)`
       : "url(/default.png)";
 
@@ -56,20 +54,29 @@ export function Chat({ chat, user }: { chat: IList | null; user: User }) {
   };
 
   const getData = useCallback(async () => {
-    setMessages(await getMessages(chat?.convId));
-  }, [chat?.convId]);
+    setMessages(
+      await getMessages(store.currentChatStore.currentChatStore?.convId)
+    );
+  }, [store.currentChatStore.currentChatStore?.convId]);
 
-  const checkStatus = useCallback(() => {
-    setStatus(checkPresence(user.id, chat?.otherMember.userId, onlineUsers));
-  }, [chat, onlineUsers, user.id]);
+  const getColors = useCallback(async () => {
+    if (store.currentChatStore.currentChatStore === null) return;
+    const colors = await getChatColors(
+      store.currentChatStore.currentChatStore.convId
+    );
+    if (colors === null) return;
+    setBg(colors.bgColor);
+    setColor(colors.messageColor);
+  }, [store.currentChatStore.currentChatStore?.convId]);
 
   useEffect(() => {
+    getColors();
     getData();
     const channel = supabase
-      .channel(`chanel-${chat?.convId}`, {
+      .channel(`chanel-${store.currentChatStore.currentChatStore?.convId}`, {
         config: {
           presence: {
-            key: `${user?.id}`,
+            key: `${store.currentUserStore.currentUserStore?.id}`,
           },
         },
       })
@@ -82,7 +89,10 @@ export function Chat({ chat, user }: { chat: IList | null; user: User }) {
         },
         (payload: any) => {
           const message = payload.new as IMessage;
-          if (message.convId !== chat?.convId) return;
+          if (
+            message.convId !== store.currentChatStore.currentChatStore?.convId
+          )
+            return;
           setMessages((prev) => [...prev, message]);
         }
       );
@@ -92,13 +102,27 @@ export function Chat({ chat, user }: { chat: IList | null; user: User }) {
     return () => {
       channel.unsubscribe();
     };
-  }, [chat, checkStatus, getData, supabase, user?.id]);
+  }, [
+    store.currentChatStore.currentChatStore,
+    getColors,
+    getData,
+    supabase,
+    store.currentUserStore.currentUserStore?.id,
+  ]);
 
   const sendMessage = useCallback(async () => {
     if (messageText === "") return;
-    const data = await addMessageToDB(messageText, chat?.convId, user.id);
+    const data = await addMessageToDB(
+      messageText,
+      store.currentChatStore.currentChatStore?.convId,
+      store.currentUserStore.currentUserStore?.id!
+    );
     setMessageText("");
-  }, [chat?.convId, messageText, user.id]);
+  }, [
+    store.currentChatStore.currentChatStore?.convId,
+    messageText,
+    store.currentUserStore.currentUserStore?.id,
+  ]);
 
   const onInputKeyUp = useCallback(
     (e: React.KeyboardEvent) => {
@@ -112,7 +136,8 @@ export function Chat({ chat, user }: { chat: IList | null; user: User }) {
   return (
     <StyledChat
       style={{
-        display: chat === null ? "none" : "flex",
+        display:
+          store.currentChatStore.currentChatStore === null ? "none" : "flex",
       }}
     >
       <Navbar>
@@ -120,18 +145,25 @@ export function Chat({ chat, user }: { chat: IList | null; user: User }) {
           style={{
             backgroundImage: `url(/left-arrow.svg)`,
           }}
-          onClick={() => setChat(null)}
+          onClick={() => store.currentChatStore.setCurrentChat(null)}
         />
         <Image
           onClick={handleShowImage}
           style={{
             backgroundImage: backgoundImage,
-            border: status === true ? "2px solid #00ff00" : "",
+            border:
+              store.onlineUsersStore.checkOnline(
+                store.currentChatStore.currentChatStore?.otherMember.userId
+              ) === true
+                ? "2px solid #00ff00"
+                : "",
           }}
         />
 
         <Wrapper>
-          <Name>{chat?.otherMember.name}</Name>
+          <Name>
+            {store.currentChatStore.currentChatStore?.otherMember.name}
+          </Name>
           <ActivityStatus>{status ? "Online" : "Offline"}</ActivityStatus>
         </Wrapper>
 
@@ -142,13 +174,20 @@ export function Chat({ chat, user }: { chat: IList | null; user: User }) {
           onClick={handleShow}
         />
       </Navbar>
-      <Container>
+      <Container
+        style={{
+          backgroundColor: bg ? bg : "",
+        }}
+      >
         {messages.map((message: IMessage) =>
           message.senderId ? (
             <Message
               key={message.id}
               message={message}
-              isSelf={message.senderId === user.id}
+              isSelf={
+                message.senderId === store.currentUserStore.currentUserStore?.id
+              }
+              color={color}
             />
           ) : (
             <Announcement key={message.id} message={message.value} />
@@ -172,12 +211,7 @@ export function Chat({ chat, user }: { chat: IList | null; user: User }) {
         hide={handleCloseImage}
         image={backgoundImage}
       />
-      <ChatSettingsModal
-        visible={show}
-        hide={handleClose}
-        chat={chat}
-        userId={user.id}
-      />
+      <ChatSettingsModal visible={show} hide={handleClose} />
     </StyledChat>
   );
-}
+});
