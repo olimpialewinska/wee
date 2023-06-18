@@ -172,7 +172,7 @@ export function Chat({ chat, user }: { chat: IList | null; user: User }) {
         hide={handleCloseImage}
         image={backgoundImage}
       />
-      <ChatSettingsModal visible={show} hide={handleClose} />
+      <ChatSettingsModal visible={show} hide={handleClose} chat={chat} />
     </StyledChat>
   );
 }

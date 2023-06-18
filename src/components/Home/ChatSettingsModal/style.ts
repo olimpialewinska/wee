@@ -16,18 +16,101 @@ export const ModalBg = styled.div`
 
 export const Container = styled.div`
   width: 400px;
-  height: 500px;
+  height: 600px;
   background-color: rgb(54, 54, 54);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-y: auto;
   padding: 20px;
+  position: relative;
 
   @media (max-width: 768px) {
     width: 80% !important;
   }
 `;
 
-export const Image = styled.div``;
+export const Image = styled.div`
+  width: 100px;
+  min-height: 100px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+`;
+
+export const Title = styled.div`
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 4px;
+  margin-top: 20px;
+`;
+
+export const Wrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+`;
+
+export const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-self: center;
+  align-items: center;
+`;
+
+export const Content = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+`;
+
+export const Selector = styled.div`
+  background-color: "rgba(255, 255, 255, 0.08)";
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 0 4px;
+  padding: 8px 12px;
+  transition: 0.2s background-color, 0.2s border;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 8px;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid transparent;
+  }
+`;
+
+export const Close = styled.div`
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.1s all;
+  background-image: url("/close.svg");
+  margin-left: 6px;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+export const MessagesCount = styled.div`
+  font-size: 12px;
+
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 4px;
+  margin-top: 8px;
+`;
