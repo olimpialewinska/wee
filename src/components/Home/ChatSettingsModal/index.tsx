@@ -11,11 +11,12 @@ import {
   Title,
   Wrapper,
 } from "./style";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Nicknames } from "./Nicknames";
 import { Colors } from "./Colors";
 import { Files } from "./Files";
 import { Images } from "./Images";
+import { getNumberOfMessages } from "@/utils/chatSettings/countMessages";
 
 interface ChatSettingsModalProps extends ModalProps {
   chat: IList | null;
@@ -25,12 +26,22 @@ export function ChatSettingsModal(props: ChatSettingsModalProps) {
   const [contentType, setContentType] = useState<
     "nicknames" | "color" | "files" | "images"
   >("nicknames");
+  const [messagesCount, setMessagesCount] = useState<number>(0);
   const backgruoundImage =
     props.chat?.otherMember.image !== null
       ? `url(${props.chat?.otherMember.image})`
       : props.chat.isGroup === true
       ? `url(/groupDefault.png)`
       : "url(/default.png)";
+
+  const countMessages = useCallback(async () => {
+    setMessagesCount(await getNumberOfMessages(props.chat?.convId));
+  }, [props.chat?.convId]);
+
+  useEffect(() => {
+    countMessages();
+  }, [countMessages]);
+
   return (
     <ModalBg
       style={{
@@ -51,7 +62,9 @@ export function ChatSettingsModal(props: ChatSettingsModalProps) {
         />
         <Image style={{ backgroundImage: backgruoundImage }} />
         <Title>{props.chat?.otherMember.name}</Title>
-        <MessagesCount>There are 5 messages in this conversation</MessagesCount>
+        <MessagesCount>
+          There are {messagesCount} messages in this conversation
+        </MessagesCount>
         <Wrapper>
           <Row>
             <Selector
