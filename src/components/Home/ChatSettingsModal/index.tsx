@@ -17,9 +17,16 @@ import { Colors } from "./Colors";
 import { Files } from "./Files";
 import { Images } from "./Images";
 import { getNumberOfMessages } from "@/utils/chatSettings/countMessages";
+import { createContext } from "react";
 
+interface IModalContext {
+  currentUId: string;
+  convId: number | undefined;
+}
+export const currentUserId = createContext<IModalContext>({} as IModalContext);
 interface ChatSettingsModalProps extends ModalProps {
   chat: IList | null;
+  userId: string;
 }
 
 export function ChatSettingsModal(props: ChatSettingsModalProps) {
@@ -43,88 +50,92 @@ export function ChatSettingsModal(props: ChatSettingsModalProps) {
   }, [countMessages]);
 
   return (
-    <ModalBg
-      style={{
-        opacity: props.visible ? 1 : 0,
-        pointerEvents: props.visible ? "inherit" : "none",
-      }}
-      onClick={(event) => {
-        if (event.target === event.currentTarget) {
-          props.hide();
-        }
-      }}
+    <currentUserId.Provider
+      value={{ currentUId: props.userId, convId: props.chat?.convId }}
     >
-      <Container>
-        <Close
-          onClick={() => {
+      <ModalBg
+        style={{
+          opacity: props.visible ? 1 : 0,
+          pointerEvents: props.visible ? "inherit" : "none",
+        }}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) {
             props.hide();
-          }}
-        />
-        <Image style={{ backgroundImage: backgruoundImage }} />
-        <Title>{props.chat?.otherMember.name}</Title>
-        <MessagesCount>
-          There are {messagesCount} messages in this conversation
-        </MessagesCount>
-        <Wrapper>
-          <Row>
-            <Selector
-              style={{
-                backgroundColor:
-                  contentType === "nicknames"
-                    ? "rgba(255, 255, 255, 0.1)"
-                    : "transparent",
-              }}
-              onClick={() => setContentType("nicknames")}
-            >
-              Nicknames
-            </Selector>
-            <Selector
-              style={{
-                backgroundColor:
-                  contentType === "color"
-                    ? "rgba(255, 255, 255, 0.1)"
-                    : "transparent",
-              }}
-              onClick={() => setContentType("color")}
-            >
-              Color
-            </Selector>
-            <Selector
-              style={{
-                backgroundColor:
-                  contentType === "images"
-                    ? "rgba(255, 255, 255, 0.1)"
-                    : "transparent",
-              }}
-              onClick={() => setContentType("images")}
-            >
-              Images
-            </Selector>
-            <Selector
-              style={{
-                backgroundColor:
-                  contentType === "files"
-                    ? "rgba(255, 255, 255, 0.1)"
-                    : "transparent",
-              }}
-              onClick={() => setContentType("files")}
-            >
-              Files
-            </Selector>
-          </Row>
-          <Content>
-            {contentType === "nicknames" ? (
-              <Nicknames />
-            ) : contentType === "color" ? (
-              <Colors convId={props.chat?.convId} />
-            ) : contentType === "images" ? (
-              <Images convId={props.chat?.convId} />
-            ) : (
-              <Files convId={props.chat?.convId} />
-            )}
-          </Content>
-        </Wrapper>
-      </Container>
-    </ModalBg>
+          }
+        }}
+      >
+        <Container>
+          <Close
+            onClick={() => {
+              props.hide();
+            }}
+          />
+          <Image style={{ backgroundImage: backgruoundImage }} />
+          <Title>{props.chat?.otherMember.name}</Title>
+          <MessagesCount>
+            There are {messagesCount} messages in this conversation
+          </MessagesCount>
+          <Wrapper>
+            <Row>
+              <Selector
+                style={{
+                  backgroundColor:
+                    contentType === "nicknames"
+                      ? "rgba(255, 255, 255, 0.1)"
+                      : "transparent",
+                }}
+                onClick={() => setContentType("nicknames")}
+              >
+                Nicknames
+              </Selector>
+              <Selector
+                style={{
+                  backgroundColor:
+                    contentType === "color"
+                      ? "rgba(255, 255, 255, 0.1)"
+                      : "transparent",
+                }}
+                onClick={() => setContentType("color")}
+              >
+                Color
+              </Selector>
+              <Selector
+                style={{
+                  backgroundColor:
+                    contentType === "images"
+                      ? "rgba(255, 255, 255, 0.1)"
+                      : "transparent",
+                }}
+                onClick={() => setContentType("images")}
+              >
+                Images
+              </Selector>
+              <Selector
+                style={{
+                  backgroundColor:
+                    contentType === "files"
+                      ? "rgba(255, 255, 255, 0.1)"
+                      : "transparent",
+                }}
+                onClick={() => setContentType("files")}
+              >
+                Files
+              </Selector>
+            </Row>
+            <Content>
+              {contentType === "nicknames" ? (
+                <Nicknames convId={props.chat?.convId} />
+              ) : contentType === "color" ? (
+                <Colors convId={props.chat?.convId} />
+              ) : contentType === "images" ? (
+                <Images convId={props.chat?.convId} />
+              ) : (
+                <Files convId={props.chat?.convId} />
+              )}
+            </Content>
+          </Wrapper>
+        </Container>
+      </ModalBg>
+    </currentUserId.Provider>
   );
 }

@@ -30,7 +30,7 @@ export const Item = styled.div`
 `;
 
 export const ProfileAvatar = styled.div`
-  width: 40px;
+  min-width: 40px;
   height: 40px;
   border-radius: 50%;
   background-size: cover;
@@ -43,4 +43,30 @@ export const ProfileAvatar = styled.div`
 export const ProfileName = styled.div`
   margin: 0;
   font-size: 14px;
+`;
+
+export const Done = styled.div`
+  width: 18px;
+  height: 18px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url("/check.png");
+  filter: invert(1);
+`;
+
+export const Input = styled.input`
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 0 12px;
+  color: white;
+  font-size: 14px;
+
+  outline: none;
+  transition: 0.2s all;
+  &:focus {
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
 `;

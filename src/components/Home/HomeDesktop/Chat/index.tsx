@@ -24,7 +24,6 @@ import { ImageModal } from "../../ImageModal";
 import { chatContext, onlineContext } from "..";
 import { IMessage } from "@/interfaces";
 import { getMessages } from "@/utils/chat/getMessages";
-
 import { Announcement } from "../../Announcement";
 import { Message } from "../../Message";
 import { checkPresence } from "@/utils/chat/checkPresence";
@@ -172,7 +171,12 @@ export function Chat({ user }: { user: User }) {
         hide={handleCloseImage}
         image={backgoundImage}
       />
-      <ChatSettingsModal visible={show} hide={handleClose} chat={chatData} />
+      <ChatSettingsModal
+        visible={show}
+        hide={handleClose}
+        chat={chatData}
+        userId={user.id}
+      />
     </Container>
   );
 }
