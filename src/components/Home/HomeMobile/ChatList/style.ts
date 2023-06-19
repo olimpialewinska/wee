@@ -2,7 +2,7 @@ import { styled } from "styled-components";
 
 export const Bg = styled.div`
   width: 100%;
-  height: 100vh;
+  max-height: 100%;
   background-color: rgb(54, 54, 54);
   border-radius: 18px 18px 0 0;
   display: flex;
@@ -103,6 +103,7 @@ export const SearchIcon = styled.div`
 `;
 
 export const List = styled.div`
+  max-height: 50%;
   display: flex;
   align-items: center;
   justify-content: space-between;

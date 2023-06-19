@@ -132,6 +132,7 @@ export interface Database {
           created_at: string | null
           id: number
           senderId: string | null
+          type: string | null
           value: string | null
         }
         Insert: {
@@ -139,6 +140,7 @@ export interface Database {
           created_at?: string | null
           id?: number
           senderId?: string | null
+          type?: string | null
           value?: string | null
         }
         Update: {
@@ -146,6 +148,7 @@ export interface Database {
           created_at?: string | null
           id?: number
           senderId?: string | null
+          type?: string | null
           value?: string | null
         }
         Relationships: [

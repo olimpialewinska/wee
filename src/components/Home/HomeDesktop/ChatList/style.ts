@@ -114,6 +114,7 @@ export const List = styled.div`
   align-items: center;
   justify-content: space-between;
   flex-direction: column;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   margin-bottom: 14px;
 `;

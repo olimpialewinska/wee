@@ -153,3 +153,22 @@ export const Container = styled.div`
   flex-direction: column;
   overflow: auto;
 `;
+
+export const Error = styled.div`
+  background-color: red;
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 10px;
+  font-size: 12px;
+  font-weight: 400;
+`;
+
+export const FileRow = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  background-color: rgb(64, 64, 64);
+  overflow-x: auto;
+  overflow-y: hidden;
+`;

@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text */
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityStatus,
   Attachment,
@@ -13,8 +13,10 @@ import {
   Name,
   Navbar,
   Send,
+  Error,
   StyledChat,
   Wrapper,
+  FileRow,
 } from "./style";
 import { ChatSettingsModal } from "../../ChatSettingsModal";
 import { ImageModal } from "../../ImageModal";
@@ -27,6 +29,8 @@ import { getChatColors } from "@/utils/chat/getColors";
 import { store } from "@/stores";
 import { observer } from "mobx-react-lite";
 import { IMessage } from "@/interfaces";
+import { sendFile } from "@/utils/chat/sendFile";
+import { File } from "./File";
 
 export const Chat = observer(() => {
   const supabase = createClientComponentClient();
@@ -37,8 +41,10 @@ export const Chat = observer(() => {
   const handleShow = () => {
     setShow(true);
   };
+  const [files, setFiles] = useState<File[] | null>(null);
   const [bg, setBg] = useState<string | null>("");
   const [color, setColor] = useState<string | null>("");
+  const [error, setError] = useState<string | null>(null);
 
   const backgoundImage =
     store.currentChatStore.currentChatStore?.otherMember.image !== null
@@ -52,6 +58,26 @@ export const Chat = observer(() => {
   const handleShowImage = () => {
     setShowImage(true);
   };
+  const handleFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = event.target.files;
+      console.log(selectedFile);
+      if (selectedFile) {
+        setFiles(Array.from(selectedFile));
+        console.log(Array.from(selectedFile));
+      }
+    },
+    []
+  );
+  const errorFunction = useCallback(
+    (message: string) => {
+      setError(message);
+      setTimeout(() => {
+        setError(null);
+      }, 3000);
+    },
+    [error]
+  );
 
   const getData = useCallback(async () => {
     setMessages(
@@ -68,6 +94,12 @@ export const Chat = observer(() => {
     setBg(colors.bgColor);
     setColor(colors.messageColor);
   }, [store.currentChatStore.currentChatStore?.convId]);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDivClick = () => {
+    fileInputRef.current?.click();
+  };
 
   useEffect(() => {
     getColors();
@@ -111,6 +143,24 @@ export const Chat = observer(() => {
   ]);
 
   const sendMessage = useCallback(async () => {
+    if (files !== null) {
+      files.map((file) => {
+        if (file.size > 15728640) {
+          errorFunction("File size should be less than 15mb");
+          setFiles(null);
+          return;
+        }
+      });
+      const data = await sendFile(
+        store.currentChatStore.currentChatStore?.convId,
+        files,
+        store.currentUserStore.currentUserStore.id
+      );
+      if (!data) {
+        errorFunction("Error sending file");
+      }
+      setFiles(null);
+    }
     if (messageText === "") return;
     const data = await addMessageToDB(
       messageText,
@@ -122,7 +172,21 @@ export const Chat = observer(() => {
     store.currentChatStore.currentChatStore?.convId,
     messageText,
     store.currentUserStore.currentUserStore?.id,
+    files,
+    errorFunction,
   ]);
+
+  const deleteFile = useCallback((file: File) => {
+    setFiles((prev) => {
+      if (prev === null) return null;
+      const newFiles = Array.from(prev);
+      const index = newFiles.indexOf(file);
+      if (index > -1) {
+        newFiles.splice(index, 1);
+      }
+      return newFiles.length === 0 ? null : newFiles;
+    });
+  }, []);
 
   const onInputKeyUp = useCallback(
     (e: React.KeyboardEvent) => {
@@ -166,6 +230,7 @@ export const Chat = observer(() => {
           </Name>
           <ActivityStatus>{status ? "Online" : "Offline"}</ActivityStatus>
         </Wrapper>
+        {error !== null ? <Error>{error}</Error> : <></>}
 
         <Icon
           style={{
@@ -194,18 +259,37 @@ export const Chat = observer(() => {
           )
         )}
       </Container>
-      <ChatInput>
-        <Attachment />
-        <MessageContainer>
-          <MessageInput
-            placeholder="Type a message"
-            value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
-            onKeyUp={onInputKeyUp}
-          />
-        </MessageContainer>
-        <Send onClick={sendMessage} />
-      </ChatInput>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <FileRow>
+          {files
+            ? Array.from(files).map((file) => {
+                return (
+                  <File key={file.name} file={file} deleteFile={deleteFile} />
+                );
+              })
+            : ""}
+        </FileRow>
+        <ChatInput>
+          <Attachment onClick={handleDivClick}>
+            <input
+              type="file"
+              ref={fileInputRef}
+              multiple={true}
+              onChange={(e) => handleFileChange(e)}
+              style={{ display: "none" }}
+            />
+          </Attachment>
+          <MessageContainer>
+            <MessageInput
+              placeholder="Type a message"
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              onKeyUp={onInputKeyUp}
+            />
+          </MessageContainer>
+          <Send onClick={sendMessage} />
+        </ChatInput>
+      </div>
       <ImageModal
         visible={showImage}
         hide={handleCloseImage}

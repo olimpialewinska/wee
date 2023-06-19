@@ -47,7 +47,17 @@ export const ListItem = observer((props: { data: IList }) => {
           store.currentUserStore.currentUserStore.id
             ? "You: "
             : ""}
-          {props.data.lastMessage?.value}
+          {props.data.lastMessage?.type === "image"
+            ? "Image has been send"
+            : props.data.lastMessage?.type === "file"
+            ? "File has been send"
+            : props.data.lastMessage?.value?.includes("colors,") &&
+              props.data.lastMessage?.senderId === null
+            ? "Color has been changed"
+            : props.data.lastMessage?.value?.includes("nickname,") &&
+              props.data.lastMessage?.senderId === null
+            ? "Nickname has been changed"
+            : props.data.lastMessage?.value}
         </LastMessage>
       </Content>
 

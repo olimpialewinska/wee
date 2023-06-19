@@ -5,6 +5,7 @@ export const Container = styled.div`
   height: calc(100vh - 40px);
   padding: 20px;
   padding-left: 0;
+  overflow: hidden;
 `;
 
 export const Bg = styled.div`
@@ -15,6 +16,7 @@ export const Bg = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
 `;
 
 export const Navbar = styled.div`
@@ -106,6 +108,9 @@ export const Attachment = styled.div`
   height: 24px;
   background-image: url("/attach.svg");
   height: auto;
+  align-items: center;
+  display: flex;
+  justify-content: center;
 `;
 
 export const MessageContainer = styled.div`
@@ -172,4 +177,23 @@ export const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
   overflow: auto;
+`;
+
+export const FileRow = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  background-color: rgb(64, 64, 64);
+  overflow-x: auto;
+  overflow-y: hidden;
+`;
+
+export const Error = styled.div`
+  background-color: red;
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 10px;
+  font-size: 12px;
+  font-weight: 400;
 `;

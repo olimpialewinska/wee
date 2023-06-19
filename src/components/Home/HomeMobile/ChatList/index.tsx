@@ -37,7 +37,12 @@ export const ChatList = observer(() => {
   }, [router]);
 
   return (
-    <Bg>
+    <Bg
+      style={{
+        display:
+          store.currentChatStore.currentChatStore !== null ? "none" : "flex",
+      }}
+    >
       <Header>
         <Image
           onClick={handleImageClick}

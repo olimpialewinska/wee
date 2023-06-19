@@ -13,6 +13,7 @@ export interface IList {
         id: number;
         senderId: string | null;
         value: string | null;
+        type: string | null;
       }
     | undefined;
 }
@@ -44,4 +45,5 @@ export interface IMessage {
   id: number;
   senderId: string | null;
   value: string | null;
+  type: string | null;
 }

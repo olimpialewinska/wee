@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { User } from "@supabase/auth-helpers-nextjs";
 import {
   Container,
   ActivityStatus,
@@ -16,30 +15,40 @@ import {
   Bg,
   ChatContainer,
   Emoji,
+  FileRow,
+  Error,
 } from "./style";
 
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatSettingsModal } from "../../ChatSettingsModal";
 import { ImageModal } from "../../ImageModal";
 import { IMessage } from "@/interfaces";
 import { getMessages } from "@/utils/chat/getMessages";
 import { Announcement } from "../../Announcement";
 import { Message } from "../../Message";
-import { checkPresence } from "@/utils/chat/checkPresence";
 import { addMessageToDB } from "@/utils/chat/sendMessage";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { getChatColors } from "@/utils/chat/getColors";
 import { store } from "@/stores";
 import { observer } from "mobx-react-lite";
+import { File } from "./File";
+import { sendFile } from "@/utils/chat/sendFile";
 
 export const Chat = observer(() => {
   const supabase = createClientComponentClient();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [messageText, setMessageText] = useState<string>("");
+  const [files, setFiles] = useState<File[] | null>(null);
   const [show, setShow] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const handleClose = () => setShow(false);
   const handleShow = () => {
     setShow(true);
+  };
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDivClick = () => {
+    fileInputRef.current?.click();
   };
   const [bg, setBg] = useState<string | null>("");
   const [color, setColor] = useState<string | null>("");
@@ -55,6 +64,18 @@ export const Chat = observer(() => {
   const handleShowImage = () => {
     setShowImage(true);
   };
+
+  const handleFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = event.target.files;
+      console.log(selectedFile);
+      if (selectedFile) {
+        setFiles(Array.from(selectedFile));
+        console.log(Array.from(selectedFile));
+      }
+    },
+    []
+  );
 
   const getColors = useCallback(async () => {
     const colors = await getChatColors(
@@ -113,7 +134,36 @@ export const Chat = observer(() => {
     store.currentChatStore.currentChatStore?.convId,
   ]);
 
+  const errorFunction = useCallback(
+    (message: string) => {
+      setError(message);
+      setTimeout(() => {
+        setError(null);
+      }, 3000);
+    },
+    [error]
+  );
+
   const sendMessage = useCallback(async () => {
+    if (files !== null) {
+      files.map((file) => {
+        if (file.size > 15728640) {
+          errorFunction("File size should be less than 15mb");
+          setFiles(null);
+          return;
+        }
+      });
+      const data = await sendFile(
+        store.currentChatStore.currentChatStore?.convId,
+        files,
+        store.currentUserStore.currentUserStore.id
+      );
+      if (!data) {
+        errorFunction("Error sending file");
+      }
+      setFiles(null);
+    }
+
     if (messageText === "") return;
     const data = await addMessageToDB(
       messageText,
@@ -125,6 +175,8 @@ export const Chat = observer(() => {
     store.currentChatStore.currentChatStore?.convId,
     messageText,
     store.currentUserStore.currentUserStore.id,
+    files,
+    errorFunction,
   ]);
 
   const onInputKeyUp = useCallback(
@@ -135,6 +187,18 @@ export const Chat = observer(() => {
     },
     [sendMessage]
   );
+
+  const deleteFile = useCallback((file: File) => {
+    setFiles((prev) => {
+      if (prev === null) return null;
+      const newFiles = Array.from(prev);
+      const index = newFiles.indexOf(file);
+      if (index > -1) {
+        newFiles.splice(index, 1);
+      }
+      return newFiles.length === 0 ? null : newFiles;
+    });
+  }, []);
 
   return (
     <Container>
@@ -165,6 +229,7 @@ export const Chat = observer(() => {
                 : "Offline"}
             </ActivityStatus>
           </Wrapper>
+          {error !== null ? <Error>{error}</Error> : <></>}
 
           <Icon
             style={{
@@ -190,19 +255,38 @@ export const Chat = observer(() => {
             )
           )}
         </ChatContainer>
-        <ChatInput>
-          <Attachment />
-          <MessageContainer>
-            <MessageInput
-              placeholder="Type a message"
-              value={messageText}
-              onChange={(e) => setMessageText(e.target.value)}
-              onKeyUp={onInputKeyUp}
-            />
-          </MessageContainer>
-          <Emoji />
-          <Send onClick={sendMessage} />
-        </ChatInput>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <FileRow>
+            {files
+              ? Array.from(files).map((file) => {
+                  return (
+                    <File key={file.name} file={file} deleteFile={deleteFile} />
+                  );
+                })
+              : ""}
+          </FileRow>
+          <ChatInput>
+            <Attachment onClick={handleDivClick}>
+              <input
+                type="file"
+                ref={fileInputRef}
+                multiple={true}
+                onChange={(e) => handleFileChange(e)}
+                style={{ display: "none" }}
+              />
+            </Attachment>
+            <MessageContainer>
+              <MessageInput
+                placeholder="Type a message"
+                value={messageText}
+                onChange={(e) => setMessageText(e.target.value)}
+                onKeyUp={onInputKeyUp}
+              />
+            </MessageContainer>
+            <Emoji />
+            <Send onClick={sendMessage} />
+          </ChatInput>
+        </div>
       </Bg>
       <ImageModal
         visible={showImage}
