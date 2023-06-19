@@ -2,7 +2,7 @@ import { styled } from "styled-components";
 
 export const Bg = styled.div`
   width: 100%;
-  max-height: 100%;
+  min-height: 100vh;
   background-color: rgb(54, 54, 54);
   border-radius: 18px 18px 0 0;
   display: flex;

@@ -39,6 +39,7 @@ export function ChatSettingsModal(props: ModalProps) {
 
   useEffect(() => {
     countMessages();
+    setContentType("nicknames");
   }, [countMessages]);
 
   return (

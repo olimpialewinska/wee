@@ -30,8 +30,6 @@ export const ChatList = observer(() => {
   };
   const list = store.chatListStore.filteredList;
 
-  // console.log(store.chatListStore.filteredList);
-
   const handleImageClick = useCallback(() => {
     router.push("/settings");
   }, [router]);
@@ -61,8 +59,8 @@ export const ChatList = observer(() => {
           <SearchIcon />
           <ChatSearchInput
             placeholder="Search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={store.chatListStore.search}
+            onChange={(e) => (store.chatListStore.search = e.target.value)}
           />
         </ChatSearch>
       </ChatSearchContainer>
