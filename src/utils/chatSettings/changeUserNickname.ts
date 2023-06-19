@@ -1,6 +1,6 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "../../../lib/database.types";
-import { getName, getUser } from "../chatList/getChatList";
+import { getName } from "../chatList/getChatList";
 
 const supabase = createClientComponentClient<Database>();
 

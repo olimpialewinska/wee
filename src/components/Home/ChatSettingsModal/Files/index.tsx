@@ -13,11 +13,9 @@ export interface IFileItem {
 export function Files() {
   const [files, setFiles] = useState<IFileItem[] | undefined>([]);
   const getData = useCallback(async () => {
-    console.log(store.currentChatStore.currentChatStore?.convId);
     const data = await getFiles(
       store.currentChatStore.currentChatStore?.convId
     );
-    console.log(data);
     const urls = data?.map((item) => {
       const name = item.value!.split("()")[1];
       const url = getFile(item.value!);

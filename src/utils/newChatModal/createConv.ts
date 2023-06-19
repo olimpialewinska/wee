@@ -1,6 +1,6 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "../../../lib/database.types";
-import { IConv, IUser } from "@/interfaces";
+import { IUser } from "@/interfaces";
 
 const supabase = createClientComponentClient<Database>();
 

@@ -9,7 +9,6 @@ export async function sendFile(
   fileList: File[],
   senderId: string | null
 ) {
-  console.log("loading");
   if (!convId || !senderId) return false;
   fileList.forEach(async (file) => {
     const isImage = file.type.includes("image");
@@ -20,7 +19,6 @@ export async function sendFile(
       .upload(`${convId}/${type}/${name + "()" + file.name}`, file);
 
     if (error) {
-      console.log(error);
       return false;
     }
     const { data: data2, error: error2 } = await supabase
@@ -34,7 +32,6 @@ export async function sendFile(
         },
       ]);
   });
-  console.log("done");
 
   return true;
 }

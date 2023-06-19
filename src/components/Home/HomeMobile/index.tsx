@@ -48,7 +48,6 @@ export const HomeMobile = observer(() => {
     );
 
     channel.on("presence", { event: "sync" }, () => {
-      console.log("Online users: ", channel.presenceState());
       store.onlineUsersStore.onlineUsers = channel.presenceState();
     });
 

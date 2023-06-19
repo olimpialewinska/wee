@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/alt-text */
 "use client";
-import { User } from "@supabase/auth-helpers-nextjs";
 import {
   Container,
   Bg,

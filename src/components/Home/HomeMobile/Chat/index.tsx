@@ -61,10 +61,8 @@ export const Chat = observer(() => {
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFile = event.target.files;
-      console.log(selectedFile);
       if (selectedFile) {
         setFiles(Array.from(selectedFile));
-        console.log(Array.from(selectedFile));
       }
     },
     []

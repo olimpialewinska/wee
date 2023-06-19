@@ -1,5 +1,4 @@
 "use client";
-import { User } from "@supabase/auth-helpers-nextjs";
 import { isMobile } from "mobile-device-detect";
 import { HomeMobile } from "./HomeMobile";
 import { HomeDesktop } from "./HomeDesktop";

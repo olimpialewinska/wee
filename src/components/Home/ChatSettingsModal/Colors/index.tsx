@@ -1,6 +1,5 @@
 import { useCallback } from "react";
 import {
-  Button,
   ColorCircle,
   ColorRow,
   ColorRowNoWrap,

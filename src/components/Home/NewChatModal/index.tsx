@@ -1,6 +1,5 @@
 "use client";
-import { User } from "@supabase/auth-helpers-nextjs";
-import { IUser, ModalProps } from "@/interfaces";
+import { IUser } from "@/interfaces";
 import {
   Button,
   ButtonWrapper,
@@ -14,7 +13,6 @@ import {
 import { createContext, useCallback, useEffect, useState } from "react";
 import { findAllUsers, findUserByName } from "@/utils/newChatModal/getName";
 import { ProfileListItem } from "./ProfileListItem";
-import { getName } from "@/utils/chatList/getChatList";
 import { ProfileItem } from "./ProfileItem";
 import { CreateConv } from "@/utils/newChatModal/createConv";
 import { useRouter } from "next/navigation";

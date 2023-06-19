@@ -17,7 +17,6 @@ export async function addMessageToDB(
     .insert([{ convId, senderId: userId, value: text }])
     .select("*");
   if (error) {
-    console.log(error);
   }
   return data;
 }

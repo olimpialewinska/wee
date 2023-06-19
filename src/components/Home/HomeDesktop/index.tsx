@@ -43,8 +43,6 @@ export const HomeDesktop = observer(function HomeDesktop() {
     );
 
     channel.on("presence", { event: "sync" }, () => {
-      const onlineUsers = channel.presenceState();
-      console.log("Online users: ", channel.presenceState());
       store.onlineUsersStore.onlineUsers = channel.presenceState();
     });
 

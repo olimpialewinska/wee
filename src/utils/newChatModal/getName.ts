@@ -1,6 +1,5 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "../../../lib/database.types";
-import { get } from "http";
 import { getImage } from "../chatList/getChatList";
 import { IUser } from "@/interfaces";
 

@@ -1,4 +1,4 @@
-import { IList, ModalProps } from "@/interfaces";
+import { ModalProps } from "@/interfaces";
 import {
   Close,
   Container,

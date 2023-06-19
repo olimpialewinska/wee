@@ -8,11 +8,9 @@ import { getFile } from "@/utils/chat/getFile";
 export function Images() {
   const [images, setImages] = useState<string[] | undefined>([]);
   const getData = useCallback(async () => {
-    console.log(store.currentChatStore.currentChatStore?.convId);
     const data = await getImages(
       store.currentChatStore.currentChatStore?.convId
     );
-    console.log(data);
     const urls = data?.map((item) => {
       const bg = getFile(item.value!);
       return bg;
