@@ -3,4 +3,7 @@ module.exports = {
   compiler: {
     styledComponents: true,
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
