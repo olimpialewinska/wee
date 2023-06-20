@@ -42,8 +42,7 @@ export const Chat = observer(() => {
     setShow(true);
   };
   const [files, setFiles] = useState<File[] | null>(null);
-  const [bg, setBg] = useState<string | null>("");
-  const [color, setColor] = useState<string | null>("");
+
   const [error, setError] = useState<string | null>(null);
 
   const backgoundImage =
@@ -89,8 +88,8 @@ export const Chat = observer(() => {
       store.currentChatStore.currentChatStore.convId
     );
     if (colors === null) return;
-    setBg(colors.bgColor);
-    setColor(colors.messageColor);
+    store.currentChatStore.currentChatBgColor = colors.bgColor;
+    store.currentChatStore.currentChatColor = colors.messageColor;
   }, [store.currentChatStore.currentChatStore?.convId]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -125,6 +124,24 @@ export const Chat = observer(() => {
             return;
           setMessages((prev) => [...prev, message]);
         }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "convs",
+          filter: `id=eq.${store.currentChatStore.currentChatStore?.convId}`,
+        },
+        (payload: any) => {
+          console.log("payload", payload);
+          const bgColor = payload.new.bgColor;
+          const color = payload.new.messageColor;
+          if (bgColor && color) {
+            store.currentChatStore.currentChatBgColor = bgColor;
+            store.currentChatStore.currentChatColor = color;
+          }
+        }
       );
 
     channel.subscribe();
@@ -138,6 +155,8 @@ export const Chat = observer(() => {
     getData,
     supabase,
     store.currentUserStore.currentUserStore?.id,
+    store.currentChatStore.currentChatBgColor,
+    store.currentChatStore.currentChatColor,
   ]);
 
   const sendMessage = useCallback(async () => {
@@ -239,7 +258,9 @@ export const Chat = observer(() => {
       </Navbar>
       <Container
         style={{
-          backgroundColor: bg ? bg : "",
+          backgroundColor: store.currentChatStore.currentChatBgColor
+            ? store.currentChatStore.currentChatBgColor
+            : "",
         }}
       >
         {messages.map((message: IMessage) =>
@@ -250,7 +271,7 @@ export const Chat = observer(() => {
               isSelf={
                 message.senderId === store.currentUserStore.currentUserStore?.id
               }
-              color={color}
+              color={store.currentChatStore.currentChatColor}
             />
           ) : (
             <Announcement key={message.id} message={message.value} />

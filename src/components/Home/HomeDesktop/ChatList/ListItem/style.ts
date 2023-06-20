@@ -31,7 +31,7 @@ export const Wrapper = styled.div`
 `;
 
 export const Image = styled.div`
-  width: 40px;
+  min-width: 40px;
   height: 40px;
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.1);

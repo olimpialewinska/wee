@@ -1,13 +1,16 @@
 import { IList } from "@/interfaces";
-import { RealtimePresenceState } from "@supabase/supabase-js";
 import { makeObservable, observable } from "mobx";
 
 export class CurrentChatStore {
   public currentChatStore: IList | null = null;
+  public currentChatColor: string | null = null;
+  public currentChatBgColor: string | null = null;
 
   constructor() {
     makeObservable(this, {
       currentChatStore: observable,
+      currentChatColor: observable,
+      currentChatBgColor: observable,
     });
   }
 

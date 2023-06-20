@@ -11,27 +11,21 @@ import { changeColor } from "@/utils/chatSettings/changeColor";
 import { store } from "@/stores";
 
 export function Colors() {
-  const changeBackgroundColor = useCallback(
-    async (color: string | null) => {
-      await changeColor(
-        "bgColor",
-        store.currentChatStore.currentChatStore?.convId,
-        color
-      );
-    },
-    [store.currentChatStore.currentChatStore?.convId]
-  );
+  const changeBackgroundColor = useCallback(async (color: string | null) => {
+    await changeColor(
+      "bgColor",
+      store.currentChatStore.currentChatStore?.convId,
+      color
+    );
+  }, []);
 
-  const changeMessageColor = useCallback(
-    async (color: string | null) => {
-      await changeColor(
-        "messageColor",
-        store.currentChatStore.currentChatStore?.convId,
-        color
-      );
-    },
-    [store.currentChatStore.currentChatStore?.convId]
-  );
+  const changeMessageColor = useCallback(async (color: string | null) => {
+    await changeColor(
+      "messageColor",
+      store.currentChatStore.currentChatStore?.convId,
+      color
+    );
+  }, []);
   return (
     <>
       <Text>Background:</Text>

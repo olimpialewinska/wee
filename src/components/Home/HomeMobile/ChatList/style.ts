@@ -91,7 +91,7 @@ export const ChatSearchInput = styled.input`
 `;
 
 export const SearchIcon = styled.div`
-  width: 18px;
+  min-width: 18px;
   height: 18px;
   border-radius: 50%;
   background-size: 18px;

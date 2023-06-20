@@ -30,4 +30,5 @@ export const Color = styled.div`
   border: 2px #fff solid;
   cursor: pointer;
   margin-left: 5px;
+  z-index: 999;
 `;

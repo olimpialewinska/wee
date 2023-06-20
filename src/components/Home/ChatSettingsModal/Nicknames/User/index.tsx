@@ -18,6 +18,12 @@ export const User = observer(({ member }: { member: IUser }) => {
       name
     );
     if (result !== false) {
+      if (
+        store.currentChatStore.currentChatStore?.otherMember.userId ===
+        member.id
+      ) {
+        store.currentChatStore.currentChatStore.otherMember.name = result!;
+      }
       setName(result!);
       setEditingMode(false);
     }
