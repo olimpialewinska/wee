@@ -26,6 +26,8 @@ export function ImageModal(props: ImageModalProps) {
             props.fullScreen && props.fullScreen === true ? "90vw" : "300px",
           height:
             props.fullScreen && props.fullScreen === true ? "80vh" : "300px",
+          backgroundSize:
+            props.fullScreen && props.fullScreen === true ? "contain" : "cover",
         }}
       >
         <Close onClick={props.hide} />

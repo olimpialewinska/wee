@@ -24,7 +24,7 @@ export const Container = styled.div`
   overflow-y: auto;
   padding: 20px;
   background-position: center;
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
   z-index: 999999;
 

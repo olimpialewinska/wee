@@ -41,13 +41,6 @@ export const Image = styled.div`
   border: 2px solid #616161;
 `;
 
-export const Content = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  margin-left: 10px;
-`;
-
 export const Title = styled.div`
   font-size: 14px;
   font-weight: 600;
@@ -56,9 +49,11 @@ export const Title = styled.div`
 `;
 
 export const LastMessage = styled.div`
+  max-width: 100%;
   font-size: 12px;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
 `;
 
 export const Time = styled.div`
@@ -66,4 +61,13 @@ export const Time = styled.div`
   font-weight: 400;
   color: rgba(255, 255, 255, 0.4);
   margin-bottom: 4px;
+`;
+
+export const Row = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 4px;
+  justify-content: space-between;
 `;

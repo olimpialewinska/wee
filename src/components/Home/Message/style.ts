@@ -9,6 +9,7 @@ export const StyledMessage = styled.div<BaseMessageProps>`
   flex-direction: row;
   margin: 10px;
   align-items: center;
+  position: relative;
 
   ${(props) =>
     props.isSelf &&
@@ -72,4 +73,26 @@ export const MessageImage = styled.div`
   background-repeat: no-repeat;
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.4);
+`;
+
+export const Popup = styled.div`
+  position: absolute;
+  background-color: rgb(66, 66, 66);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 8px;
+  min-width: 100px;
+  z-index: 9999999;
+`;
+
+export const Content = styled.div`
+  padding: 4px 10px;
+  white-space: nowrap;
+  border-radius: 4px;
+  font-size: 14px;
+  margin: 0 2px;
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
 `;

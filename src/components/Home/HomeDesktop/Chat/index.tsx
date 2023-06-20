@@ -73,6 +73,21 @@ export const Chat = observer(() => {
     []
   );
 
+  const updateMessage = useCallback(
+    (newMessage: IMessage) => {
+      const newArray = (prev: IMessage[]) => {
+        const index = prev.findIndex((message) => message.id === newMessage.id);
+        if (index === -1) return prev;
+        const newMessages = Array.from(prev);
+        newMessages[index] = newMessage;
+        return newMessages;
+      };
+
+      setMessages(newArray);
+    },
+    [setMessages]
+  );
+
   const getColors = useCallback(async () => {
     const colors = await getChatColors(
       store.currentChatStore.currentChatStore?.convId!
@@ -125,11 +140,28 @@ export const Chat = observer(() => {
         {
           event: "UPDATE",
           schema: "public",
+          table: "messages",
+        },
+        (payload: any) => {
+          console.log(payload);
+          const message = payload.new as IMessage;
+          if (
+            message.convId !== store.currentChatStore.currentChatStore?.convId
+          ) {
+            return;
+          }
+          updateMessage(message);
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
           table: "convs",
           filter: `id=eq.${store.currentChatStore.currentChatStore?.convId}`,
         },
         (payload: any) => {
-          console.log("payload", payload);
           const bgColor = payload.new.bgColor;
           const color = payload.new.messageColor;
           if (bgColor && color) {

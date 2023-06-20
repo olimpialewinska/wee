@@ -33,6 +33,17 @@ export const HomeDesktop = observer(function HomeDesktop() {
     channel.on(
       "postgres_changes",
       {
+        event: "UPDATE",
+        schema: "public",
+        table: "messages",
+      },
+      (payload: any) => {
+        store.chatListStore.getList();
+      }
+    );
+    channel.on(
+      "postgres_changes",
+      {
         event: "INSERT",
         schema: "public",
         table: "convs",

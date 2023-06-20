@@ -11,7 +11,6 @@ export function Image({ image }: { image: string }) {
     setShowImage(true);
   };
 
-  console.log("image", image);
   return (
     <>
       <Img

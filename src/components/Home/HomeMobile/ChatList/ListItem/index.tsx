@@ -8,6 +8,20 @@ import { observer } from "mobx-react-lite";
 
 export const ListItem = observer(({ data }: { data: IList }) => {
   const router = useRouter();
+  const value =
+    data.lastMessage?.type === "image"
+      ? "Image has been send"
+      : data.lastMessage?.type === "file"
+      ? "File has been send"
+      : data.lastMessage?.type === "deleted"
+      ? "Message has been deleted"
+      : data.lastMessage?.value?.includes("colors,") &&
+        data.lastMessage?.senderId === null
+      ? "Color has been changed"
+      : data.lastMessage?.value?.includes("nickname,") &&
+        data.lastMessage?.senderId === null
+      ? "Nickname has been changed"
+      : data.lastMessage?.value;
 
   return (
     <Wrapper
@@ -37,17 +51,7 @@ export const ListItem = observer(({ data }: { data: IList }) => {
           store.currentUserStore.currentUserStore.id
             ? "You: "
             : ""}
-          {data.lastMessage?.type === "image"
-            ? "Image has been send"
-            : data.lastMessage?.type === "file"
-            ? "File has been send"
-            : data.lastMessage?.value?.includes("colors,") &&
-              data.lastMessage?.senderId === null
-            ? "Color has been changed"
-            : data.lastMessage?.value?.includes("nickname,") &&
-              data.lastMessage?.senderId === null
-            ? "Nickname has been changed"
-            : data.lastMessage?.value}
+          {value && value.length > 35 ? value.slice(0, 35) + "..." : value}
         </LastMessage>
       </Content>
       <Time>{getTime(data.lastMessage?.created_at)}</Time>
