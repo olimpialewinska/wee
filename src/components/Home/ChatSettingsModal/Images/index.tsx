@@ -1,9 +1,10 @@
 "use client";
-import { ImagesContainer, Img } from "./style";
+import { ImagesContainer } from "./style";
 import { useCallback, useEffect, useState } from "react";
 import { getImages } from "@/utils/chatSettings/getImages";
 import { store } from "@/stores";
 import { getFile } from "@/utils/chat/getFile";
+import { Image } from "./Image";
 
 export function Images() {
   const [images, setImages] = useState<string[] | undefined>([]);
@@ -24,7 +25,7 @@ export function Images() {
   return (
     <ImagesContainer>
       {images?.map((image) => {
-        return <Img style={{ backgroundImage: `url("${image}")` }} />;
+        return <Image image={image} />;
       })}
     </ImagesContainer>
   );

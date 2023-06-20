@@ -7,8 +7,9 @@ import {
   MessageImage,
 } from "./style";
 import { IMessage } from "@/interfaces";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { getFile } from "@/utils/chat/getFile";
+import { ImageModal } from "../ImageModal";
 
 export function Message({
   message,
@@ -47,14 +48,26 @@ export function Message({
   }
 
   if (message.type === "image") {
+    const [showImage, setShowImage] = useState(false);
+    const handleCloseImage = () => setShowImage(false);
+    const handleShowImage = () => {
+      setShowImage(true);
+    };
     return (
       <StyledMessage isSelf={isSelf}>
         <MessageImage
           style={{
             backgroundImage: `url("${getFile(message.value!)}")`,
           }}
+          onClick={handleShowImage}
         />
         <MessageTime>{getTime(message.created_at)}</MessageTime>
+        <ImageModal
+          image={`url("${getFile(message.value!)}")`}
+          visible={showImage}
+          hide={handleCloseImage}
+          fullScreen={true}
+        />
       </StyledMessage>
     );
   }

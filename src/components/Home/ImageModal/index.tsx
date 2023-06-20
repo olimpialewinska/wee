@@ -1,8 +1,9 @@
 import { ModalProps } from "@/interfaces";
-import { Container, ModalBg } from "./style";
+import { Close, Container, ModalBg } from "./style";
 
 interface ImageModalProps extends ModalProps {
   image: string;
+  fullScreen?: boolean;
 }
 
 export function ImageModal(props: ImageModalProps) {
@@ -21,8 +22,14 @@ export function ImageModal(props: ImageModalProps) {
       <Container
         style={{
           backgroundImage: props.image,
+          width:
+            props.fullScreen && props.fullScreen === true ? "90vw" : "300px",
+          height:
+            props.fullScreen && props.fullScreen === true ? "80vh" : "300px",
         }}
-      ></Container>
+      >
+        <Close onClick={props.hide} />
+      </Container>
     </ModalBg>
   );
 }
