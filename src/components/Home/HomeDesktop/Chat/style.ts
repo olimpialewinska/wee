@@ -27,6 +27,20 @@ export const Navbar = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0 10px;
+  position: relative;
+  filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.2));
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+    z-index: 0;
+  }
 `;
 
 export const Image = styled.div`
@@ -38,6 +52,7 @@ export const Image = styled.div`
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
+  z-index: 2;
 `;
 
 export const Icon = styled.div`
@@ -54,6 +69,7 @@ export const Icon = styled.div`
   justify-content: center;
   cursor: pointer;
   transition: 0.2s all;
+  z-index: 10;
 
   &:hover {
     opacity: 1;
@@ -65,6 +81,7 @@ export const Name = styled.div`
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
   flex: 1;
+  z-index: 2;
 `;
 
 export const ActivityStatus = styled.div`
@@ -94,6 +111,19 @@ export const ChatInput = styled.div`
   display: flex;
   flex-direction: row;
   padding: 0 20px;
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+    z-index: 0;
+  }
 `;
 
 export const Attachment = styled.div`
@@ -112,19 +142,25 @@ export const Attachment = styled.div`
   align-items: center;
   display: flex;
   justify-content: center;
+  z-index: 2;
+
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 export const MessageContainer = styled.div`
   flex: 1;
-  background-color: rgb(64, 64, 64);
+  background-color: rgba(255, 255, 255, 0.2);
   margin: 10px;
   color: rgb(255, 255, 255);
   padding: 16px;
-  padding-right: 16p;
+  padding-right: 16px;
   border-radius: 24px;
   font-size: 14px;
   display: flex;
   align-items: center;
+  z-index: 2;
 `;
 
 export const MessageInput = styled.input`
@@ -132,10 +168,17 @@ export const MessageInput = styled.input`
   border: none;
   flex: 1;
   font-size: 16px;
-  color: #fff;
+  color: rgb(255, 255, 255);
 
   &:focus {
     outline: none;
+  }
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  z-index: 2;
+  &:hover {
+    opacity: 1;
   }
 `;
 
@@ -154,6 +197,10 @@ export const Emoji = styled.button`
   border: none;
   background-color: transparent;
   margin-right: 10px;
+  z-index: 2;
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 export const Send = styled.button`
@@ -171,6 +218,11 @@ export const Send = styled.button`
   height: auto;
   border: none;
   background-color: transparent;
+  z-index: 10;
+
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 export const ChatContainer = styled.div`

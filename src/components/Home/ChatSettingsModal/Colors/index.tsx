@@ -17,6 +17,7 @@ export function Colors() {
       store.currentChatStore.currentChatStore?.convId,
       color
     );
+    store.currentChatStore.currentChatBgColor = color;
   }, []);
 
   const changeMessageColor = useCallback(async (color: string | null) => {
@@ -25,6 +26,7 @@ export function Colors() {
       store.currentChatStore.currentChatStore?.convId,
       color
     );
+    store.currentChatStore.currentChatColor = color;
   }, []);
   return (
     <>

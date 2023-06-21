@@ -264,6 +264,7 @@ export const Chat = observer(() => {
 
       if (!data) {
         errorFunction("Error sending file");
+        setLoadingFiles(0);
       }
 
       setFiles(null);
@@ -310,7 +311,13 @@ export const Chat = observer(() => {
   return (
     <Container>
       <Bg>
-        <Navbar>
+        <Navbar
+          style={{
+            backgroundColor: store.currentChatStore.currentChatBgColor
+              ? store.currentChatStore.currentChatBgColor
+              : "rgb(100, 100, 100)",
+          }}
+        >
           <Image
             onClick={handleShowImage}
             style={{
@@ -383,7 +390,13 @@ export const Chat = observer(() => {
           {loadingFiles > 0 &&
             Array(loadingFiles).fill(
               <div style={{ alignSelf: "flex-end", margin: 10 }}>
-                <Loader />
+                <Loader
+                  color={
+                    store.currentChatStore.currentChatColor
+                      ? store.currentChatStore.currentChatColor
+                      : "rgb(0, 84, 56)"
+                  }
+                />
               </div>
             )}
         </ChatContainer>
@@ -397,7 +410,13 @@ export const Chat = observer(() => {
                 })
               : ""}
           </FileRow>
-          <ChatInput>
+          <ChatInput
+            style={{
+              backgroundColor: store.currentChatStore.currentChatBgColor
+                ? store.currentChatStore.currentChatBgColor
+                : "rgb(100, 100, 100)",
+            }}
+          >
             <Attachment onClick={handleDivClick}>
               <input
                 type="file"

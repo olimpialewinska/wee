@@ -54,7 +54,6 @@ export const Chat = observer(() => {
   const [files, setFiles] = useState<File[] | null>(null);
   const chatContentRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
-  const [chatContainerHeight, setChatContainerHeight] = useState<number>(0);
   const [loadingFiles, setLoadingFiles] = useState<number>(0);
 
   const backgoundImage =
@@ -262,6 +261,7 @@ export const Chat = observer(() => {
 
       if (!data) {
         errorFunction("Error sending file");
+        setLoadingFiles(0);
       }
 
       setFiles(null);
@@ -312,7 +312,13 @@ export const Chat = observer(() => {
           store.currentChatStore.currentChatStore === null ? "none" : "flex",
       }}
     >
-      <Navbar>
+      <Navbar
+        style={{
+          backgroundColor: store.currentChatStore.currentChatBgColor
+            ? store.currentChatStore.currentChatBgColor
+            : "rgb(100, 100, 100)",
+        }}
+      >
         <Icon
           style={{
             backgroundImage: `url(/left-arrow.svg)`,
@@ -391,7 +397,13 @@ export const Chat = observer(() => {
         {loadingFiles > 0 &&
           Array(loadingFiles).fill(
             <div style={{ alignSelf: "flex-end", margin: 10 }}>
-              <Loader />
+              <Loader
+                color={
+                  store.currentChatStore.currentChatColor
+                    ? store.currentChatStore.currentChatColor
+                    : "rgb(0, 84, 56)"
+                }
+              />
             </div>
           )}
       </Container>
@@ -405,7 +417,13 @@ export const Chat = observer(() => {
               })
             : ""}
         </FileRow>
-        <ChatInput>
+        <ChatInput
+          style={{
+            backgroundColor: store.currentChatStore.currentChatBgColor
+              ? store.currentChatStore.currentChatBgColor
+              : "rgb(100, 100, 100)",
+          }}
+        >
           <Attachment onClick={handleDivClick}>
             <input
               type="file"
