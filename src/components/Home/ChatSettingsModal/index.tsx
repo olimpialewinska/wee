@@ -30,12 +30,8 @@ export function ChatSettingsModal(props: ModalProps) {
     "nicknames" | "color" | "files" | "images"
   >("nicknames");
 
-  console.log(store.currentChatStore.currentChatStore?.otherMember.image);
-
   const [editingMode, setEditingMode] = useState<boolean>(false);
-  const [name, setName] = useState<string>(
-    store.currentChatStore.currentChatStore?.otherMember.name!
-  );
+  const [name, setName] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState<boolean>(false);
   const [messagesCount, setMessagesCount] = useState<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,7 +51,11 @@ export function ChatSettingsModal(props: ModalProps) {
   useEffect(() => {
     countMessages();
     setContentType("nicknames");
-  }, [countMessages]);
+    setName(store.currentChatStore.currentChatStore?.otherMember.name!);
+  }, [
+    countMessages,
+    store.currentChatStore.currentChatStore?.otherMember.name,
+  ]);
 
   const handleDivClick = () => {
     if (store.currentChatStore.currentChatStore?.isGroup === true) {
@@ -68,16 +68,16 @@ export function ChatSettingsModal(props: ModalProps) {
       setEditingMode(false);
       return;
     }
-    if (name.length > 0) {
+    if (name!.length > 0) {
       const res = await changeGroupName(
         store.currentChatStore.currentChatStore?.convId,
-        name
+        name!
       );
       if (res === false) return;
       store.currentChatStore.currentChatStore!.otherMember.name = name;
       setEditingMode(false);
     }
-  }, [name]);
+  }, [name, store.currentChatStore.currentChatStore?.convId]);
 
   const handleChangeGroupImage = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {
@@ -145,6 +145,7 @@ export function ChatSettingsModal(props: ModalProps) {
               ref={inputRef}
               style={{ display: "none" }}
               type="file"
+              accept="image/*"
               onChange={(e) => {
                 handleChangeGroupImage(e);
               }}
@@ -164,7 +165,7 @@ export function ChatSettingsModal(props: ModalProps) {
           >
             <TitleInput
               type="text"
-              value={name}
+              value={name!}
               onChange={(e) => setName(e.target.value)}
               autoFocus
               onBlur={(e) => handleChangeGroupName()}

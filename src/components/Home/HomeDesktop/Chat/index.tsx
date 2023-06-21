@@ -20,6 +20,7 @@ import {
 } from "./style";
 
 import {
+  createContext,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -40,6 +41,18 @@ import { observer } from "mobx-react-lite";
 import { File } from "./File";
 import { sendFile } from "@/utils/chat/sendFile";
 import { Loader } from "@/components/Loader";
+import { EmojiPopUp } from "../Emoji";
+import { set } from "mobx";
+
+interface contextInterface {
+  messageText: string;
+  setMessageText: (c: string) => void;
+}
+
+export const messageContext = createContext<contextInterface>({
+  messageText: "",
+  setMessageText: () => {},
+});
 
 export const Chat = observer(() => {
   const supabase = createClientComponentClient();
@@ -53,7 +66,7 @@ export const Chat = observer(() => {
   const handleShow = () => {
     setShow(true);
   };
-
+  const [showEmoji, setShowEmoji] = useState(false);
   const [loadingFiles, setLoadingFiles] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatContentRef = useRef<HTMLDivElement>(null);
@@ -105,6 +118,10 @@ export const Chat = observer(() => {
     },
     [setMessages]
   );
+  const handleCloseEmoji = () => setShowEmoji(false);
+  const handleShowEmoji = () => {
+    setShowEmoji(true);
+  };
 
   const getColors = useCallback(async () => {
     const colors = await getChatColors(
@@ -141,6 +158,7 @@ export const Chat = observer(() => {
   );
 
   useEffect(() => {
+    setMessageText("");
     getColors();
     getData(0, 20);
 
@@ -434,7 +452,7 @@ export const Chat = observer(() => {
                 onKeyUp={onInputKeyUp}
               />
             </MessageContainer>
-            <Emoji />
+            <Emoji onClick={handleShowEmoji} />
             <Send onClick={sendMessage} />
           </ChatInput>
         </div>
@@ -445,6 +463,9 @@ export const Chat = observer(() => {
         image={backgoundImage}
       />
       <ChatSettingsModal visible={show} hide={handleClose} />
+      <messageContext.Provider value={{ messageText, setMessageText }}>
+        <EmojiPopUp visible={showEmoji} hide={handleCloseEmoji} />
+      </messageContext.Provider>
     </Container>
   );
 });

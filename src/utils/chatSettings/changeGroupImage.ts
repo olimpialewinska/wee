@@ -30,6 +30,5 @@ export async function changeGroupImage(id: number | undefined, image: File) {
   const link = supabase.storage.from("userImage").getPublicUrl(path);
 
   await addMessage(id, `Group image changed`);
-  console.log(link);
   return link.data.publicUrl;
 }
