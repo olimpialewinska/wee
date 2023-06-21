@@ -164,7 +164,7 @@ export async function getData(userId: string) {
       if (conv.isGroup) {
         const data = await getGroupDetails(conv.id);
         const groupImage = data?.[0].imageName
-          ? getGroupPublicUrl(conv.id, data?.[0].imageName as string)
+          ? supabase.storage.from("groupImage").getPublicUrl(data[0].imageName)
           : null;
         const groupName = data?.[0].name as string;
         return {

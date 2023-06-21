@@ -103,7 +103,7 @@ export function Settings({ user }: { user: User }) {
             backgroundImage: image ? `url(${image})` : "url(/default.png)",
           }}
         >
-          {loading && <Loader />}
+          {loading && <Loader color="red" />}
           <ImageInput
             type="file"
             ref={fileInputRef}

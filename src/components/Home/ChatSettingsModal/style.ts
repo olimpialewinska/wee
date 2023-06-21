@@ -48,6 +48,38 @@ export const Title = styled.div`
   margin-top: 20px;
 `;
 
+export const TitleInput = styled.input`
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 0 12px;
+  color: white;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s all;
+  &:focus {
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+`;
+
+export const CancelButton = styled.div`
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.1s all;
+  background-image: url("/close.svg");
+  margin-left: 6px;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
 export const Wrapper = styled.div`
   width: 100%;
   display: flex;
