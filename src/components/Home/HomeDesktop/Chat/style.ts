@@ -6,6 +6,7 @@ export const Container = styled.div`
   padding: 20px;
   padding-left: 0;
   overflow: hidden;
+  position: relative;
 `;
 
 export const Bg = styled.div`
@@ -189,11 +190,16 @@ export const FileRow = styled.div`
 `;
 
 export const Error = styled.div`
-  background-color: red;
+  background-color: rgba(0, 0, 0, 0.2);
   color: #fff;
   padding: 10px;
   border-radius: 10px;
   margin: 10px;
   font-size: 12px;
   font-weight: 400;
+  position: absolute;
+  z-index: 999;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: 0.2s opacity;
 `;

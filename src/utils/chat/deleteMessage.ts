@@ -14,11 +14,8 @@ export async function deleteMessage(messageId: number) {
     .select();
 
   if (error) {
-    console.log(error);
     return null;
   }
 
-  console.log(data);
-  console.log("deleted");
   return true;
 }

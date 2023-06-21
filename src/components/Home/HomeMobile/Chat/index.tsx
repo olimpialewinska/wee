@@ -1,6 +1,12 @@
 /* eslint-disable jsx-a11y/alt-text */
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   ActivityStatus,
   Attachment,
@@ -31,19 +37,25 @@ import { observer } from "mobx-react-lite";
 import { IMessage } from "@/interfaces";
 import { sendFile } from "@/utils/chat/sendFile";
 import { File } from "./File";
+import { set } from "mobx";
+import { Loader } from "@/components/Loader";
 
 export const Chat = observer(() => {
   const supabase = createClientComponentClient();
   const [messageText, setMessageText] = useState<string>("");
   const [show, setShow] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
+
   const handleClose = () => setShow(false);
   const handleShow = () => {
     setShow(true);
   };
+  const [errorVisible, setErrorVisible] = useState(false);
   const [files, setFiles] = useState<File[] | null>(null);
-
+  const chatContentRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [chatContainerHeight, setChatContainerHeight] = useState<number>(0);
+  const [loadingFiles, setLoadingFiles] = useState<number>(0);
 
   const backgoundImage =
     store.currentChatStore.currentChatStore?.otherMember.image !== null
@@ -66,21 +78,42 @@ export const Chat = observer(() => {
     },
     []
   );
-  const errorFunction = useCallback(
-    (message: string) => {
-      setError(message);
-      setTimeout(() => {
-        setError(null);
-      }, 3000);
-    },
-    [error]
-  );
+  const errorFunction = useCallback((message: string) => {
+    setErrorVisible(true);
+    setError(message);
+    setTimeout(() => {
+      setErrorVisible(false);
+    }, 3000);
+  }, []);
 
-  const getData = useCallback(async () => {
-    setMessages(
-      await getMessages(store.currentChatStore.currentChatStore?.convId)
-    );
-  }, [store.currentChatStore.currentChatStore?.convId]);
+  let shouldScrollDown = useRef(false);
+
+  useLayoutEffect(() => {
+    if (chatContentRef.current && shouldScrollDown.current) {
+      chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const getData = useCallback(
+    async (rangeFrom: number, rangeTo: number) => {
+      const data = await getMessages(
+        store.currentChatStore.currentChatStore?.convId,
+        rangeFrom,
+        rangeTo
+      );
+
+      if (data && rangeFrom === 0 && rangeTo === 20) {
+        shouldScrollDown.current = true;
+        setMessages(data);
+      }
+      if (data && rangeFrom !== 0 && rangeTo !== 20) {
+        shouldScrollDown.current = false;
+        chatContentRef.current!.scrollTop = 1;
+        setMessages((prev) => [...data, ...prev]);
+      }
+    },
+    [store.currentChatStore.currentChatStore?.convId]
+  );
 
   const getColors = useCallback(async () => {
     if (store.currentChatStore.currentChatStore === null) return;
@@ -115,7 +148,7 @@ export const Chat = observer(() => {
 
   useEffect(() => {
     getColors();
-    getData();
+    getData(0, 20);
     const channel = supabase
       .channel(`chanel-${store.currentChatStore.currentChatStore?.convId}`, {
         config: {
@@ -135,8 +168,17 @@ export const Chat = observer(() => {
           const message = payload.new as IMessage;
           if (
             message.convId !== store.currentChatStore.currentChatStore?.convId
-          )
+          ) {
             return;
+          }
+
+          if (
+            (message.type === "image" || message.type === "file") &&
+            message.senderId === store.currentUserStore.currentUserStore.id
+          ) {
+            setLoadingFiles((prev) => prev - 1);
+          }
+
           setMessages((prev) => [...prev, message]);
         }
       )
@@ -148,7 +190,7 @@ export const Chat = observer(() => {
           table: "messages",
         },
         (payload: any) => {
-          console.log(payload);
+          shouldScrollDown.current = false;
           const message = payload.new as IMessage;
           if (
             message.convId !== store.currentChatStore.currentChatStore?.convId
@@ -167,6 +209,7 @@ export const Chat = observer(() => {
           filter: `id=eq.${store.currentChatStore.currentChatStore?.convId}`,
         },
         (payload: any) => {
+          shouldScrollDown.current = true;
           const bgColor = payload.new.bgColor;
           const color = payload.new.messageColor;
           if (bgColor && color) {
@@ -189,38 +232,54 @@ export const Chat = observer(() => {
     store.currentUserStore.currentUserStore?.id,
     store.currentChatStore.currentChatBgColor,
     store.currentChatStore.currentChatColor,
+    setLoadingFiles,
   ]);
 
   const sendMessage = useCallback(async () => {
+    shouldScrollDown.current = true;
+
     if (files !== null) {
-      files.map((file) => {
+      files.forEach((file) => {
         if (file.size > 15728640) {
           errorFunction("File size should be less than 15mb");
           setFiles(null);
           return;
         }
       });
+
+      const lengthOfValidFiles = files.filter(
+        (file) => file.size <= 15728640
+      ).length;
+      setLoadingFiles(lengthOfValidFiles);
+
       const data = await sendFile(
         store.currentChatStore.currentChatStore?.convId,
         files,
         store.currentUserStore.currentUserStore.id
       );
+
+      chatContentRef.current!.scrollTop = chatContentRef.current!.scrollHeight;
+
       if (!data) {
         errorFunction("Error sending file");
       }
+
       setFiles(null);
     }
+
     if (messageText === "") return;
+
     const data = await addMessageToDB(
       messageText,
       store.currentChatStore.currentChatStore?.convId,
-      store.currentUserStore.currentUserStore?.id!
+      store.currentUserStore.currentUserStore.id
     );
+
     setMessageText("");
   }, [
     store.currentChatStore.currentChatStore?.convId,
     messageText,
-    store.currentUserStore.currentUserStore?.id,
+    store.currentUserStore.currentUserStore.id,
     files,
     errorFunction,
   ]);
@@ -277,9 +336,14 @@ export const Chat = observer(() => {
           <Name>
             {store.currentChatStore.currentChatStore?.otherMember.name}
           </Name>
-          <ActivityStatus>{status ? "Online" : "Offline"}</ActivityStatus>
+          <ActivityStatus>
+            {store.onlineUsersStore.checkOnline(
+              store.currentChatStore.currentChatStore?.otherMember.userId
+            )
+              ? "Online"
+              : "Offline"}
+          </ActivityStatus>
         </Wrapper>
-        {error !== null ? <Error>{error}</Error> : <></>}
 
         <Icon
           style={{
@@ -294,7 +358,22 @@ export const Chat = observer(() => {
             ? store.currentChatStore.currentChatBgColor
             : "",
         }}
+        ref={chatContentRef}
+        onScroll={(e) => {
+          if (e.currentTarget.scrollTop === 0) {
+            shouldScrollDown.current = false;
+            getData(messages.length, messages.length + 20);
+          }
+        }}
       >
+        <Error
+          style={{
+            opacity: errorVisible ? 1 : 0,
+            pointerEvents: errorVisible ? "inherit" : "none",
+          }}
+        >
+          {error}
+        </Error>
         {messages.map((message: IMessage) =>
           message.senderId ? (
             <Message
@@ -309,6 +388,12 @@ export const Chat = observer(() => {
             <Announcement key={message.id} message={message.value} />
           )
         )}
+        {loadingFiles > 0 &&
+          Array(loadingFiles).fill(
+            <div style={{ alignSelf: "flex-end", margin: 10 }}>
+              <Loader />
+            </div>
+          )}
       </Container>
       <div style={{ display: "flex", flexDirection: "column" }}>
         <FileRow>

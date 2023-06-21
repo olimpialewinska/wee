@@ -19,7 +19,13 @@ import {
   Error,
 } from "./style";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { ChatSettingsModal } from "../../ChatSettingsModal";
 import { ImageModal } from "../../ImageModal";
 import { IMessage } from "@/interfaces";
@@ -33,6 +39,7 @@ import { store } from "@/stores";
 import { observer } from "mobx-react-lite";
 import { File } from "./File";
 import { sendFile } from "@/utils/chat/sendFile";
+import { Loader } from "@/components/Loader";
 
 export const Chat = observer(() => {
   const supabase = createClientComponentClient();
@@ -41,11 +48,15 @@ export const Chat = observer(() => {
   const [files, setFiles] = useState<File[] | null>(null);
   const [show, setShow] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorVisible, setErrorVisible] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => {
     setShow(true);
   };
+
+  const [loadingFiles, setLoadingFiles] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const chatContentRef = useRef<HTMLDivElement>(null);
 
   const handleDivClick = () => {
     fileInputRef.current?.click();
@@ -72,6 +83,13 @@ export const Chat = observer(() => {
     },
     []
   );
+  let shouldScrollDown = useRef(false);
+
+  useLayoutEffect(() => {
+    if (chatContentRef.current && shouldScrollDown.current) {
+      chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const updateMessage = useCallback(
     (newMessage: IMessage) => {
@@ -101,15 +119,30 @@ export const Chat = observer(() => {
     store.currentChatStore.currentChatBgColor,
   ]);
 
-  const getData = useCallback(async () => {
-    setMessages(
-      await getMessages(store.currentChatStore.currentChatStore?.convId)
-    );
-  }, [store.currentChatStore.currentChatStore?.convId]);
+  const getData = useCallback(
+    async (rangeFrom: number, rangeTo: number) => {
+      const data = await getMessages(
+        store.currentChatStore.currentChatStore?.convId,
+        rangeFrom,
+        rangeTo
+      );
+
+      if (data && rangeFrom === 0 && rangeTo === 20) {
+        shouldScrollDown.current = true;
+        setMessages(data);
+      }
+      if (data && rangeFrom !== 0 && rangeTo !== 20) {
+        shouldScrollDown.current = false;
+        chatContentRef.current!.scrollTop = 1;
+        setMessages((prev) => [...data, ...prev]);
+      }
+    },
+    [store.currentChatStore.currentChatStore?.convId]
+  );
 
   useEffect(() => {
     getColors();
-    getData();
+    getData(0, 20);
 
     const channel = supabase
       .channel(`chanel-${store.currentChatStore.currentChatStore?.convId}`, {
@@ -130,8 +163,17 @@ export const Chat = observer(() => {
           const message = payload.new as IMessage;
           if (
             message.convId !== store.currentChatStore.currentChatStore?.convId
-          )
+          ) {
             return;
+          }
+
+          if (
+            (message.type === "image" || message.type === "file") &&
+            message.senderId === store.currentUserStore.currentUserStore.id
+          ) {
+            setLoadingFiles((prev) => prev - 1);
+          }
+
           setMessages((prev) => [...prev, message]);
         }
       )
@@ -143,7 +185,7 @@ export const Chat = observer(() => {
           table: "messages",
         },
         (payload: any) => {
-          console.log(payload);
+          shouldScrollDown.current = false;
           const message = payload.new as IMessage;
           if (
             message.convId !== store.currentChatStore.currentChatStore?.convId
@@ -184,44 +226,57 @@ export const Chat = observer(() => {
     store.currentChatStore.currentChatStore?.convId,
     store.currentChatStore.currentChatBgColor,
     store.currentChatStore.currentChatColor,
+    setLoadingFiles,
   ]);
 
-  const errorFunction = useCallback(
-    (message: string) => {
-      setError(message);
-      setTimeout(() => {
-        setError(null);
-      }, 3000);
-    },
-    [error]
-  );
+  const errorFunction = useCallback((message: string) => {
+    setErrorVisible(true);
+    setError(message);
+    setTimeout(() => {
+      setErrorVisible(false);
+    }, 3000);
+  }, []);
 
   const sendMessage = useCallback(async () => {
+    shouldScrollDown.current = true;
+
     if (files !== null) {
-      files.map((file) => {
+      files.forEach((file) => {
         if (file.size > 15728640) {
           errorFunction("File size should be less than 15mb");
           setFiles(null);
           return;
         }
       });
+
+      const lengthOfValidFiles = files.filter(
+        (file) => file.size <= 15728640
+      ).length;
+      setLoadingFiles(lengthOfValidFiles);
+
       const data = await sendFile(
         store.currentChatStore.currentChatStore?.convId,
         files,
         store.currentUserStore.currentUserStore.id
       );
+
+      chatContentRef.current!.scrollTop = chatContentRef.current!.scrollHeight;
+
       if (!data) {
         errorFunction("Error sending file");
       }
+
       setFiles(null);
     }
 
     if (messageText === "") return;
+
     const data = await addMessageToDB(
       messageText,
       store.currentChatStore.currentChatStore?.convId,
       store.currentUserStore.currentUserStore.id
     );
+
     setMessageText("");
   }, [
     store.currentChatStore.currentChatStore?.convId,
@@ -281,7 +336,6 @@ export const Chat = observer(() => {
                 : "Offline"}
             </ActivityStatus>
           </Wrapper>
-          {error !== null ? <Error>{error}</Error> : <></>}
 
           <Icon
             style={{
@@ -296,7 +350,21 @@ export const Chat = observer(() => {
               ? store.currentChatStore.currentChatBgColor
               : "transparent",
           }}
+          ref={chatContentRef}
+          onScroll={(e) => {
+            if (e.currentTarget.scrollTop === 0) {
+              getData(messages.length, messages.length + 20);
+            }
+          }}
         >
+          <Error
+            style={{
+              opacity: errorVisible ? 1 : 0,
+              pointerEvents: errorVisible ? "inherit" : "none",
+            }}
+          >
+            {error}
+          </Error>
           {messages.map((message: IMessage) =>
             message.senderId ? (
               <Message
@@ -312,6 +380,12 @@ export const Chat = observer(() => {
               <Announcement key={message.id} message={message.value} />
             )
           )}
+          {loadingFiles > 0 &&
+            Array(loadingFiles).fill(
+              <div style={{ alignSelf: "flex-end", margin: 10 }}>
+                <Loader />
+              </div>
+            )}
         </ChatContainer>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <FileRow>

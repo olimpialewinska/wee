@@ -11,26 +11,28 @@ export async function sendFile(
 ) {
   if (!convId || !senderId) return false;
   fileList.forEach(async (file) => {
-    const isImage = file.type.includes("image");
-    const type = isImage ? "image" : "file";
-    const name = uuidv4();
-    const { data, error } = await supabase.storage
-      .from("chat")
-      .upload(`${convId}/${type}/${name + "()" + file.name}`, file);
+    if (file.size < 15728640) {
+      const isImage = file.type.includes("image");
+      const type = isImage ? "image" : "file";
+      const name = uuidv4();
+      const { data, error } = await supabase.storage
+        .from("chat")
+        .upload(`${convId}/${type}/${name + "()" + file.name}`, file);
 
-    if (error) {
-      return false;
+      if (error) {
+        return false;
+      }
+      const { data: data2, error: error2 } = await supabase
+        .from("messages")
+        .insert([
+          {
+            convId: convId,
+            senderId: senderId,
+            value: `${data.path}`,
+            type: type,
+          },
+        ]);
     }
-    const { data: data2, error: error2 } = await supabase
-      .from("messages")
-      .insert([
-        {
-          convId: convId,
-          senderId: senderId,
-          value: `${data.path}`,
-          type: type,
-        },
-      ]);
   });
 
   return true;

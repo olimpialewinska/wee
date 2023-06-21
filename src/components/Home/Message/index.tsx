@@ -38,6 +38,7 @@ export function Message({
 
   const handleContextMenu = useCallback((event: MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
+    event.stopPropagation();
 
     setIsPopupOpen(true);
   }, []);
@@ -47,7 +48,6 @@ export function Message({
   }, []);
 
   const handleDelete = useCallback(async (id: number) => {
-    console.log("delete", id);
     await deleteMessage(id);
   }, []);
 
@@ -134,7 +134,7 @@ export function Message({
             backgroundColor: isSelf ? (color ? color : "") : "",
             borderRadius: "10px",
             border: "2px solid #7a7a7a",
-            color: "#000",
+            color: "#7a7a7a",
           }}
           isSelf={isSelf}
         >

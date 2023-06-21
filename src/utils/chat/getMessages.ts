@@ -3,7 +3,11 @@ import { Database } from "../../../lib/database.types";
 
 const supabase = createClientComponentClient<Database>();
 
-export const getMessages = async (convId: number | undefined) => {
+export const getMessages = async (
+  convId: number | undefined,
+  rangeFrom: number,
+  rangeTo: number
+) => {
   if (!convId) {
     return [];
   }
@@ -11,11 +15,13 @@ export const getMessages = async (convId: number | undefined) => {
     .from("messages")
     .select("*")
     .eq("convId", convId)
-    .order("created_at", { ascending: true });
+    .range(rangeFrom, rangeTo)
+    .order("id", { ascending: false })
+    .limit(20);
 
   if (error) {
     return [];
   }
 
-  return data;
+  return data.reverse();
 };
