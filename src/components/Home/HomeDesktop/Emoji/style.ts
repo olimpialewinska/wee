@@ -26,6 +26,11 @@ export const Wrapper = styled.div`
   overflow: auto;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
   padding: 10px;
+
+  @media (max-width: 768px) {
+    bottom: 70px;
+    right: 10px;
+  }
 `;
 
 export const EmojiPicker = styled.div`

@@ -1,15 +1,27 @@
-import { styled } from "styled-components";
+import { css, styled } from "styled-components";
 
-export const Container = styled.div`
+interface BaseProps {
+  isMobile: boolean;
+}
+
+export const Container = styled.div<BaseProps>`
   width: 100%;
   height: calc(100vh - 40px);
   padding: 20px;
   padding-left: 0;
   overflow: hidden;
   position: relative;
+
+  ${(props) =>
+    props.isMobile &&
+    css`
+      width: 100%;
+      height: 100%;
+      padding: 0;
+    `}
 `;
 
-export const Bg = styled.div`
+export const Bg = styled.div<BaseProps>`
   width: 100%;
   height: 100%;
   background-color: rgb(54, 54, 54);
@@ -18,6 +30,14 @@ export const Bg = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
+
+  ${(props) =>
+    props.isMobile &&
+    css`
+      width: 100vw;
+      height: 100vh;
+      border-radius: 18px 18px 0 0;
+    `}
 `;
 
 export const Navbar = styled.div`
@@ -106,7 +126,7 @@ export const ChatContent = styled.div`
   flex-direction: column;
 `;
 
-export const ChatInput = styled.div`
+export const ChatInput = styled.div<BaseProps>`
   height: 60px;
   background-color: rgb(54, 54, 54);
   display: flex;
@@ -126,6 +146,12 @@ export const ChatInput = styled.div`
     pointer-events: none;
     z-index: 0;
   }
+
+  ${(props) =>
+    props.isMobile &&
+    css`
+      padding: 0 10px;
+    `}
 `;
 
 export const Attachment = styled.div`

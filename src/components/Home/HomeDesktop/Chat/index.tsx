@@ -42,7 +42,6 @@ import { File } from "./File";
 import { sendFile } from "@/utils/chat/sendFile";
 import { Loader } from "@/components/Loader";
 import { EmojiPopUp } from "../Emoji";
-import { set } from "mobx";
 
 interface contextInterface {
   messageText: string;
@@ -209,10 +208,11 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
                   message.senderId!
                 );
                 message.senderNick = nick;
+                console.log("dupa");
                 setMessages((prev) => [...prev, message]);
               })();
+              setMessages((prev) => [...prev, message]);
             }
-            return;
           }
 
           setMessages((prev) => [...prev, message]);
@@ -350,16 +350,33 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
     });
   }, []);
 
+  const handleChatClose = useCallback(() => {
+    store.currentChatStore.setCurrentChat(null);
+    setMessages([]);
+    setMessageText("");
+    store.currentChatStore.currentChatBgColor = null;
+    store.currentChatStore.currentChatBgColor = null;
+    waitingForInitialData.current = -1;
+  }, []);
+
   return (
-    <Container>
-      <Bg>
+    <Container isMobile={isMobile}>
+      <Bg isMobile={isMobile}>
         <Navbar
           style={{
             backgroundColor: store.currentChatStore.currentChatBgColor
               ? store.currentChatStore.currentChatBgColor
-              : "rgb(100, 100, 100)",
+              : "rgb(67, 67, 67)",
           }}
         >
+          {isMobile && (
+            <Icon
+              style={{
+                backgroundImage: `url(/left-arrow.svg)`,
+              }}
+              onClick={handleChatClose}
+            />
+          )}
           <Image
             onClick={handleShowImage}
             style={{
@@ -457,10 +474,11 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
               : ""}
           </FileRow>
           <ChatInput
+            isMobile={isMobile}
             style={{
               backgroundColor: store.currentChatStore.currentChatBgColor
                 ? store.currentChatStore.currentChatBgColor
-                : "rgb(100, 100, 100)",
+                : "rgb(67, 67, 67)",
             }}
           >
             <Attachment onClick={handleDivClick}>

@@ -77,7 +77,7 @@ export const HomeMobile = observer(() => {
   return (
     <>
       <ChatList />
-      {isChat && <Chat />}
+      {isChat && <Chat isMobile />}
     </>
   );
 });
