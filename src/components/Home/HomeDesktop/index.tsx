@@ -73,7 +73,7 @@ export const HomeDesktop = observer(function HomeDesktop() {
   return (
     <Container>
       <ChatList />
-      <Chat />
+      <Chat isMobile={false} />
     </Container>
   );
 });

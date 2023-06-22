@@ -179,7 +179,7 @@ export const Attachment = styled.div`
 
 export const MessageContainer = styled.div`
   flex: 1;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
   margin: 10px;
   color: rgb(255, 255, 255);
   padding: 16px;

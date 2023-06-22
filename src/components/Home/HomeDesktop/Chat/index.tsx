@@ -366,7 +366,7 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
           style={{
             backgroundColor: store.currentChatStore.currentChatBgColor
               ? store.currentChatStore.currentChatBgColor
-              : "rgb(67, 67, 67)",
+              : "rgb(42, 42, 42)",
           }}
         >
           {isMobile && (
@@ -478,7 +478,7 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
             style={{
               backgroundColor: store.currentChatStore.currentChatBgColor
                 ? store.currentChatStore.currentChatBgColor
-                : "rgb(67, 67, 67)",
+                : "rgb(42, 42, 42)",
             }}
           >
             <Attachment onClick={handleDivClick}>
