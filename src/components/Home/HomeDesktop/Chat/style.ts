@@ -29,6 +29,7 @@ export const Navbar = styled.div`
   padding: 0 10px;
   position: relative;
   filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.2));
+  transition: 0.2s background-color;
 
   &::after {
     content: "";
@@ -37,7 +38,7 @@ export const Navbar = styled.div`
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.35);
+    background-color: rgba(255, 255, 255, 0.08);
     pointer-events: none;
     z-index: 0;
   }
@@ -112,6 +113,7 @@ export const ChatInput = styled.div`
   flex-direction: row;
   padding: 0 20px;
   position: relative;
+  transition: 0.2s background-color;
 
   &::after {
     content: "";
@@ -120,7 +122,7 @@ export const ChatInput = styled.div`
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.35);
+    background-color: rgba(255, 255, 255, 0.08);
     pointer-events: none;
     z-index: 0;
   }
@@ -230,6 +232,7 @@ export const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
   overflow: auto;
+  transition: 0.2s background-color;
 `;
 
 export const FileRow = styled.div`

@@ -40,6 +40,7 @@ export interface IConv {
 }
 
 export interface IMessage {
+  senderNick: string | null;
   convId: number | null;
   created_at: string | null;
   id: number;

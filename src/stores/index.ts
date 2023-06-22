@@ -1,7 +1,10 @@
+import { configure } from "mobx";
 import { ChatListStore } from "./chatList";
 import { CurrentChatStore } from "./currentChat";
 import { OnlineUsers } from "./onlineUsers";
 import { UserStore } from "./user";
+
+configure({ enforceActions: "never" });
 
 export class Store {
   public currentUserStore = new UserStore();

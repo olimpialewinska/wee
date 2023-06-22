@@ -2,7 +2,7 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useState, useEffect } from "react";
 import { ChatList } from "./ChatList";
-import { Chat } from "./Chat";
+import { Chat } from "../HomeDesktop/Chat";
 import { usePathname } from "next/navigation";
 import { IList } from "@/interfaces";
 import { store } from "@/stores";

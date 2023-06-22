@@ -12,9 +12,9 @@ export const ListItem = observer((props: { data: IList }) => {
 
   const value =
     props.data.lastMessage?.type === "image"
-      ? "Image has been send"
+      ? "Image has been sent"
       : props.data.lastMessage?.type === "file"
-      ? "File has been send"
+      ? "File has been sent"
       : props.data.lastMessage?.type === "deleted"
       ? "Message has been deleted"
       : props.data.lastMessage?.value?.includes("colors,") &&

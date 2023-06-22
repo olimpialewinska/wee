@@ -10,9 +10,9 @@ export const ListItem = observer(({ data }: { data: IList }) => {
   const router = useRouter();
   const value =
     data.lastMessage?.type === "image"
-      ? "Image has been send"
+      ? "Image has been sent"
       : data.lastMessage?.type === "file"
-      ? "File has been send"
+      ? "File has been sent"
       : data.lastMessage?.type === "deleted"
       ? "Message has been deleted"
       : data.lastMessage?.value?.includes("colors,") &&

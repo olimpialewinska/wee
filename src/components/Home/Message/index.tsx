@@ -8,6 +8,8 @@ import {
   MessageImage,
   Popup,
   Content,
+  Row,
+  Nick,
 } from "./style";
 import { IMessage } from "@/interfaces";
 import { useCallback, useState } from "react";
@@ -15,16 +17,16 @@ import { getFile } from "@/utils/chat/getFile";
 import { ImageModal } from "../ImageModal";
 import { MouseEvent } from "react";
 import { deleteMessage } from "@/utils/chat/deleteMessage";
+import { store } from "@/stores";
+import { observer } from "mobx-react-lite";
 
-export function Message({
-  message,
-  isSelf,
-  color,
-}: {
+interface MessageProps {
   message: IMessage;
   isSelf: boolean;
   color: string | null;
-}) {
+}
+
+export const Message = observer((props: MessageProps) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [showImage, setShowImage] = useState(false);
   const handleCloseImage = () => setShowImage(false);
@@ -33,8 +35,8 @@ export function Message({
   };
 
   const handleDownload = useCallback(() => {
-    window.open(getFile(message.value!), "_blank");
-  }, [message.value]);
+    window.open(getFile(props.message.value!), "_blank");
+  }, [props.message.value]);
 
   const handleContextMenu = useCallback((event: MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -51,73 +53,90 @@ export function Message({
     await deleteMessage(id);
   }, []);
 
-  if (message.type === "file") {
+  if (props.message.type === "file") {
     return (
-      <StyledMessage isSelf={isSelf}>
+      <StyledMessage isSelf={props.isSelf}>
+        {props.isSelf === false &&
+          store.currentChatStore.currentChatStore?.isGroup === true && (
+            <Nick>{props.message.senderNick!}</Nick>
+          )}
         {isPopupOpen && (
           <Popup onMouseLeave={handleMouseLeave}>
             <Content
               onClick={() => {
-                handleDelete(message.id!);
+                handleDelete(props.message.id!);
               }}
             >
               Delete Message
             </Content>
           </Popup>
         )}
-        <MessageContent
-          style={{
-            backgroundColor: isSelf ? (color ? color : "") : "",
-            borderRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexDirection: "row",
-            padding: 12,
-          }}
-          isSelf={isSelf}
-          onContextMenu={(event) => {
-            if (!isSelf) return;
-            handleContextMenu(event);
-          }}
-        >
-          <DownloadButton onClick={handleDownload} />
 
-          {message.value!.split("()")[1]}
-        </MessageContent>
-        <MessageTime>{getTime(message.created_at)}</MessageTime>
+        <Row isSelf={props.isSelf}>
+          <MessageContent
+            style={{
+              backgroundColor: props.isSelf
+                ? props.color
+                  ? props.color
+                  : ""
+                : "",
+              borderRadius: "10px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexDirection: "row",
+              padding: 12,
+            }}
+            isSelf={props.isSelf}
+            onContextMenu={(event) => {
+              if (!props.isSelf) return;
+              handleContextMenu(event);
+            }}
+          >
+            <DownloadButton onClick={handleDownload} />
+
+            {props.message.value!.split("()")[1]}
+          </MessageContent>
+          <MessageTime>{getTime(props.message.created_at)}</MessageTime>
+        </Row>
       </StyledMessage>
     );
   }
 
-  if (message.type === "image") {
+  if (props.message.type === "image") {
     return (
-      <StyledMessage isSelf={isSelf}>
+      <StyledMessage isSelf={props.isSelf}>
+        {props.isSelf === false &&
+          store.currentChatStore.currentChatStore?.isGroup === true && (
+            <Nick>{props.message.senderNick!}</Nick>
+          )}
         {isPopupOpen && (
           <Popup onMouseLeave={handleMouseLeave}>
             <Content
               onClick={() => {
-                handleDelete(message.id!);
+                handleDelete(props.message.id!);
               }}
             >
               Delete Message
             </Content>
           </Popup>
         )}
-        <MessageImage
-          onContextMenu={(event) => {
-            if (!isSelf) return;
-            handleContextMenu(event);
-          }}
-          style={{
-            backgroundImage: `url("${getFile(message.value!)}")`,
-          }}
-          onClick={handleShowImage}
-        />
+        <Row isSelf={props.isSelf}>
+          <MessageImage
+            onContextMenu={(event) => {
+              if (!props.isSelf) return;
+              handleContextMenu(event);
+            }}
+            style={{
+              backgroundImage: `url("${getFile(props.message.value!)}")`,
+            }}
+            onClick={handleShowImage}
+          />
 
-        <MessageTime>{getTime(message.created_at)}</MessageTime>
+          <MessageTime>{getTime(props.message.created_at)}</MessageTime>
+        </Row>
         <ImageModal
-          image={`url("${getFile(message.value!)}")`}
+          image={`url("${getFile(props.message.value!)}")`}
           visible={showImage}
           hide={handleCloseImage}
           fullScreen={true}
@@ -126,50 +145,67 @@ export function Message({
     );
   }
 
-  if (message.type === "deleted") {
+  if (props.message.type === "deleted") {
     return (
-      <StyledMessage isSelf={isSelf}>
-        <MessageContent
-          style={{
-            backgroundColor: isSelf ? (color ? color : "") : "",
-            borderRadius: "10px",
-            border: "2px solid #7a7a7a",
-            color: "#7a7a7a",
-          }}
-          isSelf={isSelf}
-        >
-          Message has been deleted
-        </MessageContent>
-        <MessageTime>{getTime(message.created_at)}</MessageTime>
+      <StyledMessage isSelf={props.isSelf}>
+        {props.isSelf === false &&
+          store.currentChatStore.currentChatStore?.isGroup === true && (
+            <Nick>{props.message.senderNick!}</Nick>
+          )}
+        <Row isSelf={props.isSelf}>
+          <MessageContent
+            style={{
+              backgroundColor: "transparent",
+              borderRadius: "10px",
+              border: "1px solid rgba(255, 255, 255, 0.5)",
+              color: "rgba(255, 255, 255, 0.5)",
+            }}
+            isSelf={props.isSelf}
+          >
+            Message has been deleted
+          </MessageContent>
+          <MessageTime>{getTime(props.message.created_at)}</MessageTime>
+        </Row>
       </StyledMessage>
     );
   }
   return (
-    <StyledMessage isSelf={isSelf}>
+    <StyledMessage isSelf={props.isSelf}>
+      {props.isSelf === false &&
+        store.currentChatStore.currentChatStore?.isGroup === true && (
+          <Nick>{props.message.senderNick!}</Nick>
+        )}
+
       {isPopupOpen && (
         <Popup onMouseLeave={handleMouseLeave}>
           <Content
             onClick={() => {
-              handleDelete(message.id!);
+              handleDelete(props.message.id!);
             }}
           >
             Delete Message
           </Content>
         </Popup>
       )}
-      <MessageContent
-        onContextMenu={(event) => {
-          if (!isSelf) return;
-          handleContextMenu(event);
-        }}
-        style={{
-          backgroundColor: isSelf ? (color ? color : "") : "",
-        }}
-        isSelf={isSelf}
-      >
-        {message.value}
-      </MessageContent>
-      <MessageTime>{getTime(message.created_at)}</MessageTime>
+      <Row isSelf={props.isSelf}>
+        <MessageContent
+          onContextMenu={(event) => {
+            if (!props.isSelf) return;
+            handleContextMenu(event);
+          }}
+          style={{
+            backgroundColor: props.isSelf
+              ? props.color
+                ? props.color
+                : ""
+              : "",
+          }}
+          isSelf={props.isSelf}
+        >
+          {props.message.value}
+        </MessageContent>
+        <MessageTime>{getTime(props.message.created_at)}</MessageTime>
+      </Row>
     </StyledMessage>
   );
-}
+});

@@ -26,7 +26,7 @@ import {
 } from "./style";
 import { ChatSettingsModal } from "../../ChatSettingsModal";
 import { ImageModal } from "../../ImageModal";
-import { getMessages } from "@/utils/chat/getMessages";
+import { getMessages, getUserNick } from "@/utils/chat/getMessages";
 import { Message } from "../../Message";
 import { Announcement } from "../../Announcement";
 import { addMessageToDB } from "@/utils/chat/sendMessage";
@@ -37,8 +37,8 @@ import { observer } from "mobx-react-lite";
 import { IMessage } from "@/interfaces";
 import { sendFile } from "@/utils/chat/sendFile";
 import { File } from "./File";
-import { set } from "mobx";
 import { Loader } from "@/components/Loader";
+import { set } from "mobx";
 
 export const Chat = observer(() => {
   const supabase = createClientComponentClient();
@@ -95,8 +95,10 @@ export const Chat = observer(() => {
 
   const getData = useCallback(
     async (rangeFrom: number, rangeTo: number) => {
+      if (!store.currentChatStore.currentChatStore) return;
+
       const data = await getMessages(
-        store.currentChatStore.currentChatStore?.convId,
+        store.currentChatStore.currentChatStore.convId,
         rangeFrom,
         rangeTo
       );
@@ -130,24 +132,23 @@ export const Chat = observer(() => {
     fileInputRef.current?.click();
   };
 
-  const updateMessage = useCallback(
-    (newMessage: IMessage) => {
-      const newArray = (prev: IMessage[]) => {
-        const index = prev.findIndex((message) => message.id === newMessage.id);
-        if (index === -1) return prev;
-        const newMessages = Array.from(prev);
-        newMessages[index] = newMessage;
-        return newMessages;
-      };
+  const updateMessage = useCallback((newMessage: IMessage) => {
+    const newArray = (prev: IMessage[]) => {
+      const index = prev.findIndex((message) => message.id === newMessage.id);
+      if (index === -1) return prev;
+      const newMessages = Array.from(prev);
+      newMessages[index] = newMessage;
+      return newMessages;
+    };
 
-      setMessages(newArray);
-    },
-    [setMessages]
-  );
+    setMessages(newArray);
+  }, []);
 
   useEffect(() => {
-    getColors();
     getData(0, 20);
+    console.log("xd");
+    getColors();
+
     const channel = supabase
       .channel(`chanel-${store.currentChatStore.currentChatStore?.convId}`, {
         config: {
@@ -176,6 +177,19 @@ export const Chat = observer(() => {
             message.senderId === store.currentUserStore.currentUserStore.id
           ) {
             setLoadingFiles((prev) => prev - 1);
+          }
+          if (store.currentChatStore.currentChatStore.isGroup === true) {
+            if (message.senderId !== null) {
+              (async () => {
+                const nick = await getUserNick(
+                  store.currentChatStore.currentChatStore?.convId,
+                  message.senderId!
+                );
+                message.senderNick = nick;
+                setMessages((prev) => [...prev, message]);
+              })();
+            }
+            return;
           }
 
           setMessages((prev) => [...prev, message]);
@@ -233,6 +247,14 @@ export const Chat = observer(() => {
     store.currentChatStore.currentChatColor,
     setLoadingFiles,
   ]);
+
+  const handleChatClose = useCallback(() => {
+    store.currentChatStore.setCurrentChat(null);
+    setMessages([]);
+    setMessageText("");
+    store.currentChatStore.currentChatBgColor = null;
+    store.currentChatStore.currentChatBgColor = null;
+  }, []);
 
   const sendMessage = useCallback(async () => {
     shouldScrollDown.current = true;
@@ -323,7 +345,7 @@ export const Chat = observer(() => {
           style={{
             backgroundImage: `url(/left-arrow.svg)`,
           }}
-          onClick={() => store.currentChatStore.setCurrentChat(null)}
+          onClick={handleChatClose}
         />
         <Image
           onClick={handleShowImage}

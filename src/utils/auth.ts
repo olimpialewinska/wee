@@ -22,9 +22,10 @@ export async function signUp(
     },
   });
   if (data.error) {
+    console.log(data.error);
     return data;
   }
-  const nameRes = await addUserName(data.data.user?.id, name, lastName);
+  const nameRes = await addUserName(data.data.user!.id, name, lastName);
   if (nameRes !== null) {
     return nameRes;
   }
@@ -46,8 +47,8 @@ export async function signOut() {
 }
 
 export async function addUserName(
-  name: string | undefined,
   id: string,
+  name: string | undefined,
   lastName: string
 ) {
   const data = await supabase

@@ -29,7 +29,7 @@ export function Announcement(props: MessageProps) {
     return (
       <StyledMessage>
         <MessageContent>
-          {otherUserNick}'s username has been changed to {nickname}
+          {otherUserNick.trim()}'s username has been changed to {nickname}
         </MessageContent>
       </StyledMessage>
     );

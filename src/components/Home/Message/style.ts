@@ -6,17 +6,36 @@ interface BaseMessageProps {
 
 export const StyledMessage = styled.div<BaseMessageProps>`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   margin: 10px;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
 
   ${(props) =>
     props.isSelf &&
     css`
       align-self: flex-end;
-      flex-direction: row-reverse;
     `}
+`;
+
+export const Row = styled.div<BaseMessageProps>`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  ${(props) =>
+    props.isSelf &&
+    css`
+      flex-direction: row-reverse;
+      align-items: center;
+    `}
+`;
+
+export const Nick = styled.div`
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+  margin-bottom: 2px;
 `;
 
 export const MessageContent = styled.div<BaseMessageProps>`

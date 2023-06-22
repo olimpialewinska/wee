@@ -23,7 +23,6 @@ import { store } from "@/stores";
 import { changeGroupImage } from "@/utils/chatSettings/changeGroupImage";
 import { Loader } from "@/components/Loader";
 import { changeGroupName } from "@/utils/chatSettings/changeGroupName";
-import { set } from "mobx";
 
 export function ChatSettingsModal(props: ModalProps) {
   const [contentType, setContentType] = useState<

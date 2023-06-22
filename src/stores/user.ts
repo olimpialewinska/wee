@@ -19,7 +19,8 @@ export class UserStore {
   public async init() {
     const supabase = createClientComponentClient();
     const { data } = await supabase.auth.getUser();
-    const image = await getImage(data.user!.id);
+    if (!data.user) return;
+    const image = await getImage(data.user.id);
 
     this.currentUserStore = {
       id: data.user!.id,

@@ -30,7 +30,7 @@ import {
 import { ChatSettingsModal } from "../../ChatSettingsModal";
 import { ImageModal } from "../../ImageModal";
 import { IMessage } from "@/interfaces";
-import { getMessages } from "@/utils/chat/getMessages";
+import { getMessages, getUserNick } from "@/utils/chat/getMessages";
 import { Announcement } from "../../Announcement";
 import { Message } from "../../Message";
 import { addMessageToDB } from "@/utils/chat/sendMessage";
@@ -54,7 +54,7 @@ export const messageContext = createContext<contextInterface>({
   setMessageText: () => {},
 });
 
-export const Chat = observer(() => {
+export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
   const supabase = createClientComponentClient();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [messageText, setMessageText] = useState<string>("");
@@ -62,6 +62,7 @@ export const Chat = observer(() => {
   const [show, setShow] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorVisible, setErrorVisible] = useState(false);
+  const [image, setImage] = useState<string>("url(/default.png)");
   const handleClose = () => setShow(false);
   const handleShow = () => {
     setShow(true);
@@ -74,18 +75,23 @@ export const Chat = observer(() => {
   const handleDivClick = () => {
     fileInputRef.current?.click();
   };
-  const backgoundImage =
-    store.currentChatStore.currentChatStore?.otherMember.image !== null
-      ? `url(${store.currentChatStore.currentChatStore?.otherMember.image})`
-      : store.currentChatStore.currentChatStore?.isGroup === true
-      ? `url(/groupDefault.png)`
-      : "url(/default.png)";
 
   const [showImage, setShowImage] = useState(false);
   const handleCloseImage = () => setShowImage(false);
   const handleShowImage = () => {
     setShowImage(true);
   };
+
+  const getChatImage = useCallback(() => {
+    const backgoundImage =
+      store.currentChatStore.currentChatStore?.otherMember.image !== null
+        ? `url(${store.currentChatStore.currentChatStore?.otherMember.image})`
+        : store.currentChatStore.currentChatStore?.isGroup === true
+        ? `url(/groupDefault.png)`
+        : "url(/default.png)";
+
+    setImage(backgoundImage);
+  }, [store.currentChatStore.currentChatStore?.otherMember.image]);
 
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,20 +110,17 @@ export const Chat = observer(() => {
     }
   }, [messages]);
 
-  const updateMessage = useCallback(
-    (newMessage: IMessage) => {
-      const newArray = (prev: IMessage[]) => {
-        const index = prev.findIndex((message) => message.id === newMessage.id);
-        if (index === -1) return prev;
-        const newMessages = Array.from(prev);
-        newMessages[index] = newMessage;
-        return newMessages;
-      };
+  const updateMessage = useCallback((newMessage: IMessage) => {
+    const newArray = (prev: IMessage[]) => {
+      const index = prev.findIndex((message) => message.id === newMessage.id);
+      if (index === -1) return prev;
+      const newMessages = Array.from(prev);
+      newMessages[index] = newMessage;
+      return newMessages;
+    };
 
-      setMessages(newArray);
-    },
-    [setMessages]
-  );
+    setMessages(newArray);
+  }, []);
   const handleCloseEmoji = () => setShowEmoji(false);
   const handleShowEmoji = () => {
     setShowEmoji(true);
@@ -128,21 +131,25 @@ export const Chat = observer(() => {
       store.currentChatStore.currentChatStore?.convId!
     );
     if (colors === null) return;
-    (store.currentChatStore.currentChatBgColor = colors.bgColor),
-      (store.currentChatStore.currentChatColor = colors.messageColor);
-  }, [
-    store.currentChatStore.currentChatStore?.convId,
-    store.currentChatStore.currentChatColor,
-    store.currentChatStore.currentChatBgColor,
-  ]);
+    store.currentChatStore.currentChatBgColor = colors.bgColor;
+    store.currentChatStore.currentChatColor = colors.messageColor;
+  }, [store.currentChatStore.currentChatStore?.convId]);
+
+  const waitingForInitialData = useRef(-1);
 
   const getData = useCallback(
     async (rangeFrom: number, rangeTo: number) => {
-      const data = await getMessages(
-        store.currentChatStore.currentChatStore?.convId,
-        rangeFrom,
-        rangeTo
-      );
+      if (!store.currentChatStore.currentChatStore) return;
+
+      const { convId } = store.currentChatStore.currentChatStore;
+
+      if (rangeFrom === 0) {
+        if (waitingForInitialData.current === convId) return;
+        waitingForInitialData.current = convId;
+        setMessages([]);
+      }
+
+      const data = await getMessages(convId, rangeFrom, rangeTo);
 
       if (data && rangeFrom === 0 && rangeTo === 20) {
         shouldScrollDown.current = true;
@@ -158,9 +165,11 @@ export const Chat = observer(() => {
   );
 
   useEffect(() => {
+    getData(0, 20);
     setMessageText("");
     getColors();
-    getData(0, 20);
+    setLoadingFiles(0);
+    getChatImage();
 
     const channel = supabase
       .channel(`chanel-${store.currentChatStore.currentChatStore?.convId}`, {
@@ -190,6 +199,20 @@ export const Chat = observer(() => {
             message.senderId === store.currentUserStore.currentUserStore.id
           ) {
             setLoadingFiles((prev) => prev - 1);
+          }
+
+          if (store.currentChatStore.currentChatStore.isGroup === true) {
+            if (message.senderId !== null) {
+              (async () => {
+                const nick = await getUserNick(
+                  store.currentChatStore.currentChatStore?.convId,
+                  message.senderId!
+                );
+                message.senderNick = nick;
+                setMessages((prev) => [...prev, message]);
+              })();
+            }
+            return;
           }
 
           setMessages((prev) => [...prev, message]);
@@ -237,11 +260,12 @@ export const Chat = observer(() => {
       channel.unsubscribe();
     };
   }, [
+    getColors,
     getData,
     supabase,
-    getColors,
+    updateMessage,
     store.currentUserStore.currentUserStore.id,
-    store.currentChatStore.currentChatStore?.convId,
+    store.currentChatStore.currentChatStore,
     store.currentChatStore.currentChatBgColor,
     store.currentChatStore.currentChatColor,
     setLoadingFiles,
@@ -339,7 +363,7 @@ export const Chat = observer(() => {
           <Image
             onClick={handleShowImage}
             style={{
-              backgroundImage: backgoundImage,
+              backgroundImage: image,
               border:
                 store.onlineUsersStore.checkOnline(
                   store.currentChatStore.currentChatStore?.otherMember.userId
@@ -377,6 +401,10 @@ export const Chat = observer(() => {
           }}
           ref={chatContentRef}
           onScroll={(e) => {
+            console.log("a");
+
+            console.log("xd");
+
             if (e.currentTarget.scrollTop === 0) {
               getData(messages.length, messages.length + 20);
             }
@@ -457,11 +485,7 @@ export const Chat = observer(() => {
           </ChatInput>
         </div>
       </Bg>
-      <ImageModal
-        visible={showImage}
-        hide={handleCloseImage}
-        image={backgoundImage}
-      />
+      <ImageModal visible={showImage} hide={handleCloseImage} image={image} />
       <ChatSettingsModal visible={show} hide={handleClose} />
       <messageContext.Provider value={{ messageText, setMessageText }}>
         <EmojiPopUp visible={showEmoji} hide={handleCloseEmoji} />

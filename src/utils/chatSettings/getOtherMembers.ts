@@ -45,7 +45,7 @@ export async function getNick(convId: number | undefined, userId: string) {
     .eq("userId", userId);
 
   if (error) {
-    return [];
+    return null;
   }
 
   return data[0].nick;

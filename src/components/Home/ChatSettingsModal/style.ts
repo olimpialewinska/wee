@@ -5,13 +5,17 @@ export const ModalBg = styled.div`
   background-color: rgba(0, 0, 0, 0.8);
   position: fixed;
   z-index: 9999;
-  height: 100%;
+  height: 100vh;
   width: 100vw;
   left: 0;
   top: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 768px) {
+    height: 100%;
+  }
 `;
 
 export const Container = styled.div`
