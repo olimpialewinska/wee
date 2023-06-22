@@ -109,7 +109,7 @@ export function Colors() {
             changeMessageColor(null);
           }}
         >
-          Restore default settings
+          Restore to default settings
         </UnderlineText>
       </Footer>
     </>

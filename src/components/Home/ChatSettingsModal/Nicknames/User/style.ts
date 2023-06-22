@@ -7,7 +7,6 @@ export const Item = styled.div`
   align-items: center;
   padding: 10px;
   transition: 0.1s all;
-  cursor: pointer;
   margin-top: 0;
   border-radius: 6px;
   position: relative;
@@ -41,8 +40,11 @@ export const ProfileAvatar = styled.div`
 `;
 
 export const ProfileName = styled.div`
+  width: 100%;
+  padding: 10px 0;
   margin: 0;
   font-size: 14px;
+  cursor: pointer;
 `;
 
 export const Close = styled.div`

@@ -48,10 +48,12 @@ export const ListItem = observer((props: { data: IList }) => {
               : props.data.isGroup === true
               ? `url(/groupDefault.png)`
               : "url(/default.png)",
-          border: store.onlineUsersStore.checkOnline(
-            props.data.otherMember.userId
-          )
-            ? "2px solid #00ff00"
+          border: !props.data.isGroup
+            ? store.onlineUsersStore.checkOnline(
+                store.currentChatStore.currentChatStore?.otherMember.userId
+              ) === true
+              ? "2px solid #00ff00"
+              : "2px solid #616161;"
             : "",
         }}
       />

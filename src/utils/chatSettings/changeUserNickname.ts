@@ -9,16 +9,17 @@ export async function changeUserNickname(
   userId: string | null,
   newNickname: string | null
 ) {
+  const username = await getName(userId!);
+
   const { data, error } = await supabase
     .from("convMembers")
-    .update({ nick: newNickname })
+    .update({ nick: newNickname === "" ? null : newNickname })
     .eq("convId", convId)
     .eq("userId", userId);
 
   if (error) {
     return false;
   }
-  const username = await getName(userId!);
 
   if (newNickname) {
     await addMessage(convId, `nickname,${newNickname},${username} `);

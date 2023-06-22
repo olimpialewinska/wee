@@ -39,6 +39,7 @@ export const Image = styled.div`
   background-size: cover;
   background-repeat: no-repeat;
   border: 2px solid #616161;
+  transition: 0.2s all;
 `;
 
 export const Title = styled.div`

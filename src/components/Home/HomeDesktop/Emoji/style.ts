@@ -15,19 +15,20 @@ export const ModalBg = styled.div`
 `;
 
 export const Wrapper = styled.div`
-  position: absolute;
-  bottom: 80px;
+  position: fixed;
+  bottom: 90px;
   right: 28px;
   width: 320px;
   height: 400px;
-  background-color: #fff;
-  border-radius: 10px;
+  border-radius: 16px;
   background-color: #3d3d3d;
+  display: flex;
+  flex-direction: column;
   overflow: auto;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
   padding: 10px;
 
-  @media (max-width: 768px) {
+  @media (max-width: 512px) {
     bottom: 70px;
     right: 10px;
   }
@@ -46,6 +47,13 @@ export const Emoji = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: 0.2s all;
+  border-radius: 10px;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
 `;
 
 export const Category = styled.div``;
@@ -68,9 +76,9 @@ export const EmojiSearchContainer = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: row;
-  padding-left: 18px;
-  padding-right: 18px;
-  margin-bottom: 18px;
+  width: 100%;
+  align-self: center;
+  margin-bottom: 14px;
 `;
 
 export const EmojiSearch = styled.div`
@@ -106,4 +114,12 @@ export const EmojiListSearch = styled.div`
   filter: invert(1);
   opacity: 0.7;
   background-image: url("/search.svg");
+`;
+
+export const List = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: 0;
 `;

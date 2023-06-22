@@ -9,6 +9,7 @@ import {
   EmojiSearch,
   EmojiSearchContainer,
   EmojiSearchInput,
+  List,
 } from "./style";
 import emoji from "../../../../emoji.json";
 import { useCallback, useContext, useEffect, useState } from "react";
@@ -70,7 +71,7 @@ export const EmojiPopUp = observer((props: EmojiInterface) => {
 
   useEffect(() => {
     setSearch("");
-  }, [store.currentChatStore.currentChatStore?.convId]);
+  }, [store.currentChatStore.currentChatStore?.convId, props]);
 
   return (
     <ModalBg
@@ -84,7 +85,13 @@ export const EmojiPopUp = observer((props: EmojiInterface) => {
         }
       }}
     >
-      <Wrapper>
+      <Wrapper
+        style={{
+          backgroundColor: store.currentChatStore.currentChatBgColor
+            ? store.currentChatStore.currentChatBgColor
+            : "rgb(42, 42, 42)",
+        }}
+      >
         <EmojiSearchContainer>
           <EmojiSearch>
             <EmojiListSearch />
@@ -99,27 +106,29 @@ export const EmojiPopUp = observer((props: EmojiInterface) => {
           </EmojiSearch>
         </EmojiSearchContainer>
 
-        {Object.keys(emojiList).map((category) => {
-          return (
-            <Category key={category}>
-              <CategoryName>{category}</CategoryName>
-              <EmojiPicker>
-                {emojiList[category].map((emoji) => {
-                  return (
-                    <Emoji
-                      key={emoji.emoji}
-                      onClick={() => {
-                        setMessageText(messageText + emoji.emoji);
-                      }}
-                    >
-                      {emoji.emoji}
-                    </Emoji>
-                  );
-                })}
-              </EmojiPicker>
-            </Category>
-          );
-        })}
+        <List>
+          {Object.keys(emojiList).map((category) => {
+            return (
+              <Category key={category}>
+                <CategoryName>{category}</CategoryName>
+                <EmojiPicker>
+                  {emojiList[category].map((emoji) => {
+                    return (
+                      <Emoji
+                        key={emoji.emoji}
+                        onClick={() => {
+                          setMessageText(messageText + emoji.emoji);
+                        }}
+                      >
+                        {emoji.emoji}
+                      </Emoji>
+                    );
+                  })}
+                </EmojiPicker>
+              </Category>
+            );
+          })}
+        </List>
       </Wrapper>
     </ModalBg>
   );

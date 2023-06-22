@@ -306,7 +306,9 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
       setFiles(null);
     }
 
-    if (messageText === "") return;
+    if (messageText.trim() === "") {
+      return;
+    }
 
     const data = await addMessageToDB(
       messageText,
@@ -319,6 +321,10 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
 
   const onInputKeyUp = useCallback(
     (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && e.shiftKey === true) {
+        e.preventDefault();
+        return;
+      }
       if (e.key === "Enter") {
         sendMessage();
       }
@@ -369,12 +375,13 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
             onClick={handleShowImage}
             style={{
               backgroundImage: image,
-              border:
-                store.onlineUsersStore.checkOnline(
-                  store.currentChatStore.currentChatStore?.otherMember.userId
-                ) === true
+              border: !store.currentChatStore.currentChatStore?.isGroup
+                ? store.onlineUsersStore.checkOnline(
+                    store.currentChatStore.currentChatStore?.otherMember.userId
+                  ) === true
                   ? "2px solid #00ff00"
-                  : "",
+                  : "2px solid #616161;"
+                : "",
             }}
           />
 
@@ -383,11 +390,13 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
               {store.currentChatStore.currentChatStore?.otherMember.name}
             </Name>
             <ActivityStatus>
-              {store.onlineUsersStore.checkOnline(
-                store.currentChatStore.currentChatStore?.otherMember.userId
-              )
-                ? "Online"
-                : "Offline"}
+              {!store.currentChatStore.currentChatStore?.isGroup
+                ? store.onlineUsersStore.checkOnline(
+                    store.currentChatStore.currentChatStore?.otherMember.userId
+                  )
+                  ? "Online"
+                  : "Offline"
+                : null}
             </ActivityStatus>
           </Wrapper>
 
@@ -448,7 +457,13 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
             )}
         </ChatContainer>
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <FileRow>
+          <FileRow
+            style={{
+              backgroundColor: store.currentChatStore.currentChatBgColor
+                ? store.currentChatStore.currentChatBgColor
+                : "rgb(42, 42, 42)",
+            }}
+          >
             {files
               ? Array.from(files).map((file) => {
                   return (
@@ -478,7 +493,10 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
               <MessageInput
                 placeholder="Type a message"
                 value={messageText}
-                onChange={(e) => setMessageText(e.target.value)}
+                onChange={(e) => {
+                  console.log(e.target.value);
+                  setMessageText(e.target.value);
+                }}
                 onKeyUp={onInputKeyUp}
               />
             </MessageContainer>

@@ -74,6 +74,7 @@ export const Image = styled.div`
   background-size: cover;
   background-repeat: no-repeat;
   z-index: 2;
+  transition: 0.2s all;
 `;
 
 export const Icon = styled.div`
@@ -127,13 +128,14 @@ export const ChatContent = styled.div`
 `;
 
 export const ChatInput = styled.div<BaseProps>`
-  height: 60px;
+  min-height: 60px;
   background-color: rgb(54, 54, 54);
   display: flex;
   flex-direction: row;
   padding: 0 20px;
   position: relative;
   transition: 0.2s background-color;
+  align-items: end;
 
   &::after {
     content: "";
@@ -166,11 +168,11 @@ export const Attachment = styled.div`
   min-width: 24px;
   height: 24px;
   background-image: url("/attach.svg");
-  height: auto;
   align-items: center;
   display: flex;
   justify-content: center;
   z-index: 2;
+  margin-bottom: 18px;
 
   &:hover {
     opacity: 1;
@@ -182,7 +184,8 @@ export const MessageContainer = styled.div`
   background-color: rgba(255, 255, 255, 0.1);
   margin: 10px;
   color: rgb(255, 255, 255);
-  padding: 16px;
+  padding: 10px 14px;
+  padding-top: 12px;
   padding-right: 16px;
   border-radius: 24px;
   font-size: 14px;
@@ -191,12 +194,17 @@ export const MessageContainer = styled.div`
   z-index: 2;
 `;
 
-export const MessageInput = styled.input`
+export const MessageInput = styled.textarea`
   background-color: transparent;
   border: none;
   flex: 1;
-  font-size: 16px;
+  font-size: 14px;
   color: rgb(255, 255, 255);
+  resize: vertical;
+  font-family: "Roboto", sans-serif;
+  height: 20px;
+  padding: 0;
+  margin: 0;
 
   &:focus {
     outline: none;
@@ -220,12 +228,13 @@ export const Emoji = styled.button`
   opacity: 0.7;
   transition: 0.1s all;
   min-width: 24px;
+  height: 24px;
   background-image: url("/emoji.svg");
-  height: auto;
   border: none;
   background-color: transparent;
   margin-right: 10px;
   z-index: 2;
+  margin-bottom: 18px;
   &:hover {
     opacity: 1;
   }
@@ -243,10 +252,10 @@ export const Send = styled.button`
   min-width: 24px;
   height: 24px;
   background-image: url("/sent.svg");
-  height: auto;
   border: none;
   background-color: transparent;
   z-index: 10;
+  margin-bottom: 18px;
 
   &:hover {
     opacity: 1;
@@ -268,6 +277,19 @@ export const FileRow = styled.div`
   background-color: rgb(64, 64, 64);
   overflow-x: auto;
   overflow-y: hidden;
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.03);
+    pointer-events: none;
+    z-index: 0;
+  }
 `;
 
 export const Error = styled.div`

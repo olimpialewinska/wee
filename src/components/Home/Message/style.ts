@@ -42,6 +42,7 @@ export const MessageContent = styled.div<BaseMessageProps>`
   background-color: rgb(64, 64, 64);
   border-radius: 20px;
   padding: 10px;
+  white-space: pre-wrap;
 
   ${(props) =>
     props.isSelf &&
