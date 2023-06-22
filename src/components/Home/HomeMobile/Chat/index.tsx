@@ -58,7 +58,7 @@ export const Chat = observer(() => {
 
   const backgoundImage =
     store.currentChatStore.currentChatStore?.otherMember.image !== null
-      ? `url(${store.currentChatStore.currentChatStore?.otherMember.image})`
+      ? `url("${store.currentChatStore.currentChatStore?.otherMember.image}")`
       : store.currentChatStore.currentChatStore.isGroup === true
       ? `url(/groupDefault.png)`
       : "url(/default.png)";
@@ -224,7 +224,7 @@ export const Chat = observer(() => {
       channel.unsubscribe();
     };
   }, [
-    store.currentChatStore.currentChatStore,
+    store.currentChatStore.currentChatStore?.convId,
     getColors,
     getData,
     supabase,

@@ -55,6 +55,7 @@ export function ChatSettingsModal(props: ModalProps) {
   }, [
     countMessages,
     store.currentChatStore.currentChatStore?.otherMember.name,
+    store.currentChatStore.currentChatStore?.convId,
   ]);
 
   const handleDivClick = () => {

@@ -14,10 +14,11 @@ import { createContext, useCallback, useEffect, useState } from "react";
 import { findAllUsers, findUserByName } from "@/utils/newChatModal/getName";
 import { ProfileListItem } from "./ProfileListItem";
 import { ProfileItem } from "./ProfileItem";
-import { CreateConv } from "@/utils/newChatModal/createConv";
+import { createConv } from "@/utils/newChatModal/createConv";
 import { useRouter } from "next/navigation";
 import { store } from "@/stores";
 import { observer } from "mobx-react-lite";
+import { set } from "mobx";
 
 export interface IContext {
   me: IUser | null;
@@ -49,11 +50,12 @@ export const NewChatModal = observer((props: NewModalProps) => {
   }, [store.currentUserStore.currentUserStore.id!]);
 
   const handleCreate = useCallback(async () => {
-    const id = await CreateConv(
+    const id = await createConv(
       selectedUsers,
       store.currentUserStore.currentUserStore.id!
     );
     router.push(`/home/${id}`);
+    setSelectedUsers([store.currentUserStore.currentUserStore!]);
 
     props.hide();
   }, [props, router, selectedUsers]);

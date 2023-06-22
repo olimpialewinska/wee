@@ -1,14 +1,18 @@
 "use client";
 import { IUser } from "@/interfaces";
-import { Done, Item, ProfileAvatar, ProfileName, Input } from "./style";
-import { useCallback, useState } from "react";
+import { Close, Item, ProfileAvatar, ProfileName, Input } from "./style";
+import { useCallback, useEffect, useState } from "react";
 import { changeUserNickname } from "@/utils/chatSettings/changeUserNickname";
 import { store } from "@/stores";
 import { observer } from "mobx-react-lite";
 
 export const User = observer(({ member }: { member: IUser }) => {
   const [editingMode, setEditingMode] = useState(false);
-  const [name, setName] = useState(member.name as string);
+  const [name, setName] = useState<string>("");
+
+  useEffect(() => {
+    setName(member.name as string);
+  }, [member.name]);
 
   const changeNickname = useCallback(async () => {
     if (name === member.name) return;
@@ -32,6 +36,7 @@ export const User = observer(({ member }: { member: IUser }) => {
     member.name,
     member.id,
     store.currentChatStore.currentChatStore?.convId,
+    store.currentChatStore.currentChatStore?.otherMember.userId,
   ]);
 
   const onInputKeyUp = useCallback(
@@ -72,12 +77,13 @@ export const User = observer(({ member }: { member: IUser }) => {
             onKeyUp={onInputKeyUp}
             onBlur={() => {
               setEditingMode(false);
-              setName(member.name as string);
+              changeNickname();
             }}
           />
-          <Done
+          <Close
             onMouseDown={() => {
-              changeNickname();
+              setName(member.name as string);
+              setEditingMode(false);
             }}
           />
         </div>

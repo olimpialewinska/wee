@@ -22,13 +22,12 @@ export async function getConvMembers(convId: number | undefined) {
     data.map(async (member) => {
       if (member.userId) {
         const nick = await getNick(convId, member.userId);
-        const name = nick ? nick : await getName(member.userId);
+        const name = nick !== null ? nick : await getName(member.userId);
 
-        await getName(member.userId);
         const image = await getImage(member.userId);
         return {
           id: member.userId,
-          name: name,
+          name: nick !== null ? nick : name,
           image: image?.data.publicUrl,
         };
       }

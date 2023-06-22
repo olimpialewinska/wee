@@ -35,62 +35,62 @@ export async function checkIfConvExists(
   selectedUsers: IUser[] | IUser,
   userId: string
 ) {
-  let otherUserId: any;
-
-  if (Array.isArray(selectedUsers)) {
-    otherUserId = selectedUsers.find((user) => user.id !== userId)?.id;
-  } else {
-    otherUserId = selectedUsers.id;
-  }
-
   const myConvs = await getAllMyConvs(userId);
 
-  const convWithSelf = myConvs.find((conv: any) => {
-    const memberIds = conv.otherMembers?.map((member: any) => member.userId);
-    return memberIds?.includes(userId) && memberIds.length === 1;
-  });
+  if (Array.isArray(selectedUsers) && selectedUsers.length === 1) {
+    const selectedUserId = selectedUsers[0].id;
 
-  if (convWithSelf) {
-    if (convWithSelf.otherMembers && convWithSelf.otherMembers.length === 1) {
-      const convWithOtherUser = myConvs.find((conv: any) => {
-        const memberIds = conv.otherMembers?.map(
-          (member: any) => member.userId
-        );
-        return (
-          memberIds?.includes(userId) &&
-          memberIds?.includes(otherUserId) &&
-          memberIds.length === 2
-        );
-      });
+    const existingConv = myConvs.find((conv: any) => {
+      const memberIds = conv.otherMembers?.map((member: any) => member.userId);
+      return memberIds?.includes(userId) && memberIds?.length === 1;
+    });
 
-      if (convWithOtherUser) {
-        return convWithOtherUser.id;
-      }
-    } else {
-      return convWithSelf.id;
+    if (existingConv) {
+      return existingConv.id;
+    }
+  } else {
+    const otherUserIds = Array.isArray(selectedUsers)
+      ? selectedUsers.map((user) => user.id)
+      : [selectedUsers.id];
+
+    const existingConv = myConvs.find((conv: any) => {
+      const memberIds = conv.otherMembers?.map((member: any) => member.userId);
+      return (
+        memberIds?.includes(userId) &&
+        memberIds?.length === 2 &&
+        otherUserIds.every((id) => memberIds?.includes(id))
+      );
+    });
+
+    if (existingConv) {
+      return existingConv.id;
     }
   }
 
   return null;
 }
 
-export function CheckConvType(selectedUsers: IUser[] | IUser) {
+export function checkConvType(selectedUsers: IUser[] | IUser) {
   if (Array.isArray(selectedUsers) && selectedUsers.length > 2) {
     return "group";
-  } else if (Array.isArray(selectedUsers) && selectedUsers.length == 2) {
+  } else if (Array.isArray(selectedUsers) && selectedUsers.length === 2) {
     return "conv";
   } else {
     return "single";
   }
 }
 
-export async function InitialMessage(convId: number, value: string) {
+export async function initialMessage(convId: number, value: string) {
   const { data, error } = await supabase
     .from("messages")
     .insert([{ convId: convId, value: value }]);
+
+  if (error) {
+    return null;
+  }
 }
 
-export async function Create(isGroup: boolean) {
+export async function create(isGroup: boolean) {
   const { data, error } = await supabase
     .from("convs")
     .insert([{ isGroup: isGroup }])
@@ -106,7 +106,7 @@ export async function Create(isGroup: boolean) {
         return null;
       }
     }
-    await InitialMessage(data[0].id, "Conversation was created");
+    await initialMessage(data[0].id, "Conversation was created");
 
     return data[0].id;
   }
@@ -114,13 +114,13 @@ export async function Create(isGroup: boolean) {
   return null;
 }
 
-export async function AddToDb(selectedUsers: IUser[] | IUser) {
+export async function addToDb(selectedUsers: IUser[] | IUser) {
   let isGroup = false;
   if (Array.isArray(selectedUsers) && selectedUsers.length > 2) {
     isGroup = true;
   }
 
-  const convId = await Create(isGroup);
+  const convId = await create(isGroup);
 
   if (convId) {
     let users: IUser[];
@@ -148,17 +148,17 @@ export async function AddToDb(selectedUsers: IUser[] | IUser) {
   }
 }
 
-export async function CreateConv(selectedUsers: IUser[] | IUser, user: string) {
-  const convType = CheckConvType(selectedUsers);
+export async function createConv(selectedUsers: IUser[] | IUser, user: string) {
+  const convType = checkConvType(selectedUsers);
 
   if (convType === "group") {
-    return await AddToDb(selectedUsers);
+    return await addToDb(selectedUsers);
   }
 
   const exist = await checkIfConvExists(selectedUsers, user);
 
   if (exist === null) {
-    return await AddToDb(selectedUsers);
+    return await addToDb(selectedUsers);
   }
 
   return exist;

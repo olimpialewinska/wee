@@ -45,13 +45,13 @@ export const ProfileName = styled.div`
   font-size: 14px;
 `;
 
-export const Done = styled.div`
-  width: 18px;
+export const Close = styled.div`
+  min-width: 18px;
   height: 18px;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url("/check.png");
+  background-image: url("/close.svg");
   filter: invert(1);
 `;
 

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getConvMembers } from "@/utils/chatSettings/getOtherMembers";
 import { observer } from "mobx-react-lite";
 import { store } from "@/stores";
+import { set } from "mobx";
 
 export const Nicknames = observer(() => {
   const [users, setUsers] = useState<IUser[]>([]);
@@ -15,8 +16,9 @@ export const Nicknames = observer(() => {
   }, [store.currentChatStore.currentChatStore?.convId]);
 
   useEffect(() => {
+    setUsers([]);
     getUsers();
-  }, [getUsers]);
+  }, [getUsers, store.currentChatStore.currentChatStore?.convId]);
 
   return (
     <div
