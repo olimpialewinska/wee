@@ -199,22 +199,19 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
           ) {
             setLoadingFiles((prev) => prev - 1);
           }
-
-          if (store.currentChatStore.currentChatStore.isGroup === true) {
-            if (message.senderId !== null) {
-              (async () => {
+          (async () => {
+            if (store.currentChatStore.currentChatStore?.isGroup === true) {
+              if (message.senderId !== null) {
                 const nick = await getUserNick(
                   store.currentChatStore.currentChatStore?.convId,
                   message.senderId!
                 );
                 message.senderNick = nick;
-                setMessages((prev) => [...prev, message]);
-              })();
-              setMessages((prev) => [...prev, message]);
+              }
             }
-          }
 
-          setMessages((prev) => [...prev, message]);
+            setMessages((prev) => [...prev, message]);
+          })();
         }
       )
       .on(
@@ -265,8 +262,6 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
     updateMessage,
     store.currentUserStore.currentUserStore.id,
     store.currentChatStore.currentChatStore,
-    store.currentChatStore.currentChatBgColor,
-    store.currentChatStore.currentChatColor,
     setLoadingFiles,
   ]);
 
