@@ -22,7 +22,6 @@ export async function signUp(
     },
   });
   if (data.error) {
-    console.log(data.error);
     return data;
   }
   const nameRes = await addUserName(data.data.user!.id, name, lastName);

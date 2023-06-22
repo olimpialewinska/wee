@@ -163,7 +163,7 @@ export const Attachment = styled.div`
   cursor: pointer;
   opacity: 0.7;
   transition: 0.1s all;
-  width: 24px;
+  min-width: 24px;
   height: 24px;
   background-image: url("/attach.svg");
   height: auto;
@@ -219,7 +219,7 @@ export const Emoji = styled.button`
   cursor: pointer;
   opacity: 0.7;
   transition: 0.1s all;
-  width: 24px;
+  min-width: 24px;
   background-image: url("/emoji.svg");
   height: auto;
   border: none;
@@ -240,7 +240,7 @@ export const Send = styled.button`
   cursor: pointer;
   opacity: 0.7;
   transition: 0.1s all;
-  width: 24px;
+  min-width: 24px;
   height: 24px;
   background-image: url("/sent.svg");
   height: auto;

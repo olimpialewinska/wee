@@ -208,7 +208,6 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
                   message.senderId!
                 );
                 message.senderNick = nick;
-                console.log("dupa");
                 setMessages((prev) => [...prev, message]);
               })();
               setMessages((prev) => [...prev, message]);
@@ -321,13 +320,7 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
     );
 
     setMessageText("");
-  }, [
-    store.currentChatStore.currentChatStore?.convId,
-    messageText,
-    store.currentUserStore.currentUserStore.id,
-    files,
-    errorFunction,
-  ]);
+  }, [store.currentChatStore.currentChatStore?.convId, messageText, files]);
 
   const onInputKeyUp = useCallback(
     (e: React.KeyboardEvent) => {
@@ -418,10 +411,6 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
           }}
           ref={chatContentRef}
           onScroll={(e) => {
-            console.log("a");
-
-            console.log("xd");
-
             if (e.currentTarget.scrollTop === 0) {
               getData(messages.length, messages.length + 20);
             }
