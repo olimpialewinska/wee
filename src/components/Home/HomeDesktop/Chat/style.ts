@@ -9,15 +9,15 @@ export const Container = styled.div<BaseProps>`
   height: calc(100vh - 40px);
   padding: 20px;
   padding-left: 0;
-  overflow: hidden;
   position: relative;
 
   ${(props) =>
     props.isMobile &&
     css`
       width: 100%;
-      height: 100%;
       padding: 0;
+      max-height: 100vh;
+      max-height: -webkit-fill-available;
     `}
 `;
 
@@ -30,12 +30,14 @@ export const Bg = styled.div<BaseProps>`
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: auto;
 
   ${(props) =>
     props.isMobile &&
     css`
       width: 100vw;
       height: 100vh;
+      max-height: -webkit-fill-available;
       border-radius: 18px 18px 0 0;
     `}
 `;
@@ -121,7 +123,6 @@ export const Wrapper = styled.div`
 
 export const ChatContent = styled.div`
   flex: 1;
-  width: 100%;
   display: flex;
   overflow: auto;
   flex-direction: column;
@@ -185,7 +186,7 @@ export const MessageContainer = styled.div`
   margin: 10px;
   color: rgb(255, 255, 255);
   padding: 10px 14px;
-  padding-top: 12px;
+  padding-top: 10px;
   padding-right: 16px;
   border-radius: 24px;
   font-size: 14px;
@@ -198,11 +199,11 @@ export const MessageInput = styled.textarea`
   background-color: transparent;
   border: none;
   flex: 1;
-  font-size: 14px;
+  font-size: 16px;
   color: rgb(255, 255, 255);
   resize: vertical;
   font-family: "Roboto", sans-serif;
-  height: 20px;
+  height: 19px;
   padding: 0;
   margin: 0;
 
@@ -264,6 +265,7 @@ export const Send = styled.button`
 
 export const ChatContainer = styled.div`
   flex: 1;
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: auto;

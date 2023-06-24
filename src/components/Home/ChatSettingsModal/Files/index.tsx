@@ -40,7 +40,7 @@ export function Files() {
       }}
     >
       {files?.map((file) => {
-        return <File file={file} />;
+        return <File key={file.url} file={file} />;
       })}
     </div>
   );

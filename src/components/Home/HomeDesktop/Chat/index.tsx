@@ -80,6 +80,11 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
   const handleShowImage = () => {
     setShowImage(true);
   };
+  const topRef = useRef<HTMLDivElement>(null);
+
+  const handleInputOnBlur = () => {
+    topRef.current!.scrollIntoView({ behavior: "smooth", block: "end" });
+  };
 
   const getChatImage = useCallback(() => {
     const backgoundImage =
@@ -357,6 +362,7 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
     <Container isMobile={isMobile}>
       <Bg isMobile={isMobile}>
         <Navbar
+          ref={topRef}
           style={{
             backgroundColor: store.currentChatStore.currentChatBgColor
               ? store.currentChatStore.currentChatBgColor
@@ -494,9 +500,9 @@ export const Chat = observer(({ isMobile }: { isMobile: boolean }) => {
                 placeholder="Type a message"
                 value={messageText}
                 onChange={(e) => {
-                  console.log(e.target.value);
                   setMessageText(e.target.value);
                 }}
+                onBlur={handleInputOnBlur}
                 onKeyUp={onInputKeyUp}
               />
             </MessageContainer>
