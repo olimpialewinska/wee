@@ -1,9 +1,14 @@
 import styled from "styled-components";
 
 export const MainContainer = styled.div`
+  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background-image: url("/bg.jpg");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 `;
 
 export const Content = styled.div`
@@ -12,6 +17,7 @@ export const Content = styled.div`
   justify-content: center;
   align-items: center;
   padding: 160px 30px;
+  background-color: rgba(0, 0, 0, 0.6);
 `;
 
 export const Info = styled.div`

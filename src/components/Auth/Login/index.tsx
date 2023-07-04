@@ -39,8 +39,13 @@ export default function Login() {
   }, [email, password, router]);
 
   const validateEmail = useCallback(() => {
-    setError("");
-    setValid(emailValidation(email));
+    if (!emailValidation(email) && email.trim() !== "") {
+      setError("Please enter a valid email address");
+      setValid(false);
+    } else {
+      setError("");
+      setValid(true);
+    }
   }, [email]);
 
   const handleKeyDown = useCallback(
@@ -74,6 +79,9 @@ export default function Login() {
             placeholder="Email"
             onChange={(e) => {
               setEmail(e.target.value);
+              validateEmail();
+            }}
+            onPaste={(e) => {
               validateEmail();
             }}
             value={email}

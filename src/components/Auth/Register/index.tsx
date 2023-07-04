@@ -48,8 +48,13 @@ export default function Register() {
     [handleSignUp]
   );
   const validateEmail = useCallback(() => {
-    setError("");
-    setValidEmail(emailValidation(email));
+    if (!emailValidation(email) && email.trim() !== "") {
+      setError("Please enter a valid email address");
+      setValidEmail(false);
+    } else {
+      setError("");
+      setValidEmail(true);
+    }
   }, [email]);
 
   const passwordMatch = useCallback(
@@ -104,6 +109,9 @@ export default function Register() {
             placeholder="Email"
             onChange={(e) => {
               setEmail(e.target.value);
+              validateEmail();
+            }}
+            onPaste={(e) => {
               validateEmail();
             }}
           />

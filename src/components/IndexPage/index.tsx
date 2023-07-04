@@ -14,7 +14,7 @@ export default function IndexPage() {
   return (
     <>
       <MainContainer>
-        <Navbar />
+        <Navbar background="rgba(0, 0, 0, 0.6)" />
         <Content>
           <Info>
             <Title>Wee</Title>
