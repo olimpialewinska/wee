@@ -1,4 +1,5 @@
 # Wee - Internet Messenger
+
 <p align="center">
 <img width="360" alt="logo" src="https://github.com/olimpialewinska/wee/assets/100933608/28657154-3caf-4dfe-9fba-1e8eeeb51237">
 <p>
@@ -15,6 +16,12 @@ Wee is a web-based internet messenger application that allows you to create both
 - **User Activity Status:** View the activity status of other users, indicating whether they are online or offline.
 - **Cross-Platform Compatibility:** Access Wee seamlessly on both computers and mobile devices, ensuring a consistent messaging experience across different platforms.
 - **Lazy Loading:** Messages are loaded using lazy-loading techniques, ensuring efficient retrieval and display of conversations
+- 
+## Appearance
+<p align="center">
+  <img width="450" alt="Zrzut ekranu 2023-06-22 o 10 15 25" src="https://github.com/olimpialewinska/wee/assets/100933608/ed3c2fea-5ecc-4346-ae2b-5283de2b0e50">
+  <img width="400" alt="photo" src="https://github.com/olimpialewinska/wee/assets/100933608/c3ada9f2-edad-47cd-8862-8a11d223102a">
+<p>
 
 ## Technology
 - **Next.js with TypeScript**: Wee is developed using Next.js, a popular React framework, and utilizes TypeScript for improved type safety and developer productivity.
