@@ -23,6 +23,8 @@ Wee is a web-based internet messenger application that allows you to create both
   <img width="400" alt="photo" src="https://github.com/olimpialewinska/wee/assets/100933608/c3ada9f2-edad-47cd-8862-8a11d223102a">
 <p>
 
+https://github.com/olimpialewinska/wee/assets/100933608/18a59e24-e9f9-42f0-a1b8-d3c98445a541
+
 ## Technology
 - **Next.js with TypeScript**: Wee is developed using Next.js, a popular React framework, and utilizes TypeScript for improved type safety and developer productivity.
 - **Styled Components:** The application leverages Styled Components for styling, making it easy to manage and customize the visual aspects of the user interface.
