@@ -40,11 +40,18 @@ Prerequisites:
 ```bash
 git clone https://github.com/olimpialewinska/wee.git
 cd wee
-npm install
+yarn
 ```
-Configure your Supabase credentials in the application.
+Configure your Supabase credentials in the application. .env.local
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
 
-Build and start the application: npm run dev
+Build and start the application: 
+```
+yarn dev
+```
 
 ## Testing
 You can test Wee by visiting the following link: https://wee-nine.vercel.app/
