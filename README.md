@@ -1,9 +1,5 @@
 # Wee - Internet Messenger
 
-<p align="center">
-<img width="360" alt="logo" src="https://github.com/olimpialewinska/wee/assets/100933608/28657154-3caf-4dfe-9fba-1e8eeeb51237">
-<p>
-
 Wee is a web-based internet messenger application that allows you to create both one-on-one conversations and group conversations. It provides a wide range of features to enhance your messaging experience, including real-time messaging powered by Supabase Realtime. With Wee, you can also customize the chat colors, change nicknames of participants in the chat, and send photos and files.
 
 ## Features
